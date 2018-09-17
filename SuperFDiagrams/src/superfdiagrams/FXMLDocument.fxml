@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="200" prefWidth="320" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superfdiagrams.FXMLDocumentController">
-    <children>
-        <Button layoutX="126" layoutY="90" text="Click Me!" onAction="#handleButtonAction" fx:id="button" />
-        <Label layoutX="126" layoutY="120" minHeight="16" minWidth="69" fx:id="label" />
-    </children>
+<AnchorPane id="AnchorPane" prefHeight="720.0" prefWidth="1280.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1" fx:controller="superfdiagrams.FXMLDocumentController">
+   <children>
+      <Canvas height="720.0" layoutX="199.0" width="1080.0" />
+      <Button layoutX="61.0" layoutY="79.0" mnemonicParsing="false" text="Dibujar Entidad" />
+      <Button layoutX="59.0" layoutY="147.0" mnemonicParsing="false" text="Dibujar Relacion" />
+      <Button layoutX="85.0" layoutY="572.0" mnemonicParsing="false" text="Reinciar" />
+      <Button layoutX="88.0" layoutY="617.0" mnemonicParsing="false" text="Salir" />
+      <Button layoutX="84.0" layoutY="530.0" mnemonicParsing="false" text="Exportar" />
+      <Button layoutX="38.0" layoutY="497.0" mnemonicParsing="false" text="Mostrar Puntos Control" />
+   </children>
 </AnchorPane>
