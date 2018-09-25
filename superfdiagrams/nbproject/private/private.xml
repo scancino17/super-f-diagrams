@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/drawer/LineDrawer.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/controller/Drawable.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/ElementWrapper.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/Diagram.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/ElementBuilder.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/Vertex.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/Entity.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/VertexGenerator.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/Element.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/Relationship.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/SuperFDiagrams.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/FXMLDocumentController.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/drawer/Drawer.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/controller/DrawController.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/drawer/PolygonDrawer.java</file>
+            <file>file:/C:/Users/Diego/Desktop/superfdiagrams/src/superfdiagrams/model/Union.java</file>
+        </group>
+    </open-files>
+</project-private>
