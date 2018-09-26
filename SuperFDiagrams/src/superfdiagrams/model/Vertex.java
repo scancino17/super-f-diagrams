@@ -22,6 +22,12 @@ public class Vertex {
         this.xPos = xPos;
         this.yPos = yPos;
     }
+    
+    //Constructor que usa array primitivo.
+    public Vertex(int[] pos){
+        this.xPos = pos[0];
+        this.yPos = pos[1];
+    }
 
     public int getxPos() {
         return xPos;
@@ -37,6 +43,20 @@ public class Vertex {
 
     public void setyPos(int yPos) {
         this.yPos = yPos;
+    }
+    
+    public int[] getCoordinates(){
+        return new int[]{xPos, yPos};
+    }
+    
+    public void displace(int[] units){
+       this.xPos += units[0];
+       this.yPos += units[1];
+    }
+    
+    @Override
+    public String toString(){
+        return "Vertice en (" + xPos + ", " + yPos + ")";
     }
 
 }

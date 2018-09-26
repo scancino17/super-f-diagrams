@@ -20,5 +20,10 @@ class Union implements Element{
         // - Seba
         return null;
     }
+
+    @Override
+    public void setName(String name) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

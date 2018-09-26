@@ -10,7 +10,7 @@ package superfdiagrams.model;
  * @author sebca
  */
 public class Entity implements Element{
-    private String name;
+    private String name = "";
     
     @Override
     public String getName() {

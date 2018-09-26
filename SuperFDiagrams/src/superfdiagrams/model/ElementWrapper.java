@@ -6,8 +6,9 @@
 package superfdiagrams.model;
 
 import java.util.List;
+import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.controller.Drawable;
-import superfdiagrams.controller.drawer.Drawer;
+import superfdiagrams.model.drawer.Drawer;
 
 /**
  *
@@ -19,8 +20,8 @@ public class ElementWrapper implements Drawable{
     private List<Vertex> vertexes;
 
     @Override
-    public void draw() {
-        drawer.doDraw();
+    public void draw(GraphicsContext gc) {
+        drawer.doDraw(gc,vertexes,element.getName());
     }
 
     public Element getElement() {
@@ -46,7 +47,5 @@ public class ElementWrapper implements Drawable{
     public void setVertexes(List<Vertex> vertexes) {
         this.vertexes = vertexes;
     }
-    
-    
     
 }
