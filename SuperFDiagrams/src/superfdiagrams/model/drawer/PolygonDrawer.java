@@ -6,6 +6,7 @@
 package superfdiagrams.model.drawer;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import superfdiagrams.model.Diagram;
 import superfdiagrams.model.Vertex;
 
@@ -26,6 +27,8 @@ public class PolygonDrawer implements Drawer{
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name) {
         int i;
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
         for (i = 0; i<vertexes.size()-1; i++){
             gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos()
                     , vertexes.get(i+1).getxPos(), vertexes.get(i+1).getyPos());
@@ -34,5 +37,21 @@ public class PolygonDrawer implements Drawer{
                 vertexes.get(0).getxPos(), vertexes.get(0).getyPos());
         gc.strokeText(name, vertexes.get(0).getxPos() + 50 , vertexes.get(0).getyPos() + 50);
     }
-    
+
+    /**Marca los puntos de los vertices
+     * @param gc
+     * @param vextexes
+     */
+    @Override
+    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes)
+    {
+        for (Vertex v : vextexes)
+        {
+            gc.setStroke(Color.RED);
+            gc.setLineWidth(5);
+            gc.strokeLine(v.getxPos(), v.getyPos() , v.getxPos(), v.getyPos());
+        }
+    }
+
+
 }

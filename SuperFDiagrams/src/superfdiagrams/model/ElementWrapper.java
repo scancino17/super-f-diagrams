@@ -24,6 +24,11 @@ public class ElementWrapper implements Drawable{
         drawer.doDraw(gc,vertexes,element.getName());
     }
 
+    public  void drawVertex(GraphicsContext gc)
+    {
+        drawer.doDrawVertex(gc,vertexes);
+    }
+
     public Element getElement() {
         return element;
     }

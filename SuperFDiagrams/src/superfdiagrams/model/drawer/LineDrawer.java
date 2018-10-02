@@ -20,5 +20,10 @@ public class LineDrawer implements Drawer{
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    @Override
+    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

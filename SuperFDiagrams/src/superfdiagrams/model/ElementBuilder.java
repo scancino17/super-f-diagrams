@@ -45,13 +45,13 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(){
+    public ElementWrapper generateRelationship(int n){
         ElementWrapper element = new ElementWrapper();
         
         element.setElement(new Relationship());
         element.getElement().setName(name);
-        
-        element.setVertexes(VertexGenerator.generateVertexes(4, size, center));
+        //element.getElement().setName("RelationShip " + n);
+        element.setVertexes(VertexGenerator.generateVertexes(n, size, center));
         
         element.setDrawer(new PolygonDrawer());
         return element;

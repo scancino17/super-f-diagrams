@@ -12,6 +12,6 @@
       <Button fx:id="eraseButton" layoutX="85.0" layoutY="572.0" mnemonicParsing="false" onAction="#erase" text="Reinciar" />
       <Button layoutX="88.0" layoutY="617.0" mnemonicParsing="false" text="Salir" />
       <Button fx:id="btnExport" layoutX="84.0" layoutY="530.0" mnemonicParsing="false" onAction="#Export" text="Exportar" />
-      <Button layoutX="38.0" layoutY="497.0" mnemonicParsing="false" text="Mostrar Puntos Control" />
+      <Button fx:id="btnShowVertex" layoutX="38.0" layoutY="497.0" mnemonicParsing="false" onAction="#btnShowVertex" text="Mostrar Puntos Control" />
    </children>
 </AnchorPane>
