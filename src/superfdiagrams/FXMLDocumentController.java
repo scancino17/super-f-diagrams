@@ -45,12 +45,14 @@ public class FXMLDocumentController implements Initializable{
     @FXML public Button relationButton;
     @FXML public Button eraseButton;
     @FXML public Button btnExport;
-    public Diagram diagram;
+    public Diagram diagram = new Diagram();
     public enum Estado{VISTA,ENTIDAD,RELACION, SELECCIONARENTIDAD};
     public Estado estado;
     public ArrayList<ElementWrapper> elements = new ArrayList();
+    private ArrayList<ElementWrapper> relationships = new ArrayList();
+    private ArrayList<Relationship> prueba = new ArrayList();
     public Scanner reader = new Scanner(System.in).useDelimiter("\n");
-    public ArrayList<Union> elementsToRelation = new ArrayList();
+    public ArrayList<ElementWrapper> elementsToRelation = new ArrayList();
 
 
     /**
@@ -78,6 +80,7 @@ public class FXMLDocumentController implements Initializable{
     {
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
         drawElements(gc);
+        drawLine(gc);
     }
 
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
@@ -101,10 +104,10 @@ public class FXMLDocumentController implements Initializable{
         else if(estado== Estado.SELECCIONARENTIDAD)
         {
             if(checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY())) != null){
-                Union union = new Union();
-                Element entity = checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
-                union.setEntity(entity);
-                elementsToRelation.add(union);
+              //  Union union = new Union();
+                ElementWrapper entity = checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
+            //    union.setEntity(entity);
+                this.elementsToRelation.add(entity);
             }
         }
         else if(estado == Estado.RELACION){
@@ -128,7 +131,7 @@ public class FXMLDocumentController implements Initializable{
      * apreta el boton correspondiente.
      */
     @FXML
-    public void changeStatusRelation(ActionEvent e)
+    public void changeStatusRelation()
     {
         estado = Estado.SELECCIONARENTIDAD;
     }
@@ -163,14 +166,18 @@ public class FXMLDocumentController implements Initializable{
      * @param name 
      */
     public void createNewRelation(int posX, int posY, String name){
+        System.out.println("el tamaño:"+ elementsToRelation.size());
         Vertex vertex = new Vertex (posX, posY);
+        
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
-        elements.add(elementConstructor.generateRelationship(elementsToRelation.size()));
-        Relationship relation = new Relationship();
-        relation.setRelations(elementsToRelation);
-        elementsToRelation.clear();
+        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation.size(),elementsToRelation);
+      //  element.getElement().setRelations(elementsToRelation);
+        elements.add(element);
+        relationships.add(element);
+        //diagram.addRelation(relation);
+        
     }
     
     /**
@@ -245,11 +252,11 @@ public class FXMLDocumentController implements Initializable{
     }
 
     // solo para probar... recorre todos los elementos y ve si el Vertex p está pertenece a alguno
-    public  Element checkColition(Vertex p)
+    public  ElementWrapper checkColition(Vertex p)
     {
         for(int i = 0; i< elements.size(); i++){
             if(PointInPolygon(elements.get(i).getVertexes(), p)){
-                return elements.get(i).getElement();
+                return elements.get(i);
             }
         }
         return null;
@@ -260,5 +267,21 @@ public class FXMLDocumentController implements Initializable{
         estado = Estado.RELACION;
     }
 
+    public void drawLine(GraphicsContext gc){
+        if (!relationships.isEmpty()){
+//            relationships.get(0).getElement().getRelations().get(0);
+            for (int i = 0; i<relationships.size(); i++){
+                for (int j = 0; j < relationships.get(i).getVertexes().size(); j++){
+                    Vertex vertexR = relationships.get(i).getVertexes().get(j);
+                    //System.out.println(relationships.get(i).getElement().getRelations().size());
+                    Vertex vertexE = relationships.get(i).getElement().getRelations().get(j).getVertexes().get(0);
+                    gc.strokeLine(vertexR.getxPos(), vertexR.getyPos(), vertexE.getxPos(), vertexE.getyPos());
+                }
+            }
+        }
+    }
 
+   /* public ArrayList<Vertex> createArray(int i){
+        relationships
+    }*/
 }

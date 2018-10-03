@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import java.util.ArrayList;
 import superfdiagrams.model.drawer.PolygonDrawer;
 
 /**
@@ -45,12 +46,15 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(int vertexes){
+    public ElementWrapper generateRelationship(int vertexes, ArrayList<ElementWrapper> relations){
         ElementWrapper element = new ElementWrapper();
+        Relationship relation = new Relationship();
+        relation.setName(name);
+        relation.setRelations(relations);
         
-        element.setElement(new Relationship());
-        element.getElement().setName(name);
-        
+        element.setElement(relation);
+
+  
         element.setVertexes(VertexGenerator.generateVertexes(vertexes, size, center));
         
         element.setDrawer(new PolygonDrawer());

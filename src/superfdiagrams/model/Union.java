@@ -5,12 +5,14 @@
  */
 package superfdiagrams.model;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author sebca
  */
 public class Union implements Element{
-    public Element entity;
+    public ElementWrapper entity;
     public Relationship relationship;
 
     
@@ -26,11 +28,11 @@ public class Union implements Element{
     }
     
 
-    public Element getEntity() {
+    public ElementWrapper getEntity() {
         return entity;
     }
 
-    public void setEntity(Element entity) {
+    public void setEntity(ElementWrapper entity) {
         this.entity = entity;
     }
 
@@ -40,6 +42,16 @@ public class Union implements Element{
 
     public void setRelationship(Relationship relationship) {
         this.relationship = relationship;
+    }
+
+    @Override
+    public ArrayList<ElementWrapper> getRelations() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setRelations(ArrayList<ElementWrapper> relations) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
     
