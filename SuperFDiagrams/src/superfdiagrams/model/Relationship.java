@@ -28,6 +28,7 @@ public class Relationship implements Element{
         this.relations = relations;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }

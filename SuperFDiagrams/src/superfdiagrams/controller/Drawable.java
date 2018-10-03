@@ -5,10 +5,12 @@
  */
 package superfdiagrams.controller;
 
+import javafx.scene.canvas.GraphicsContext;
+
 /**
  *
  * @author sebca
  */
 public interface Drawable {
-    public void draw();
+    public void draw(GraphicsContext gc);
 }
