@@ -18,11 +18,11 @@ public class PolygonDrawer implements Drawer{
     //implementar
     /**
      * Funcion que dibuja los poligonos, tan solo usa los vertices creados en las
-     * otras funciones y los une, al final se une el ultimo vertice de la lista 
+     * otras funciones y los une, al final se une el ultimo vertice de la lista
      * con el primero
      * @param gc
      * @param vertexes
-     * @param name 
+     * @param name
      */
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name) {
@@ -33,9 +33,9 @@ public class PolygonDrawer implements Drawer{
             gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos()
                     , vertexes.get(i+1).getxPos(), vertexes.get(i+1).getyPos());
         }
-        gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos(), 
+        gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos(),
                 vertexes.get(0).getxPos(), vertexes.get(0).getyPos());
-        gc.strokeText(name, vertexes.get(0).getxPos() + 50 , vertexes.get(0).getyPos() + 50);
+        gc.strokeText(name, vertexes.get(0).getxPos() + 25 , vertexes.get(0).getyPos() + 25d);
     }
 
     /**Marca los puntos de los vertices

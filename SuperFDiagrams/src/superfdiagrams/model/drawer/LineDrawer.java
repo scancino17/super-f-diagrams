@@ -22,7 +22,8 @@ public class LineDrawer implements Drawer{
     }
 
     @Override
-    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes) {
+    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes)
+    {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

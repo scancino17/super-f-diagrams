@@ -5,19 +5,20 @@
  */
 package superfdiagrams.model;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author sebca
  */
-class Union implements Element{
+public class Union implements Element{
+    public ElementWrapper entity;
+    public Relationship relationship;
 
+    
+    
     @Override
     public String getName() {
-        //Acá no debería retornar nada?
-        //El tema es que lo único que necesitan para ser Element es tener un
-        //método que retorne un nombre.
-        //Hay que mejorar el "contrato", creo yo.
-        // - Seba
         return null;
     }
 
@@ -25,5 +26,33 @@ class Union implements Element{
     public void setName(String name) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+
+    public ElementWrapper getEntity() {
+        return entity;
+    }
+
+    public void setEntity(ElementWrapper entity) {
+        this.entity = entity;
+    }
+
+    public Relationship getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(Relationship relationship) {
+        this.relationship = relationship;
+    }
+
+    @Override
+    public ArrayList<ElementWrapper> getRelations() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void setRelations(ArrayList<ElementWrapper> relations) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
     
 }

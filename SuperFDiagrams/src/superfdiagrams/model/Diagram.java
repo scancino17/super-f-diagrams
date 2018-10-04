@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,19 +13,26 @@ import java.util.List;
  * @author sebca
  */
 public class Diagram {
-    private List<ElementWrapper> elements;
-
+    private ArrayList<Entity> entitys = new ArrayList();
+    private ArrayList<Relationship> relations = new ArrayList();
+    
     public Diagram() {
-        //Iniciar lista
-    }
-    
-    public List<ElementWrapper> getElements() {
-        return elements;
-    }
 
-    public void setElements(List<ElementWrapper> elements) {
-        this.elements = elements;
     }
     
+    public void addEntity(Entity entity){
+        entitys.add(entity);
+    }
     
+    public void addRelation(Relationship relation){
+        relations.add(relation);
+    }
+    
+    public Entity getEntity(int index){
+        return entitys.get(index);
+    }
+    
+    public Relationship getRelation(int index){
+        return relations.get(index);
+    }
 }

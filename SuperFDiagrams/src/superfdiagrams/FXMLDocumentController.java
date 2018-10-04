@@ -7,9 +7,10 @@ package superfdiagrams;
 
 
 
-import java.awt.*;
 import java.awt.image.RenderedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +29,18 @@ import javafx.scene.control.Button;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import superfdiagrams.model.*;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import superfdiagrams.model.*;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
 
 /**
  *
@@ -52,13 +53,15 @@ public class FXMLDocumentController implements Initializable{
     @FXML public Button eraseButton;
     @FXML public Button btnExport;
     @FXML public Button btnShowVertex;
-    public Diagram diagram;
-    public enum Estado{VISTA,ENTIDAD,RELACION, MOVER};
+    public Diagram diagram = new Diagram();
+    public enum Estado{VISTA,ENTIDAD,RELACION, SELECCIONARENTIDAD};
     public Estado estado;
     public ArrayList<ElementWrapper> elements = new ArrayList();
+    private ArrayList<ElementWrapper> relationships = new ArrayList();
     public Scanner reader = new Scanner(System.in).useDelimiter("\n");
-    public ElementWrapper elementToMove;
-    public boolean showVertex = false;
+    public ArrayList<ElementWrapper> elementsToRelation = new ArrayList();
+    boolean showVertex = false;
+
     /**
      * Estado inicial del canvas y del controlador
      * @param location
@@ -84,16 +87,7 @@ public class FXMLDocumentController implements Initializable{
     {
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
         drawElements(gc);
-    }
-
-    /**
-     * @param e - ElementWrapper a mover
-     * Al ElementWrapper e  le genera nuevos vertices
-     */
-    public void moveElement(ElementWrapper e)
-    {
-        Point p = MouseInfo.getPointerInfo().getLocation();
-        e.setVertexes(VertexGenerator.generateRectangle(e.getVertexes().size() , new Vertex(p.x, p.y)));
+        drawLine(gc);
     }
 
     @FXML public void btnShowVertex()
@@ -103,10 +97,11 @@ public class FXMLDocumentController implements Initializable{
         else
             showVertex = false;
     }
+
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
 
-        //checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
+        
 
         if(mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) //Evento que verifica si es doble click
         {
@@ -116,17 +111,34 @@ public class FXMLDocumentController implements Initializable{
 
         if(estado == Estado.ENTIDAD)
         {
-            String name = reader.next();
-            createNewEntity((int)Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
-            estado = Estado.VISTA;
+            if(checkColition(new Vertex((int)mouseEvent.getX(), (int)mouseEvent.getY())) == null)
+            {
+                String name = reader.next();
+                createNewEntity((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
+                estado = Estado.VISTA;
+            }
+        }
+        else if(estado== Estado.SELECCIONARENTIDAD)
+        {
+            if(checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY())) != null){
+              //  Union union = new Union();
+                ElementWrapper entity = checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
+            //    union.setEntity(entity);
+                this.elementsToRelation.add(entity);
+            }
+        }
+        else if(estado == Estado.RELACION){
+            if(checkColition(new Vertex((int)mouseEvent.getX(), (int)mouseEvent.getY())) == null)
+            {
+                String name = "";
+                createNewRelation((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
+                estado = Estado.VISTA;
+                //elementsToRelation.clear();
+            }
 
         }
-        else if(estado== Estado.RELACION)
-        {
-            createNewRelation((int)Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()));
-            estado = Estado.VISTA;
-        }
     }
+    
 
     /**
      * Funcion que cambia el estado para dibujar entidades, se activa cuando 
@@ -142,9 +154,9 @@ public class FXMLDocumentController implements Initializable{
      * apreta el boton correspondiente.
      */
     @FXML
-    public void changeStatusRelation(ActionEvent e)
+    public void changeStatusRelation()
     {
-        estado = Estado.RELACION;
+        estado = Estado.SELECCIONARENTIDAD;
     }
     
     /**
@@ -168,16 +180,28 @@ public class FXMLDocumentController implements Initializable{
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         elements.add(elementConstructor.generateEntity());
-
     }
-
-    //hmmm por ahora solo la puse como prueba para la presentacion nomas y mostrar que podiamos crear realciones
-    public void createNewRelation(int posX, int posY){
-        Vertex vertex = new Vertex(posX, posY);
+    
+    /**
+     * Funcion que crea una nueva relacion
+     * @param posX
+     * @param posY
+     * @param name 
+     */
+    public void createNewRelation(int posX, int posY, String name){
+        System.out.println("el tamaño:"+ elementsToRelation.size());
+        Vertex vertex = new Vertex (posX, posY);
+        
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
-        elements.add(elementConstructor.generateRelationship(3));
-
+        elementConstructor.setName(name);
+        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation.size(),elementsToRelation);
+        elementsToRelation = new ArrayList<>();
+      //  element.getElement().setRelations(elementsToRelation);
+        elements.add(element);
+        relationships.add(element);
+        //diagram.addRelation(relation);
+        
     }
     
     /**
@@ -186,18 +210,16 @@ public class FXMLDocumentController implements Initializable{
      * vacia estara limpiando la pantalla.
      * @param gc 
      */
-    public void drawElements(GraphicsContext gc)
-    {
-        if (!elements.isEmpty())
-            for (int i = 0; i<elements.size() ; i++)
-            {
+    public void drawElements(GraphicsContext gc){
+        if (!elements.isEmpty()){
+            for (int i = 0; i<elements.size() ; i++){
                 elements.get(i).draw(gc);
                 if(showVertex)
                     elements.get(i).drawVertex(gc);
             }
-        else
+        }else{
             gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
+        }
     }
     
     /**
@@ -207,14 +229,16 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void erase(){
         elements.clear();
+        relationships.clear();
+        elementsToRelation.clear();
+
     }
 
     /**
-     * Exporta el canvas como una imagen a png o pdf
+     * Exporta el canvas como una imagen a png
      */
     @FXML public void Export(ActionEvent e)
     {
-        ;
         FileChooser saveDialog = new FileChooser(); // crea un FileChooser
         //agrego los filtros para guardar.. (png o pdf)
         saveDialog .getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG FILE *.png", "*.png"));
@@ -288,15 +312,41 @@ public class FXMLDocumentController implements Initializable{
         return c;
     }
 
-    public  Element checkColition(Vertex p)
+    // solo para probar... recorre todos los elementos y ve si el Vertex p está pertenece a alguno
+    public  ElementWrapper checkColition(Vertex p)
     {
-        //for(ElementWrapper e : elements)
-        for(int i = 0; i<elements.size(); ++i)
-            if(PointInPolygon(elements.get(i).getVertexes(), p))
-                return elements.get(i).getElement();
+        for(int i = 0; i< elements.size(); i++){
+            if(PointInPolygon(elements.get(i).getVertexes(), p)){
+                return elements.get(i);
+            }
+        }
         return null;
     }
+    
+    @FXML
+    public void acceptRelation(){
+        if (elementsToRelation.isEmpty())
+            estado = Estado.VISTA;
+        else
+            estado = Estado.RELACION;
+    }
 
+    public void drawLine(GraphicsContext gc){
+        if (!relationships.isEmpty()){
+            gc.setStroke(Color.BLACK);
+            gc.setLineWidth(1);
+            for (int i = 0; i<relationships.size(); i++){
+                for (int j = 0; j < relationships.get(i).getVertexes().size(); j++){
+                    Vertex vertexR = relationships.get(i).getVertexes().get(j);
+                    //System.out.println(relationships.get(i).getElement().getRelations().size());
+                    Vertex vertexE = relationships.get(i).getElement().getRelations().get(j).getVertexes().get(0);
+                    gc.strokeLine(vertexR.getxPos(), vertexR.getyPos(), vertexE.getxPos(), vertexE.getyPos());
+                }
+            }
+        }
+    }
 
-
+   /* public ArrayList<Vertex> createArray(int i){
+        relationships
+    }*/
 }
