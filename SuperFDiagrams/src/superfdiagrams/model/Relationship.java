@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,24 +14,32 @@ import java.util.List;
  */
 public class Relationship implements Element{
     private String name;
-    List<Union> relations;
+    private ArrayList<ElementWrapper> relations;
 
+
+    
     @Override
     public String getName() {
         return name;
     }
 
-    public List<Union> getRelations() {
+    @Override
+    public ArrayList<ElementWrapper> getRelations() {
         return relations;
     }
 
-    public void setRelations(List<Union> relations) {
+    @Override
+    public void setRelations(ArrayList<ElementWrapper> relations) {
         this.relations = relations;
+        System.out.println(relations.size());
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
+
+ 
     
     
     
