@@ -15,7 +15,6 @@ import superfdiagrams.model.Vertex;
  * @author sebca
  */
 public class PolygonDrawer implements Drawer{
-    //implementar
     /**
      * Funcion que dibuja los poligonos, tan solo usa los vertices creados en las
      * otras funciones y los une, al final se une el ultimo vertice de la lista

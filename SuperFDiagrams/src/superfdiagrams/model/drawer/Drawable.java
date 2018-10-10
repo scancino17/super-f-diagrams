@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package superfdiagrams.controller;
+package superfdiagrams.model.drawer;
 
 import javafx.scene.canvas.GraphicsContext;
 
@@ -13,4 +13,5 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public interface Drawable {
     public void draw(GraphicsContext gc);
+    public void drawVertex(GraphicsContext gc);
 }

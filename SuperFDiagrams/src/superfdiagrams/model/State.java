@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package superfdiagrams.controller.drawer;
+package superfdiagrams.model;
 
 /**
  *
  * @author sebca
  */
-public interface Drawer {
-    public void doDraw();
+public enum State {
+    VIEW,ENTITY,RELATIONSHIP, SELECTING_ENTITIES
 }

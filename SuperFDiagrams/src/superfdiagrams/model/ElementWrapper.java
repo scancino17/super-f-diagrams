@@ -7,7 +7,7 @@ package superfdiagrams.model;
 
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
-import superfdiagrams.controller.Drawable;
+import superfdiagrams.model.drawer.Drawable;
 import superfdiagrams.model.drawer.Drawer;
 
 /**
