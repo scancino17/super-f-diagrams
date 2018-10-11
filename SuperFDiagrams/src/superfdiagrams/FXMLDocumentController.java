@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.function.Consumer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -81,7 +82,6 @@ public class FXMLDocumentController implements Initializable{
     {
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
         drawElements(gc);
-        drawLine(gc);
     }
 
     @FXML public void btnShowVertex()
@@ -105,6 +105,7 @@ public class FXMLDocumentController implements Initializable{
                 if(checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY())) != null)
                 {
                     ElementWrapper entity = checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
+                    entity.toggleHighlighted();
                     this.elementsToRelation.add(entity);
                 }
                 break;
@@ -165,7 +166,7 @@ public class FXMLDocumentController implements Initializable{
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         ElementWrapper element = elementConstructor.generateEntity();
-        diagramC.addEntity(element);
+        diagramC.addElement(element);
         drawC.addToBuffer(element);
     }
     
@@ -183,9 +184,14 @@ public class FXMLDocumentController implements Initializable{
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation.size(),elementsToRelation);
+        
+        for(ElementWrapper e : elementsToRelation)
+            e.toggleHighlighted();
+        
         elementsToRelation = new ArrayList<>();
-        diagramC.addRelationship(element);
+        diagramC.addElement(element);
         drawC.addToBuffer(element);
+        createUnion(element);
         
     }
     
@@ -230,20 +236,30 @@ public class FXMLDocumentController implements Initializable{
         else
             stateC.setState(RELATIONSHIP);
     }
-
-    public void drawLine(GraphicsContext gc){
-        if (!diagramC.fetchRelationships().isEmpty()){
-            List<ElementWrapper> relationships = diagramC.fetchRelationships();
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(1);
-            
-            for (int i = 0; i<relationships.size(); i++){
-                for (int j = 0; j < relationships.get(i).getVertexes().size(); j++){
-                    Vertex vertexR = relationships.get(i).getVertexes().get(j);
-                    Vertex vertexE = relationships.get(i).getElement().getRelations().get(j).getVertexes().get(0);
-                    gc.strokeLine(vertexR.getxPos(), vertexR.getyPos(), vertexE.getxPos(), vertexE.getyPos());
-                }
+    
+    /**
+     * Funcion que crea una linea, la cual contiene un arreglo de 2 vertices,
+     * el primer vertice de la lista de la relacion y un vertice de alguna 
+     * entidad que se determina con otras funciones
+     * @param relation 
+     */
+    public void createUnion(ElementWrapper relation){  
+        ElementBuilder elementConstructor = new ElementBuilder();
+        ElementWrapper element;
+        
+        if (relation.getElement().getRelations().size() == 1){
+            for (int i = 0; i < 2; i++) {                
+                element = elementConstructor.generateLine(relation, 0);
+                diagramC.addElement(element);
+                drawC.addToBuffer(element);
+            }  
+        }else{
+            for (int i = 0; i < relation.getElement().getRelations().size(); i++) {
+                element = elementConstructor.generateLine(relation, i);
+                diagramC.addElement(element);
+                drawC.addToBuffer(element);
             }
         }
     }
+        
 }

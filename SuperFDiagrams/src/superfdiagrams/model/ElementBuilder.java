@@ -6,6 +6,8 @@
 package superfdiagrams.model;
 
 import java.util.ArrayList;
+import java.util.List;
+import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
 
 /**
@@ -59,5 +61,19 @@ public class ElementBuilder {
         
         element.setDrawer(new PolygonDrawer());
         return element;
+    }
+    
+    public ElementWrapper generateLine(ElementWrapper relation, int index){
+        VertexGenerator generator = new VertexGenerator();
+        ElementWrapper line = new ElementWrapper();
+
+        List<Vertex> vertexes = new ArrayList<>();
+        vertexes.add(relation.getVertexes().get(index));
+        vertexes.add(generator.determinateVertex(relation,index));
+
+        line.setVertexes(vertexes);
+        line.setDrawer(new LineDrawer());
+        line.setElement(new Union());
+        return line;                
     }
 }

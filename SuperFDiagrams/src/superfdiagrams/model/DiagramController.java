@@ -35,34 +35,11 @@ public class DiagramController {
         this.diagram = new Diagram();
     }
     
-    
-    //Este codigo era lo que inicialmente planeaba hacer
-    //En vista de que hay que reescribir gran parte del código para poder
-    //realizarlo, he decido mantener la compatibilidad con el código existente
-    //En el futuro, cuando podamos refactorizar el código de las uniones
-    //sólo esto bastará.
-    // -- Seba
-    /*public void addElement(ElementWrapper element){
+    public void addElement(ElementWrapper element){
     diagram.addElement(element);
     }
     
     public List<ElementWrapper> fetchElements(){
     return diagram.getElements();
-    }*/
-    
-    public void addEntity(ElementWrapper element){
-        diagram.addEntity(element);
-    }
-    
-    public void addRelationship(ElementWrapper element){
-        diagram.addRelationship(element);
-    }
-    
-    public List<ElementWrapper> fetchEntities(){
-        return diagram.getEntities();
-    }
-    
-    public List<ElementWrapper> fetchRelationships(){
-        return diagram.getRelationships();
     }
 }
