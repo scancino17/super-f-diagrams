@@ -13,12 +13,15 @@ import java.util.Scanner;
 import java.util.function.Consumer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -27,6 +30,7 @@ import superfdiagrams.model.*;
 
 import static superfdiagrams.model.GeometricUtilities.*;
 import static superfdiagrams.model.State.ENTITY;
+import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
 import superfdiagrams.model.drawer.DrawController;
@@ -43,12 +47,17 @@ public class FXMLDocumentController implements Initializable{
     @FXML public Button eraseButton;
     @FXML public Button btnExport;
     @FXML public Button btnShowVertex;
+    @FXML public TextArea textArea;
     
     private StateController stateC;
     private DrawController drawC;
     private DiagramController diagramC;
     
-    public Scanner reader = new Scanner(System.in).useDelimiter("\n");
+    private ElementWrapper selected;
+    private double mouseXPos;
+    private double mouseYPos;
+    
+    private VertexGenerator vGen = new VertexGenerator();
     public ArrayList<ElementWrapper> elementsToRelation = new ArrayList();
 
     /**
@@ -66,6 +75,9 @@ public class FXMLDocumentController implements Initializable{
         drawC = DrawController.getDrawController();
         drawC.setGraphicsContext(gc);
         
+        canvas.setOnMouseMoved(elementOnMouseDragged);
+        deactivateTextArea();
+        
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
         tl.setCycleCount(Timeline.INDEFINITE);
@@ -79,7 +91,13 @@ public class FXMLDocumentController implements Initializable{
      * @param gc 
      */
     public void run(GraphicsContext gc)
-    {
+    {   
+        if(selected != null
+        && stateC.getState() == MOVING_ELEMENT )
+            vGen.recalculateVertexes(selected.getVertexes(),
+                                     new Vertex((int)mouseXPos, (int)mouseYPos)
+                                    );
+        
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
         drawElements(gc);
     }
@@ -89,41 +107,68 @@ public class FXMLDocumentController implements Initializable{
         drawC.toggleDrawVertex();
     }
 
+    EventHandler<MouseEvent> elementOnMouseDragged =
+        (MouseEvent event) -> {
+            mouseXPos = event.getX();
+            mouseYPos = event.getY();
+    };
+
+    
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
-
         switch(stateC.getState()){
             case ENTITY:
-                if(checkColition(new Vertex((int)mouseEvent.getX(), (int)mouseEvent.getY())) == null)
+                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
-                    String name = reader.next();
+                    String name = textArea.getText();
                     createNewEntity((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
                     stateC.setState(State.VIEW);
+                    deactivateTextArea();
                 }
                 break;
             case SELECTING_ENTITIES:   
-                if(checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY())) != null)
+                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
                 {
-                    ElementWrapper entity = checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
+                    ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
                     entity.toggleHighlighted();
                     this.elementsToRelation.add(entity);
                 }
                 break;
             case RELATIONSHIP:
-                if(checkColition(new Vertex((int)mouseEvent.getX(), (int)mouseEvent.getY())) == null)
+                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
-                    String name = "";
+                    String name = textArea.getText();
                     createNewRelation((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
                     stateC.setState(VIEW);
+                    deactivateTextArea();
                 }
-                break;      
+                break;
+            case MOVING_ELEMENT:
+                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
+                {
+                    selected.toggleHighlighted();
+                    selected = null;
+                    stateC.setState(VIEW);
+                    System.out.println("Estado normalizado");
+                }
+                break;
         }
         
-        if(mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) //Evento que verifica si es doble click
-        {
-            System.out.printf("doble click");
-
+        if (checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+            if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
+            && mouseEvent.getClickCount() == 2)
+            {
+                selected = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                
+                if (!(selected.getElement() instanceof Union)){
+                    selected.toggleHighlighted();
+                    stateC.setState(MOVING_ELEMENT);
+                } else {
+                    selected = null;
+                }
+            }
         }
+
     }
     
 
@@ -134,6 +179,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusEntity(){
         stateC.setState(ENTITY);
+        activateTextArea();
     }
     
     /**
@@ -143,6 +189,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusRelation(){
         stateC.setState(SELECTING_ENTITIES);
+        activateTextArea();
     }
     
     /**
@@ -218,7 +265,8 @@ public class FXMLDocumentController implements Initializable{
         diagramC.newDiagram();
         elementsToRelation.clear();
         drawC.eraseBuffer();
-
+        selected = null;
+        stateC.setState(VIEW);
     }
 
     /**
@@ -235,6 +283,11 @@ public class FXMLDocumentController implements Initializable{
             stateC.setState(VIEW);
         else
             stateC.setState(RELATIONSHIP);
+    }
+    
+    @FXML
+    public void close(){
+        Platform.exit();
     }
     
     /**
@@ -254,12 +307,30 @@ public class FXMLDocumentController implements Initializable{
                 drawC.addToBuffer(element);
             }  
         }else{
-            for (int i = 0; i < relation.getElement().getRelations().size(); i++) {
-                element = elementConstructor.generateLine(relation, i);
+            for(ElementWrapper entity: relation.getElement().getRelations()){
+                element = elementConstructor.generateLine(relation, entity);
                 diagramC.addElement(element);
                 drawC.addToBuffer(element);
             }
+            
+            /*for (int i = 0; i < relation.getElement().getRelations().size(); i++) {
+            element = elementConstructor.generateLine(relation, i);
+            diagramC.addElement(element);
+            drawC.addToBuffer(element);
+            }*/
         }
     }
-        
+    
+    public void activateTextArea(){
+        textArea.setDisable(false);
+        textArea.setVisible(true);
+        textArea.requestFocus();
+    }
+    
+    public void deactivateTextArea(){
+        textArea.setText("");
+        textArea.setDisable(true);
+        textArea.setVisible(false);
+    }
+    
 }

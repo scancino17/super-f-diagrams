@@ -63,6 +63,18 @@ public class ElementBuilder {
         return element;
     }
     
+    public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){
+        ElementWrapper line = new ElementWrapper();
+        
+        List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
+                relation.getVertexes(), entity.getVertexes());
+        
+        line.setVertexes(vertexes);
+        line.setDrawer(new LineDrawer());
+        line.setElement(new Union());
+        return line;
+    }
+    
     public ElementWrapper generateLine(ElementWrapper relation, int index){
         VertexGenerator generator = new VertexGenerator();
         ElementWrapper line = new ElementWrapper();

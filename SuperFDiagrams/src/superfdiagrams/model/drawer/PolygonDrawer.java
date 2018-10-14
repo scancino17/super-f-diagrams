@@ -8,6 +8,7 @@ import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import superfdiagrams.model.Diagram;
+import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.Vertex;
 
 /**
@@ -44,7 +45,8 @@ public class PolygonDrawer implements Drawer{
         if(highlighted)
             gc.setStroke(Color.BLACK);
         
-        gc.strokeText(name, vertexes.get(0).getxPos() + 25 , vertexes.get(0).getyPos() + 25d);
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        gc.strokeText(name, center.getxPos() - 25 , center.getyPos());
     }
 
     /**Marca los puntos de los vertices

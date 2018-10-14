@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,5 +61,31 @@ public class GeometricUtilities {
         y = y / polygon.size();
         
         return new Vertex(Math.round(x), Math.round(y));
+    }
+    
+    public static double vertexDistance(Vertex v1, Vertex v2){
+        int xDistance = v1.getxPos() - v2.getxPos();
+        int yDistance = v1.getyPos() - v2.getyPos();
+        return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
+    }
+    
+    public static List<Vertex> nearestVertexes(List<Vertex> polygon1,List<Vertex> polygon2){
+        Double lesserDistance = null;
+        List<Vertex> nearestVertexes = null;
+        double distance;
+        
+        for(Vertex v1: polygon1){
+            for(Vertex v2: polygon2){
+                distance = vertexDistance(v1, v2);
+                if (lesserDistance == null || distance < lesserDistance){
+                    lesserDistance = distance;
+                    nearestVertexes = new ArrayList<>();
+                    nearestVertexes.add(v1);
+                    nearestVertexes.add(v2);
+                }
+            }
+        }
+        
+        return nearestVertexes;
     }
 }
