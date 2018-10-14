@@ -10,5 +10,5 @@ package superfdiagrams.model;
  * @author sebca
  */
 public enum State {
-    VIEW,ENTITY,RELATIONSHIP, SELECTING_ENTITIES
+    VIEW,ENTITY,RELATIONSHIP, SELECTING_ENTITIES, MOVING_ELEMENT
 }

@@ -42,4 +42,23 @@ public class GeometricUtilities {
 
         return null;
     }
+    
+    public static ElementWrapper checkColition(double x, double y){
+        return checkColition(VertexGenerator.generateVertex((int) x, (int) y));
+    }
+    
+    public static Vertex getCenterOfMass(List<Vertex> polygon){
+        float x = 0;
+        float y = 0;
+        
+        for(Vertex v: polygon){
+            x+= v.getxPos();
+            y+= v.getyPos();
+        }
+        
+        x = x / polygon.size();
+        y = y / polygon.size();
+        
+        return new Vertex(Math.round(x), Math.round(y));
+    }
 }

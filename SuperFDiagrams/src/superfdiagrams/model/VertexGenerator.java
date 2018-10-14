@@ -169,4 +169,15 @@ public class VertexGenerator {
         }
         return j;
     }
+    
+    public void recalculateVertexes(List<Vertex> vertexes, 
+                                    Vertex newCenter)
+    {
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        for(Vertex v: vertexes){
+            v.setxPos(v.getxPos() - center.getxPos() + newCenter.getxPos());
+            v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
+        }
+        
+    }
 }
