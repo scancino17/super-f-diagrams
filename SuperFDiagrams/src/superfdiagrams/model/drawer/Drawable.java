@@ -5,15 +5,13 @@
  */
 package superfdiagrams.model.drawer;
 
-import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
-import superfdiagrams.model.Vertex;
 
 /**
  *
  * @author sebca
  */
-public interface Drawer {
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted);
-    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes);
+public interface Drawable {
+    public void draw(GraphicsContext gc);
+    public void drawVertex(GraphicsContext gc);
 }

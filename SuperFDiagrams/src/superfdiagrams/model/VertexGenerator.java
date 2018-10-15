@@ -119,4 +119,65 @@ public class VertexGenerator {
     public static Vertex generateVertex(int xPos, int yPos){
         return new Vertex(new int[]{xPos, yPos});
     }
+    
+    /**
+     * Funcion que crea un arreglo de distancia entre los vertices de la entidad
+     * con la de la relacion.
+     * @param relation
+     * @param index
+     * @return retorna el vertice de la entidad mas cercano al de la relacion
+     */
+    public Vertex determinateVertex(ElementWrapper relation, int index){
+        ArrayList<Integer> distances = new ArrayList();
+        for (int j = 0; j < 4; j++) {
+            distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
+                    , relation.getVertexes().get(index).getyPos(), 
+                    relation.getElement().getRelations().get(index).getVertexes().get(j).getxPos()
+                    , relation.getElement().getRelations().get(index).getVertexes().get(j).getyPos()));
+        }
+        return relation.getElement().getRelations().get(index).getVertexes().get(minorIndex(distances));
+    }
+    
+    public Vertex determinateVertex(ElementWrapper relation, int index, boolean xd){
+        return relation.getElement().getRelations().get(index).getVertexes().get(index+2);
+    }
+    /**
+     * Funcion que solo devuelve la distancia entre 2 puntos
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return 
+     */
+    public int twoPointsDistance(double x1, double y1, double x2,double y2){
+        return (int)Math.hypot(x2-x1, y2-y1);
+    }
+    
+    /**
+     * Funcion que revisa cual de las distancias fue la menor para saber que 
+     * vertice es el mas cercano al de la relacion.
+     * @param distances
+     * @return 
+     */
+    public int minorIndex(ArrayList<Integer> distances){
+        int minor = distances.get(0);int j= 0;
+        for (int i = 0; i < 4; i++) {
+            if (distances.get(i) < minor){
+                minor = distances.get(i);   
+                j = i;
+            }
+        }
+        return j;
+    }
+    
+    public void recalculateVertexes(List<Vertex> vertexes, 
+                                    Vertex newCenter)
+    {
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        for(Vertex v: vertexes){
+            v.setxPos(v.getxPos() - center.getxPos() + newCenter.getxPos());
+            v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
+        }
+        
+    }
 }

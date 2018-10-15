@@ -8,6 +8,7 @@ package superfdiagrams.model.drawer;
 import static java.util.Collections.list;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import superfdiagrams.model.Vertex;
 
 /**
@@ -15,16 +16,23 @@ import superfdiagrams.model.Vertex;
  * @author sebca
  */
 public class LineDrawer implements Drawer{
-    //implementar
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
+        //gc.setStroke(Color.WHITE);
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
+        gc.strokeLine(vertexes.get(0).getxPos(), vertexes.get(0).getyPos(),
+                vertexes.get(1).getxPos(),vertexes.get(1).getyPos());
+    }
+    
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name){
+        this.doDraw(gc, vertexes, name, false);
     }
 
     @Override
     public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes)
     {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       
     }
 
 }

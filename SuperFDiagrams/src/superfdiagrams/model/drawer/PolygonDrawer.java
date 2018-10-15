@@ -15,7 +15,6 @@ import superfdiagrams.model.Vertex;
  * @author sebca
  */
 public class PolygonDrawer implements Drawer{
-    //implementar
     /**
      * Funcion que dibuja los poligonos, tan solo usa los vertices creados en las
      * otras funciones y los une, al final se une el ultimo vertice de la lista
@@ -23,11 +22,17 @@ public class PolygonDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
+     * @param highlighted
      */
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
         int i;
-        gc.setStroke(Color.BLACK);
+        if(!highlighted){
+            gc.setStroke(Color.BLACK);
+        } else{
+            gc.setStroke(Color.CORNFLOWERBLUE);
+        }
+
         gc.setLineWidth(1);
         for (i = 0; i<vertexes.size()-1; i++){
             gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos()
@@ -35,6 +40,10 @@ public class PolygonDrawer implements Drawer{
         }
         gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos(),
                 vertexes.get(0).getxPos(), vertexes.get(0).getyPos());
+        
+        if(highlighted)
+            gc.setStroke(Color.BLACK);
+        
         gc.strokeText(name, vertexes.get(0).getxPos() + 25 , vertexes.get(0).getyPos() + 25d);
     }
 
