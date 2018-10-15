@@ -67,8 +67,7 @@ public class GeometricUtilities {
      * @param q
      * @return int - p.x * q.x - p.y*q.y
      */
-    public static int cross(Vertex p, Vertex q)   { return p.getxPos()*q.getyPos()-p.getyPos()*q.getyPos(); }
-
+    public static int cross(Vertex p, Vertex q)   { return p.getxPos()*q.getyPos()-p.getyPos()*q.getxPos(); }
 
     /**
      * @param p
@@ -231,5 +230,68 @@ public class GeometricUtilities {
         y = y / polygon.size();
         
         return new Vertex(Math.round(x), Math.round(y));
+    }
+
+    public static Vertex RotateCCW90(Vertex p)   { return new Vertex(-1*p.getyPos(),p.getxPos()); }
+    public static Vertex RotateCW90(Vertex p)    { return new Vertex(p.getyPos(),-1*p.getxPos()); }
+    public static Vertex RotateCCW(Vertex p, double t)
+    {
+        return new Vertex((int)Math.round(p.getxPos()*Math.cos(t)-p.getyPos()*Math.sin(t)),
+                          (int)Math.round(p.getxPos()*Math.sin(t)+p.getyPos()*Math.cos(t)));
+    }
+
+
+    private static double ComputeSignedArea(List<Vertex> p)
+    {
+        double area = 0;
+        for(int i = 0; i < p.size(); i++)
+        {
+            int j = (i+1) % p.size();
+            area += p.get(i).getxPos()*p.get(j).getyPos() - p.get(j).getxPos()*p.get(i).getyPos();
+        }
+        return (area / 2.0);
+    }
+
+    /**
+     * @param p
+     * @return Area de un polígono
+     */
+    public static double ComputeArea(List<Vertex> p)
+    {
+        return Math.abs(ComputeSignedArea(p));
+    }
+
+
+    //creo que es equivalente al método de getCenterOfMass habría que verificar
+    /**
+     * @param p
+     * @return Punto de central de un polígono
+     */
+    public static Vertex ComputeCentroid(List<Vertex> p)
+    {
+        Vertex c = new Vertex(0,0);
+        double scale = 6.0 * ComputeSignedArea(p);
+        for (int i = 0; i < p.size(); i++){
+            int j = (i+1) % p.size();
+            c = sum(c , mul(sum(p.get(i), p.get(j)),p.get(i).getxPos()*p.get(j).getyPos() - p.get(j).getxPos()*p.get(i).getyPos()));
+        }
+        return div(c , (int)scale);
+    }
+
+    /**
+     * @param p
+     * @return Verifica si un poligono está en orden CW o CCW
+     */
+    public static boolean IsSimple(List<Vertex> p) {
+        for (int i = 0; i < p.size(); i++) {
+            for (int k = i+1; k < p.size(); k++) {
+                int j = (i+1) % p.size();
+                int l = (k+1) % p.size();
+                if (i == l || j == k) continue;
+                if (SegmentsIntersect(p.get(i), p.get(j), p.get(k), p.get(l)))
+                    return false;
+            }
+        }
+        return true;
     }
 }
