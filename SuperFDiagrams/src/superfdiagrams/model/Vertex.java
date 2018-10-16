@@ -12,6 +12,7 @@ package superfdiagrams.model;
 public class Vertex {
     private double xPos;
     private double yPos;
+    private boolean used;
 
     //Acá tengo los campos separados.
     //No sé si sea la opción definitiva, igual podria manejarse todos los
@@ -21,12 +22,14 @@ public class Vertex {
     public Vertex(double xPos, double yPos) {
         this.xPos = xPos;
         this.yPos = yPos;
+        this.used = false;
     }
     
     //Constructor que usa array primitivo.
     public Vertex(double[] pos){
         this.xPos = pos[0];
         this.yPos = pos[1];
+        this.used = false;
     }
 
     public double getxPos() {
@@ -43,6 +46,14 @@ public class Vertex {
 
     public void setyPos(double yPos) {
         this.yPos = yPos;
+    }
+
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean isUsed) {
+        this.used = isUsed;
     }
     
     public double[] getCoordinates(){

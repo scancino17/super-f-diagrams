@@ -77,7 +77,7 @@ public class GeometricUtilities {
         for(Vertex v1: polygon1){
             for(Vertex v2: polygon2){
                 distance = vertexDistance(v1, v2);
-                if (lesserDistance == null || distance < lesserDistance){
+                if ((lesserDistance == null || distance < lesserDistance) && !v1.isUsed()){
                     lesserDistance = distance;
                     nearestVertexes = new ArrayList<>();
                     nearestVertexes.add(v1);
@@ -85,6 +85,10 @@ public class GeometricUtilities {
                 }
             }
         }
+        
+        if (nearestVertexes != null && !nearestVertexes.isEmpty())
+            for(Vertex v: nearestVertexes)
+                v.setUsed(true);
         
         return nearestVertexes;
     }

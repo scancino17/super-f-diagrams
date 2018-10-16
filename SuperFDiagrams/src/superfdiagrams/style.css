@@ -15,6 +15,9 @@
 
     -fx-selection-bar-non-focused: rgb(50, 50, 50);
 }
+.canvas:not(.root){
+    -fx-background-color: -fx-mark-highlight-color, rgb(255, 255, 255);
+}
 
 /* Fix derived prompt color for text fields */
 .text-input {

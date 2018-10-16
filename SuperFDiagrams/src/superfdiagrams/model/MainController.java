@@ -97,7 +97,6 @@ public class MainController {
      * @param name 
      */
     public void createNewRelation(double posX, double posY, String name){
-        System.out.println("el tamaño:"+ elementsToRelation.size());
         Vertex vertex = new Vertex (posX, posY);
         
         ElementBuilder elementConstructor = new ElementBuilder();
@@ -140,22 +139,16 @@ public class MainController {
         
         if (relation.getElement().getRelations().size() == 1){
             for (int i = 0; i < 2; i++) {                
-                element = elementConstructor.generateLine(relation, 0);
+                element = elementConstructor.generateLine(relation, relation.getElement().getRelations().get(0));
                 diagramC.addElement(element);
                 drawC.addToBuffer(element);
             }  
         }else{
             for(ElementWrapper entity: relation.getElement().getRelations()){
-                element = elementConstructor.generateLine(relation, entity);
-                diagramC.addElement(element);
-                drawC.addToBuffer(element);
-            }
-            
-            /*for (int i = 0; i < relation.getElement().getRelations().size(); i++) {
-            element = elementConstructor.generateLine(relation, i);
+            element = elementConstructor.generateLine(relation, entity);
             diagramC.addElement(element);
             drawC.addToBuffer(element);
-            }*/
+            }
         }
     }
     
@@ -185,10 +178,11 @@ public class MainController {
             case ENTITY:
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
-                    String name = uiController.getTextArea();
-                    createNewEntity( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
-                    stateC.setState(State.VIEW);
-                    uiController.deactivateTextArea();
+                    String name = uiController.getElementName();
+                    if (name != null) {
+                        createNewEntity( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
+                        stateC.setState(State.VIEW);
+                    }
                 }
                 break;
             case SELECTING_ENTITIES:   
@@ -206,10 +200,15 @@ public class MainController {
             case RELATIONSHIP:
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
-                    String name = uiController.getTextArea();
-                    createNewRelation( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
-                    stateC.setState(VIEW);
-                    uiController.deactivateTextArea();
+                    String name = uiController.getElementName();
+                    if (name != null){
+                        createNewRelation( Math.round(mouseEvent.getX()), 
+                                           Math.round(mouseEvent.getY()), name);
+                        stateC.setState(VIEW);
+                    } else {
+                        for(ElementWrapper element: elementsToRelation)
+                            element.toggleHighlighted();
+                    }
                 }
                 break;
             case MOVING_ELEMENT:
@@ -235,6 +234,12 @@ public class MainController {
                     selected = null;
                 }
             }
+        }
+        
+        if(mouseEvent.getClickCount() == 3 && checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+            ElementWrapper element = checkColition(mouseEvent.getX(), mouseEvent.getY());
+            for (Vertex v: element.getVertexes())
+                System.out.println(v.isUsed());
         }
     }
 }

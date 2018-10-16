@@ -74,17 +74,4 @@ public class ElementBuilder {
         line.setElement(new Union());
         return line;
     }
-    
-    public ElementWrapper generateLine(ElementWrapper relation, int index){
-        ElementWrapper line = new ElementWrapper();
-
-        List<Vertex> vertexes = new ArrayList<>();
-        vertexes.add(relation.getVertexes().get(index));
-        vertexes.add(VertexGenerator.determinateVertex(relation,index));
-
-        line.setVertexes(vertexes);
-        line.setDrawer(new LineDrawer());
-        line.setElement(new Union());
-        return line;                
-    }
 }

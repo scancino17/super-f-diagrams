@@ -6,6 +6,7 @@
 package superfdiagrams;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -18,6 +19,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
@@ -31,7 +33,6 @@ import static superfdiagrams.model.State.SELECTING_ENTITIES;
  */
 public class FXMLDocumentController implements Initializable{
     @FXML private Canvas canvas;
-    @FXML private TextArea textArea;
     @FXML private Button finishRelationship;
     
     private MainController mainC;
@@ -52,7 +53,6 @@ public class FXMLDocumentController implements Initializable{
         
         
         canvas.setOnMouseMoved(elementOnMouseDragged);
-        deactivateTextArea();
         deactivateFinishButton();
         
         Timeline tl = new Timeline(
@@ -98,7 +98,6 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusEntity(){
         mainC.setState(ENTITY);
-        activateTextArea();
     }
     
     /**
@@ -108,7 +107,6 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusRelation(){
         mainC.setState(SELECTING_ENTITIES);
-        activateTextArea();
     }
     
     /**
@@ -139,18 +137,6 @@ public class FXMLDocumentController implements Initializable{
         Platform.exit();
     }
     
-    public void activateTextArea(){
-        textArea.setDisable(false);
-        textArea.setVisible(true);
-        textArea.requestFocus();
-    }
-    
-    public void deactivateTextArea(){
-        textArea.setText("");
-        textArea.setDisable(true);
-        textArea.setVisible(false);
-    }
-    
     public void activateFinishButton(){
         finishRelationship.setDisable(false);
         finishRelationship.setVisible(true);
@@ -161,7 +147,19 @@ public class FXMLDocumentController implements Initializable{
         finishRelationship.setVisible(false);
     }
     
-    public String getTextArea(){
-        return textArea.getText();
+    
+    public String getElementName(){
+        TextInputDialog dialog = new TextInputDialog("Name here...");
+        dialog.setTitle("Insert Name");
+        dialog.setHeaderText("Enter Text:");
+        dialog.setContentText("Name:");
+        Optional<String> result = dialog.showAndWait();
+        String newName = null;
+        if (result.isPresent())
+            newName = result.get();
+        //else 
+            //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
+        
+        return newName;
     }
 }
