@@ -45,7 +45,7 @@ public class GeometricUtilities {
     }
     
     public static ElementWrapper checkColition(double x, double y){
-        return checkColition(VertexGenerator.generateVertex((int) x, (int) y));
+        return checkColition(VertexGenerator.generateVertex(x, y));
     }
     
     public static Vertex getCenterOfMass(List<Vertex> polygon){
@@ -64,8 +64,8 @@ public class GeometricUtilities {
     }
     
     public static double vertexDistance(Vertex v1, Vertex v2){
-        int xDistance = v1.getxPos() - v2.getxPos();
-        int yDistance = v1.getyPos() - v2.getyPos();
+        double xDistance = v1.getxPos() - v2.getxPos();
+        double yDistance = v1.getyPos() - v2.getyPos();
         return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
     }
     

@@ -39,7 +39,7 @@ public class VertexGenerator {
         if (number < 3)
             number = 4;
         
-        int[] denormalized = denormalize(calculateVertexes(number), number, size);
+        double[] denormalized = denormalize(calculateVertexes(number), number, size);
         Vertex vertex;
         
         for(int i =0; i < number*2; i+=2){
@@ -60,7 +60,7 @@ public class VertexGenerator {
         List<Vertex> vertexes = new ArrayList<>();
         
         double[] normalized = new double[]{-1, -0.5, -1, 0.5, 1, 0.5, 1, -0.5};
-        int[] denormalized = denormalize(normalized, 4, size);
+        double[] denormalized = denormalize(normalized, 4, size);
         
         Vertex vertex;
         for (int i = 0; i<8; i+=2){
@@ -102,12 +102,12 @@ public class VertexGenerator {
      * @param size Multiplicador usado para generar los puntos.
      * @return Array que continene valores para generar instancias Vertex.
      */
-    private static int[] denormalize(double[] normalized, int number, int size){
-        int[] denormalized = new int[number * 2];
+    private static double[] denormalize(double[] normalized, int number, int size){
+        double[] denormalized = new double[number * 2];
         
         for(int i = 0; i < number * 2 - 1; i+=2){
-            denormalized[i] = (int) Math.round(normalized[i] * size);
-            denormalized[i+1] = (int) Math.round(normalized[i+1] * size);
+            denormalized[i] = Math.round(normalized[i] * size);
+            denormalized[i+1] = Math.round(normalized[i+1] * size);
         }
         
         return denormalized;
@@ -121,8 +121,8 @@ public class VertexGenerator {
      * @param yPos Posciion en y del vertice.
      * @return Instancia de la clase Vertex
      */
-    public static Vertex generateVertex(int xPos, int yPos){
-        return new Vertex(new int[]{xPos, yPos});
+    public static Vertex generateVertex(double xPos, double yPos){
+        return new Vertex(new double[]{xPos, yPos});
     }
     
     /**
@@ -133,7 +133,7 @@ public class VertexGenerator {
      * @return retorna el vertice de la entidad mas cercano al de la relacion
      */
     public static Vertex determinateVertex(ElementWrapper relation, int index){
-        ArrayList<Integer> distances = new ArrayList();
+        ArrayList<Double> distances = new ArrayList();
         for (int j = 0; j < 4; j++) {
             distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
                     , relation.getVertexes().get(index).getyPos(), 
@@ -154,8 +154,8 @@ public class VertexGenerator {
      * @param y2
      * @return 
      */
-    public static int twoPointsDistance(double x1, double y1, double x2,double y2){
-        return (int)Math.hypot(x2-x1, y2-y1);
+    public static double twoPointsDistance(double x1, double y1, double x2,double y2){
+        return Math.hypot(x2-x1, y2-y1);
     }
     
     /**
@@ -164,8 +164,9 @@ public class VertexGenerator {
      * @param distances
      * @return 
      */
-    public static int minorIndex(ArrayList<Integer> distances){
-        int minor = distances.get(0);int j= 0;
+    public static int minorIndex(ArrayList<Double> distances){
+        double minor = distances.get(0);
+        int j= 0;
         for (int i = 0; i < 4; i++) {
             if (distances.get(i) < minor){
                 minor = distances.get(i);   

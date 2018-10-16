@@ -24,7 +24,6 @@ import superfdiagrams.model.*;
 
 import static superfdiagrams.model.State.ENTITY;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
-import static superfdiagrams.model.State.VIEW;
 
 /**
  *
@@ -32,11 +31,6 @@ import static superfdiagrams.model.State.VIEW;
  */
 public class FXMLDocumentController implements Initializable{
     @FXML private Canvas canvas;
-    @FXML private Button entityButton;
-    @FXML private Button relationButton;
-    @FXML private Button eraseButton;
-    @FXML private Button btnExport;
-    @FXML private Button btnShowVertex;
     @FXML private TextArea textArea;
     @FXML private Button finishRelationship;
     
@@ -115,15 +109,6 @@ public class FXMLDocumentController implements Initializable{
     public void changeStatusRelation(){
         mainC.setState(SELECTING_ENTITIES);
         activateTextArea();
-    }
-    
-    /**
-     * Funcion que cambia el estado para que no se haga nada cuando se hace click
-     * Por ahora no se usa.
-     */
-    @FXML
-    public void changeStatusView(){
-        mainC.setState(VIEW);
     }
     
     /**

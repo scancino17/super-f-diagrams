@@ -18,7 +18,6 @@ import superfdiagrams.model.Vertex;
 public class LineDrawer implements Drawer{
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
-        //gc.setStroke(Color.WHITE);
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(1);
         gc.strokeLine(vertexes.get(0).getxPos(), vertexes.get(0).getyPos(),

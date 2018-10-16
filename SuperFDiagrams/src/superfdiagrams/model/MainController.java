@@ -80,7 +80,7 @@ public class MainController {
      * @param posY
      * @param name
      */
-    public void createNewEntity(int posX, int posY, String name){
+    public void createNewEntity(double posX, double posY, String name){
         Vertex vertex = new Vertex(posX, posY);
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
@@ -96,7 +96,7 @@ public class MainController {
      * @param posY
      * @param name 
      */
-    public void createNewRelation(int posX, int posY, String name){
+    public void createNewRelation(double posX, double posY, String name){
         System.out.println("el tamaño:"+ elementsToRelation.size());
         Vertex vertex = new Vertex (posX, posY);
         
@@ -175,12 +175,9 @@ public class MainController {
     }
     
     public void runMainLoop(){
-        if(selected != null
-        && stateC.getState() == MOVING_ELEMENT )
+        if(selected != null && stateC.getState() == MOVING_ELEMENT )
             VertexGenerator.recalculateVertexes(selected.getVertexes(),
-                                     new Vertex((int)mouseXPos, (int)mouseYPos)
-                                    );
-        
+                                    new Vertex(mouseXPos, mouseYPos));
     }
     
     public void doClickAction(MouseEvent mouseEvent){
@@ -189,7 +186,7 @@ public class MainController {
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
                     String name = uiController.getTextArea();
-                    createNewEntity((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
+                    createNewEntity( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
                     stateC.setState(State.VIEW);
                     uiController.deactivateTextArea();
                 }
@@ -210,7 +207,7 @@ public class MainController {
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
                     String name = uiController.getTextArea();
-                    createNewRelation((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
+                    createNewRelation( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
                     stateC.setState(VIEW);
                     uiController.deactivateTextArea();
                 }

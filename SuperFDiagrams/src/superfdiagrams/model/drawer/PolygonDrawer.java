@@ -27,7 +27,6 @@ public class PolygonDrawer implements Drawer{
      */
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
-        int i;
         if(!highlighted){
             gc.setStroke(Color.BLACK);
         } else{
@@ -35,12 +34,12 @@ public class PolygonDrawer implements Drawer{
         }
 
         gc.setLineWidth(1);
-        for (i = 0; i<vertexes.size()-1; i++){
-            gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos()
-                    , vertexes.get(i+1).getxPos(), vertexes.get(i+1).getyPos());
+        
+        int size = vertexes.size();
+        for(int i = 0; i < size; i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
+                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
         }
-        gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos(),
-                vertexes.get(0).getxPos(), vertexes.get(0).getyPos());
         
         if(highlighted)
             gc.setStroke(Color.BLACK);
