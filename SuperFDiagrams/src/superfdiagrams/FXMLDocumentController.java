@@ -48,6 +48,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML public Button btnExport;
     @FXML public Button btnShowVertex;
     @FXML public TextArea textArea;
+    @FXML public Button finishRelationship;
     
     private StateController stateC;
     private DrawController drawC;
@@ -77,6 +78,7 @@ public class FXMLDocumentController implements Initializable{
         
         canvas.setOnMouseMoved(elementOnMouseDragged);
         deactivateTextArea();
+        deactivateFinishButton();
         
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
@@ -129,9 +131,13 @@ public class FXMLDocumentController implements Initializable{
             case SELECTING_ENTITIES:   
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
                 {
+                    activateFinishButton();
                     ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
-                    entity.toggleHighlighted();
-                    this.elementsToRelation.add(entity);
+                    if (entity.getElement() instanceof Entity) {
+                        entity.toggleHighlighted();
+                        if (!elementsToRelation.contains(entity))
+                            this.elementsToRelation.add(entity);
+                    }
                 }
                 break;
             case RELATIONSHIP:
@@ -149,7 +155,6 @@ public class FXMLDocumentController implements Initializable{
                     selected.toggleHighlighted();
                     selected = null;
                     stateC.setState(VIEW);
-                    System.out.println("Estado normalizado");
                 }
                 break;
         }
@@ -279,6 +284,7 @@ public class FXMLDocumentController implements Initializable{
     
     @FXML
     public void acceptRelation(){
+        deactivateFinishButton();
         if (elementsToRelation.isEmpty())
             stateC.setState(VIEW);
         else
@@ -333,4 +339,13 @@ public class FXMLDocumentController implements Initializable{
         textArea.setVisible(false);
     }
     
+    public void activateFinishButton(){
+        finishRelationship.setDisable(false);
+        finishRelationship.setVisible(true);
+    }
+    
+    public void deactivateFinishButton(){
+        finishRelationship.setDisable(true);
+        finishRelationship.setVisible(false);
+    }
 }
