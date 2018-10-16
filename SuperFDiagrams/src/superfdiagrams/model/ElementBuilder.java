@@ -48,7 +48,7 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(int vertexes, ArrayList<ElementWrapper> relations){
+    public ElementWrapper generateRelationship(int vertexes, List<ElementWrapper> relations){
         ElementWrapper element = new ElementWrapper();
         Relationship relation = new Relationship();
         relation.setName(name);
@@ -76,12 +76,11 @@ public class ElementBuilder {
     }
     
     public ElementWrapper generateLine(ElementWrapper relation, int index){
-        VertexGenerator generator = new VertexGenerator();
         ElementWrapper line = new ElementWrapper();
 
         List<Vertex> vertexes = new ArrayList<>();
         vertexes.add(relation.getVertexes().get(index));
-        vertexes.add(generator.determinateVertex(relation,index));
+        vertexes.add(VertexGenerator.determinateVertex(relation,index));
 
         line.setVertexes(vertexes);
         line.setDrawer(new LineDrawer());

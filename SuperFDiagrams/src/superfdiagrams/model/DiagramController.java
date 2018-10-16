@@ -36,10 +36,10 @@ public class DiagramController {
     }
     
     public void addElement(ElementWrapper element){
-    diagram.addElement(element);
+        diagram.addElement(element);
     }
     
     public List<ElementWrapper> fetchElements(){
-    return diagram.getElements();
+        return diagram.getElements();
     }
 }

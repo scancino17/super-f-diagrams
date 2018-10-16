@@ -6,6 +6,7 @@
 package superfdiagrams.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -25,12 +26,12 @@ public class Entity implements Element{
     }
 
     @Override
-    public ArrayList<ElementWrapper> getRelations() {
+    public List<ElementWrapper> getRelations() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setRelations(ArrayList<ElementWrapper> relations) {
+    public void setRelations(List<ElementWrapper> relations) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -15,6 +15,11 @@ import java.util.List;
  */
 public class VertexGenerator {
     /**
+     * Constructor de clase privado para evitar la instanceación.
+     */
+    private VertexGenerator(){}
+    
+    /**
      * Método principal de la clase. Este método se encarga de recibir una serie
      * de parámetros: cantidad de vertices a ser generados, tamaño de la figura y
      * centro de la figura, para regresar una lista de instancias Vertex a ser
@@ -127,7 +132,7 @@ public class VertexGenerator {
      * @param index
      * @return retorna el vertice de la entidad mas cercano al de la relacion
      */
-    public Vertex determinateVertex(ElementWrapper relation, int index){
+    public static Vertex determinateVertex(ElementWrapper relation, int index){
         ArrayList<Integer> distances = new ArrayList();
         for (int j = 0; j < 4; j++) {
             distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
@@ -149,7 +154,7 @@ public class VertexGenerator {
      * @param y2
      * @return 
      */
-    public int twoPointsDistance(double x1, double y1, double x2,double y2){
+    public static int twoPointsDistance(double x1, double y1, double x2,double y2){
         return (int)Math.hypot(x2-x1, y2-y1);
     }
     
@@ -159,7 +164,7 @@ public class VertexGenerator {
      * @param distances
      * @return 
      */
-    public int minorIndex(ArrayList<Integer> distances){
+    public static int minorIndex(ArrayList<Integer> distances){
         int minor = distances.get(0);int j= 0;
         for (int i = 0; i < 4; i++) {
             if (distances.get(i) < minor){
@@ -170,7 +175,7 @@ public class VertexGenerator {
         return j;
     }
     
-    public void recalculateVertexes(List<Vertex> vertexes, 
+    public static void recalculateVertexes(List<Vertex> vertexes, 
                                     Vertex newCenter)
     {
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
