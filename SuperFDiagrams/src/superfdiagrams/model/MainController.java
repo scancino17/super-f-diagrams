@@ -171,6 +171,23 @@ public class MainController {
         if(selected != null && stateC.getState() == MOVING_ELEMENT )
             VertexGenerator.recalculateVertexes(selected.getVertexes(),
                                     new Vertex(mouseXPos, mouseYPos));
+        
+        switch(stateC.getState()){
+            case VIEW:
+                uiController.setStatusText("");
+                break;
+            case SELECTING_ENTITIES:
+                uiController.setStatusText("Seleccionando entidades...");
+                break;
+            case RELATIONSHIP:
+                uiController.setStatusText("Creando relación...");
+                break;
+            case MOVING_ELEMENT:
+                uiController.setStatusText("Moviendo elemento...");
+                break;
+            case ENTITY:
+                uiController.setStatusText("Creando entidad...");
+        }
     }
     
     public void doClickAction(MouseEvent mouseEvent){
@@ -178,7 +195,7 @@ public class MainController {
             case ENTITY:
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
-                    String name = uiController.getElementName();
+                    String name = uiController.getElementName("entidad");
                     if (name != null) {
                         createNewEntity( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
                         stateC.setState(State.VIEW);
@@ -194,13 +211,15 @@ public class MainController {
                         entity.toggleHighlighted();
                         if (!elementsToRelation.contains(entity))
                             this.elementsToRelation.add(entity);
+                        else
+                            entity.toggleHighlighted();
                     }
                 }
                 break;
             case RELATIONSHIP:
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
                 {
-                    String name = uiController.getElementName();
+                    String name = uiController.getElementName("relación");
                     if (name != null){
                         createNewRelation( Math.round(mouseEvent.getX()), 
                                            Math.round(mouseEvent.getY()), name);
@@ -223,7 +242,7 @@ public class MainController {
         
         if (checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
             if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
-            && mouseEvent.getClickCount() == 2)
+            && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
             {
                 selected = checkColition(mouseEvent.getX(), mouseEvent.getY());
                 
@@ -236,10 +255,19 @@ public class MainController {
             }
         }
         
-        if(mouseEvent.getClickCount() == 3 && checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
-            ElementWrapper element = checkColition(mouseEvent.getX(), mouseEvent.getY());
-            for (Vertex v: element.getVertexes())
-                System.out.println(v.isUsed());
-        }
+        /*Método para probar caracteristica de vertex*/
+        /*if(mouseEvent.getClickCount() == 3 && checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+        ElementWrapper element = checkColition(mouseEvent.getX(), mouseEvent.getY());
+        for (Vertex v: element.getVertexes())
+        System.out.println(v.isUsed());
+        }*/
+    }
+    
+    public void cancelEntitySelection(){
+        if (elementsToRelation != null && !elementsToRelation.isEmpty())
+            for (ElementWrapper element: elementsToRelation)
+                element.toggleHighlighted();
+        
+        elementsToRelation = new ArrayList<>();
     }
 }

@@ -45,7 +45,7 @@ public class PolygonDrawer implements Drawer{
             gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.strokeText(name, center.getxPos() - 25 , center.getyPos());
+        gc.strokeText(name, center.getxPos() - 50 , center.getyPos());
     }
 
     /**Marca los puntos de los vertices

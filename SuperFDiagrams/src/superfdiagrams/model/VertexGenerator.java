@@ -87,7 +87,6 @@ public class VertexGenerator {
         for(int i = 0, j=0; i<number*2; i+=2, j++){
             points[i]   =   Math.sin(constant*j);
             points[i+1] = - Math.cos(constant*j);
-            System.out.println("Hecho " + j + " veces!");
         }
         
         return points;

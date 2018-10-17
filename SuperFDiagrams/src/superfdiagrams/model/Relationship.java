@@ -31,7 +31,6 @@ public class Relationship implements Element{
     @Override
     public void setRelations(List<ElementWrapper> relations) {
         this.relations = relations;
-        System.out.println(relations.size());
     }
 
     @Override

@@ -18,9 +18,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
 
@@ -34,6 +34,12 @@ import static superfdiagrams.model.State.SELECTING_ENTITIES;
 public class FXMLDocumentController implements Initializable{
     @FXML private Canvas canvas;
     @FXML private Button finishRelationship;
+    @FXML private Button entityButton;
+    @FXML private Button relationButton;
+    @FXML private Button btnExport;
+    @FXML private Button eraseButton;
+    @FXML private Button btnClose;
+    @FXML private Text statusText;
     
     private MainController mainC;
 
@@ -98,6 +104,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusEntity(){
         mainC.setState(ENTITY);
+        mainC.cancelEntitySelection();
     }
     
     /**
@@ -148,11 +155,11 @@ public class FXMLDocumentController implements Initializable{
     }
     
     
-    public String getElementName(){
-        TextInputDialog dialog = new TextInputDialog("Name here...");
-        dialog.setTitle("Insert Name");
-        dialog.setHeaderText("Enter Text:");
-        dialog.setContentText("Name:");
+    public String getElementName(String display){
+        TextInputDialog dialog = new TextInputDialog("Nombre aqui...");
+        dialog.setTitle("Ingrese nombre de la " + display + ".");
+        dialog.setHeaderText("Ingrese nombre: ");
+        dialog.setContentText("Nombre:");
         Optional<String> result = dialog.showAndWait();
         String newName = null;
         if (result.isPresent())
@@ -160,6 +167,12 @@ public class FXMLDocumentController implements Initializable{
         //else 
             //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
         
+        if (newName != null && newName.length() > 15)
+            newName = newName.substring(0, 15);
         return newName;
+    }
+    
+    public void setStatusText(String text){
+        statusText.setText(text);
     }
 }

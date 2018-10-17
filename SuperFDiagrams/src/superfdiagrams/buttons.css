@@ -1,0 +1,23 @@
+#btnExport 
+{
+	-fx-background-image: url("assets/export.png");
+    -fx-background-size : stretch;
+
+}
+
+#entityButton
+{
+	-fx-background-image: url("assets/rectangle.png");
+    -fx-background-size : stretch;
+}
+
+#relationButton
+{
+	-fx-background-image: url("assets/rhombus.png");
+    -fx-background-size : stretch;
+}
+#eraseButton
+{
+	-fx-background-image: url("assets/wiping-swipe-for-floors.png");
+    -fx-background-size : stretch;
+}
