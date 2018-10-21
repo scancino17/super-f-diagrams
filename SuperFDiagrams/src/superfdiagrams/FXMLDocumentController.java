@@ -167,8 +167,8 @@ public class FXMLDocumentController implements Initializable{
         //else 
             //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
         
-        if (newName != null && newName.length() > 15)
-            newName = newName.substring(0, 15);
+        if (newName != null && newName.length() > 10)
+            newName = newName.substring(0, 10);
         return newName;
     }
     
