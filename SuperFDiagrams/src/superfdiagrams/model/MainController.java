@@ -209,7 +209,8 @@ public class MainController {
                     ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
                     if (entity.getElement() instanceof Entity) {
                         entity.toggleHighlighted();
-                        if (!elementsToRelation.contains(entity))
+                        if (!elementsToRelation.contains(entity)
+                            &&  elementsToRelation.size() < 6)
                             this.elementsToRelation.add(entity);
                         else
                             entity.toggleHighlighted();
