@@ -7,6 +7,7 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
 
@@ -87,6 +88,28 @@ public class ElementBuilder {
         element.setDrawer(new PolygonDrawer());
         return element;
         
+    }
+    
+    public ElementWrapper generateAttribute(Attribute attribute){
+        ElementWrapper element = new ElementWrapper();
+        
+        element.setElement(attribute);
+        element.getElement().setLabel(name);
+        
+        element.setVertexes(VertexGenerator.generateVertexes(50, size, center));
+        
+        List<ElementWrapper> unions = new ArrayList<>();
+        
+        for(ElementWrapper el: attribute.getContained()){
+                    unions.add(generateLine(element, el));
+                }
+        
+        attribute.setContained(unions);
+        
+        ElipseDrawer drawer = new ElipseDrawer();
+        drawer.setType(attribute.getType());
+        element.setDrawer(drawer);
+        return element;
     }
     
     public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){

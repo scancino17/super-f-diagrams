@@ -7,11 +7,13 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import superfdiagrams.FXMLDocumentController;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
+import static superfdiagrams.model.State.ATTRIBUTE;
 import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.VIEW;
@@ -38,6 +40,7 @@ public class MainController {
     private MoveElementAction selectedAction;
     private double mouseXPos;
     private double mouseYPos;
+    private boolean choosed;
     
     public static MainController getController(){
         if (mc == null)
@@ -51,6 +54,7 @@ public class MainController {
         diagramC = DiagramController.getController();
         actionC = ActionController.getController();
         elementsToRelation = new ArrayList<>();
+        this.choosed = false;
     }
     
     public void setUiController(FXMLDocumentController dc){
@@ -152,6 +156,8 @@ public class MainController {
     public void finishEntitySelection(){
         if (elementsToRelation.isEmpty())
             stateC.setState(VIEW);
+        else if(stateC.getState() == State.CHOSING_ENTITY)
+            stateC.setState(ATTRIBUTE);
         else
             stateC.setState(RELATIONSHIP);
     }
@@ -178,6 +184,11 @@ public class MainController {
                 break;
             case ENTITY:
                 uiController.setStatusText("Creando entidad...");
+            case CHOSING_ENTITY:
+                uiController.setStatusText("Escogiendo Entidad...");
+                break;
+            case ATTRIBUTE:
+                uiController.setStatusText("Creando Atributo");
         }
     }
     
@@ -216,6 +227,33 @@ public class MainController {
                         createNewRelation( Math.round(mouseEvent.getX()), 
                                            Math.round(mouseEvent.getY()), name);
                         stateC.setState(VIEW);
+                    } else {
+                        for(ElementWrapper element: elementsToRelation)
+                            element.toggleHighlighted();
+                    }
+                }
+                break;
+            case CHOSING_ENTITY:
+                uiController.activateFinishButton();
+                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+                    ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                    if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
+                            && !choosed){
+                        elementsToRelation.add(entity);
+                        entity.toggleHighlighted();
+                        choosed = true;
+                    }
+                }
+                break;
+            case ATTRIBUTE:
+                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
+                {
+                    String name = uiController.getElementName("Atributo");
+                    if (name != null){
+                        createNewAttribute( Math.round(mouseEvent.getX()), 
+                                           Math.round(mouseEvent.getY()), name);
+                        stateC.setState(VIEW);
+                        choosed = false;
                     } else {
                         for(ElementWrapper element: elementsToRelation)
                             element.toggleHighlighted();
@@ -294,4 +332,38 @@ public class MainController {
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
     }
+
+    /**
+     * Funcion que crea un nuevo atributo, pide que tipo de atributo sera 
+     * y se une con la entidad que se eligio.
+     * @param posX
+     * @param posY
+     * @param name 
+     */
+    public void createNewAttribute(double posX, double posY, String name){
+        Vertex vertex = new Vertex(posX, posY);
+        
+        ElementBuilder elementCostructor = new ElementBuilder();
+        elementCostructor.setCenter(vertex);
+        elementCostructor.setName(name);
+        
+        for(ElementWrapper e : elementsToRelation)
+            e.toggleHighlighted();
+        
+        Attribute attribute = new Attribute();
+        attribute.setContained(elementsToRelation);
+        attribute.setType(Integer.parseInt(uiController.getType()));
+        
+        ElementWrapper element = elementCostructor.generateAttribute(attribute);
+        
+        actionC.addToStack(new CreateRelationshipAction(element));
+        
+        elementsToRelation = new ArrayList<>();
+        this.addElement(element);
+        
+        for(ElementWrapper union: element.getElement().getContained()){
+            this.addElement(union);
+        }
+    }
+
 }

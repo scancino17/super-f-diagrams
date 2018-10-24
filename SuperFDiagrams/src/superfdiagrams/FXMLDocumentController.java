@@ -18,11 +18,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
+import static superfdiagrams.model.State.CHOSING_ENTITY;
 
 import static superfdiagrams.model.State.ENTITY;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
@@ -41,6 +44,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Button btnClose;
     @FXML private Button undoButton;
     @FXML private Button redoButton;
+    @FXML private Button attributeBtn;
     @FXML private Text statusText;
     
     private MainController mainC;
@@ -207,4 +211,32 @@ public class FXMLDocumentController implements Initializable{
     public void setStatusText(String text){
         statusText.setText(text);
     }
+    
+    @FXML public void canvasZoom(ScrollEvent scroll){
+        //implementar
+        double zoom = 1.1;
+        if (scroll.getDeltaY() < 0)
+            zoom = 2.0 - zoom;
+        
+        canvas.setScaleX(canvas.getScaleX() * zoom);
+        canvas.setScaleY(canvas.getScaleY() * zoom);
+    }
+    
+    @FXML
+    public void changeStatusAtrribute(){
+        mainC.setState(CHOSING_ENTITY);
+    }
+    
+    public String getType(){
+        String[] choices =  new String[]{"1","2","3","4","5"};
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
+        Optional<String> result = dialog.showAndWait();
+        String selected = "Cancelado...";
+        
+        if (result.isPresent())
+            selected = result.get();
+        
+        return selected;
+    }
+    
 }

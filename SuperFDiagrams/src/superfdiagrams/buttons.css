@@ -32,3 +32,8 @@
         -fx-background-image: url("assets/undo.png");
     -fx-background-size: stretch;
 }
+#attributeBtn
+{
+        -fx-background-image: url("assets/ellipse-outline-shape-variant.png");
+    -fx-background-size: stretch;
+}

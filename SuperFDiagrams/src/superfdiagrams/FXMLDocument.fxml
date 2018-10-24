@@ -15,7 +15,7 @@
       <Button fx:id="btnClose" layoutX="78.0" layoutY="605.0" mnemonicParsing="false" onAction="#close" text="Salir" />
       <Button fx:id="btnExport" layoutX="20.0" layoutY="499.0" mnemonicParsing="false" onAction="#Export" prefHeight="64.0" prefWidth="64.0" />
       <Button fx:id="btnShowVertex" layoutX="20.0" layoutY="457.0" mnemonicParsing="false" onAction="#btnShowVertex" prefHeight="25.0" prefWidth="155.0" text="Mostrar puntos de control" />
-      <Button fx:id="finishRelationship" layoutX="20.0" layoutY="198.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" />
+      <Button fx:id="finishRelationship" layoutX="20.0" layoutY="266.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" />
       <Line endY="720.0" layoutX="200.0" />
       <Text fx:id="statusText" layoutX="200.0" layoutY="711.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="156.13671875" />
       <Text layoutX="78.0" layoutY="62.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dibujar" />
@@ -27,5 +27,7 @@
       <Button fx:id="undoButton" layoutX="109.0" layoutY="360.0" mnemonicParsing="false" onAction="#undo" prefHeight="64.0" prefWidth="64.0" />
       <Text layoutX="31.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rehacer" />
       <Text layoutX="117.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deshacer" />
+      <Button fx:id="attributeBtn" layoutX="20.0" layoutY="166.0" mnemonicParsing="false" onAction="#changeStatusAtrribute" prefHeight="64.0" prefWidth="64.0" />
+      <Text layoutX="30.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Atributo" />
    </children>
 </AnchorPane>
