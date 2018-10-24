@@ -228,14 +228,19 @@ public class FXMLDocumentController implements Initializable{
     }
     
     public String getType(){
-        String[] choices =  new String[]{"1","2","3","4","5"};
+        String[] choices =  new String[]{"1 - Derivado",
+                                         "2 - Genérico",
+                                         "3 - Clave",
+                                         "4 - Compuesto",
+                                         "5 - Multivaluado (WIP)"};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
         Optional<String> result = dialog.showAndWait();
-        String selected = "Cancelado...";
+        String selected = "0";
         
-        if (result.isPresent())
+        if (result.isPresent()){
             selected = result.get();
-        
+            selected = selected.substring(0, 1);
+        }
         return selected;
     }
     
