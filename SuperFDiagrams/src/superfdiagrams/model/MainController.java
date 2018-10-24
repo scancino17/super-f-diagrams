@@ -305,6 +305,7 @@ public class MainController {
                 element.toggleHighlighted();
         
         elementsToRelation = new ArrayList<>();
+        choosed = false;
     }
     
     public void undo(){
@@ -352,17 +353,22 @@ public class MainController {
         
         Attribute attribute = new Attribute();
         attribute.setContained(elementsToRelation);
-        attribute.setType(Integer.parseInt(uiController.getType()));
-        
-        ElementWrapper element = elementCostructor.generateAttribute(attribute);
-        
-        actionC.addToStack(new CreateRelationshipAction(element));
-        
-        elementsToRelation = new ArrayList<>();
-        this.addElement(element);
-        
-        for(ElementWrapper union: element.getElement().getContained()){
-            this.addElement(union);
+        int type = Integer.parseInt(uiController.getType());
+        if (type != 0){
+            attribute.setType(type);
+
+            ElementWrapper element = elementCostructor.generateAttribute(attribute);
+
+            actionC.addToStack(new CreateRelationshipAction(element));
+
+            elementsToRelation = new ArrayList<>();
+            this.addElement(element);
+
+            for(ElementWrapper union: element.getElement().getContained()){
+                this.addElement(union);
+            }
+        } else {
+            cancelEntitySelection();
         }
     }
 
