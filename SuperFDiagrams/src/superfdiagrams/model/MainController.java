@@ -15,6 +15,8 @@ import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.VIEW;
+import superfdiagrams.model.action.ActionController;
+import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.drawer.DrawController;
 
 /**
@@ -27,8 +29,10 @@ public class MainController {
     private DrawController drawC;
     private DiagramController diagramC;
     private FXMLDocumentController uiController;
+    private ActionController actionC;
     private List<ElementWrapper> elementsToRelation;
     private ElementWrapper selected;
+    private List<ElementWrapper> selectedRelated;
     private double mouseXPos;
     private double mouseYPos;
     
@@ -42,6 +46,7 @@ public class MainController {
         stateC = StateController.getController();
         drawC = DrawController.getDrawController();
         diagramC = DiagramController.getController();
+        actionC = ActionController.getController();
         elementsToRelation = new ArrayList<>();
     }
     
@@ -86,8 +91,8 @@ public class MainController {
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         ElementWrapper element = elementConstructor.generateEntity();
-        diagramC.addElement(element);
-        drawC.addToBuffer(element);
+        actionC.addToStack(new CreateElementAction(element));
+        this.addElement(element);
     }
     
     /**
@@ -102,15 +107,17 @@ public class MainController {
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
-        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation.size(),elementsToRelation);
-        
+        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation);
+                
         for(ElementWrapper e : elementsToRelation)
             e.toggleHighlighted();
         
         elementsToRelation = new ArrayList<>();
-        diagramC.addElement(element);
-        drawC.addToBuffer(element);
-        createUnion(element);
+        this.addElement(element);
+        
+        for(ElementWrapper union: element.getElement().getContained()){
+            this.addElement(union);
+        }
     }
     
     /**
@@ -131,33 +138,35 @@ public class MainController {
      * Funcion que crea una linea, la cual contiene un arreglo de 2 vertices,
      * el primer vertice de la lista de la relacion y un vertice de alguna 
      * entidad que se determina con otras funciones
-     * @param relation 
+     * //@param relation 
      */
-    public void createUnion(ElementWrapper relation){  
-        ElementBuilder elementConstructor = new ElementBuilder();
-        ElementWrapper element;
-        
-        if (relation.getElement().getRelations().size() == 1){
-            for (int i = 0; i < 2; i++) {                
-                element = elementConstructor.generateLine(relation, relation.getElement().getRelations().get(0));
-                diagramC.addElement(element);
-                drawC.addToBuffer(element);
-            }  
-        }else{
-            for(ElementWrapper entity: relation.getElement().getRelations()){
-            element = elementConstructor.generateLine(relation, entity);
-            diagramC.addElement(element);
-            drawC.addToBuffer(element);
-            }
-        }
+    /*public void createUnion(ElementWrapper relation){
+    ElementBuilder elementConstructor = new ElementBuilder();
+    ElementWrapper element;
+    
+    if (relation.getElement().getContained().size() == 1){
+    for (int i = 0; i < 2; i++) {
+    element = elementConstructor.generateLine(relation, relation.getElement().getContained().get(0));
+    diagramC.addElement(element);
+    drawC.addToBuffer(element);
     }
+    }else{
+    for(ElementWrapper entity: relation.getElement().getContained()){
+    element = elementConstructor.generateLine(relation, entity);
+    diagramC.addElement(element);
+    drawC.addToBuffer(element);
+    }
+    }
+    }*/
     
     public void restart(){
+        actionC.restart();
         diagramC.newDiagram();
         elementsToRelation.clear();
         drawC.eraseBuffer();
         selected = null;
         stateC.setState(VIEW);
+        
     }
     
     public void finishEntitySelection(){
@@ -168,9 +177,11 @@ public class MainController {
     }
     
     public void runMainLoop(){
-        if(selected != null && stateC.getState() == MOVING_ELEMENT )
+        if(selected != null && stateC.getState() == MOVING_ELEMENT ){
             VertexGenerator.recalculateVertexes(selected.getVertexes(),
                                     new Vertex(mouseXPos, mouseYPos));
+            VertexGenerator.recalculateNearestVertexes(selectedRelated);
+        }
         
         switch(stateC.getState()){
             case VIEW:
@@ -236,6 +247,7 @@ public class MainController {
                 {
                     selected.toggleHighlighted();
                     selected = null;
+                    selectedRelated = null;
                     stateC.setState(VIEW);
                 }
                 break;
@@ -246,6 +258,7 @@ public class MainController {
             && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
             {
                 selected = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
                 
                 if (!(selected.getElement() instanceof Union)){
                     selected.toggleHighlighted();
@@ -270,5 +283,31 @@ public class MainController {
                 element.toggleHighlighted();
         
         elementsToRelation = new ArrayList<>();
+    }
+    
+    public void undo(){
+        actionC.undo();
+    }
+    
+    public void redo(){
+        actionC.redo();
+    }
+    
+    public boolean isUndoEmpty(){
+        return actionC.isUndoEmpty();
+    }
+    
+    public boolean isRedoEmpty(){
+        return actionC.isRedoEmpty();
+    }
+    
+    public void addElement(ElementWrapper element){
+        diagramC.addElement(element);
+        drawC.addToBuffer(element);
+    }
+    
+    public void removeElement(ElementWrapper element){
+        diagramC.removeElement(element);
+        drawC.removeFromBuffer(element);
     }
 }

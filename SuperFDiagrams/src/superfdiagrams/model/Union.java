@@ -12,47 +12,44 @@ import java.util.List;
  *
  * @author sebca
  */
-public class Union implements Element{
-    public ElementWrapper entity;
-    public Relationship relationship;
-
-    
-    
+public class Union implements Element, ConnectsWrappers{
+    private ElementWrapper entity;
+    private ElementWrapper relationship;
+ 
     @Override
-    public String getName() {
+    public String getLabel() {
         return null;
     }
 
     @Override
-    public void setName(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    public void setLabel(String name) {}   
     
+    @Override
+    public List<ElementWrapper> getContained() {
+        return null;
+    }
 
-    public ElementWrapper getEntity() {
+    @Override
+    public void setContained(List<ElementWrapper> relations) {}
+
+    @Override
+    public ElementWrapper getParent() {
+       return relationship;
+    }
+
+    @Override
+    public ElementWrapper getChild() {
         return entity;
     }
 
-    public void setEntity(ElementWrapper entity) {
-        this.entity = entity;
-    }
-
-    public Relationship getRelationship() {
-        return relationship;
-    }
-
-    public void setRelationship(Relationship relationship) {
-        this.relationship = relationship;
+    @Override
+    public void setParent(ElementWrapper element) {
+        this.relationship = element;
     }
 
     @Override
-    public List<ElementWrapper> getRelations() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setRelations(List<ElementWrapper> relations) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void setChild(ElementWrapper element) {
+        this.entity = element;
     }
     
     

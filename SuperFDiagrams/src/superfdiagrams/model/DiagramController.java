@@ -39,6 +39,10 @@ public class DiagramController {
         diagram.addElement(element);
     }
     
+    public void removeElement(ElementWrapper element){
+        diagram.removeElement(element);
+    }
+    
     public List<ElementWrapper> fetchElements(){
         return diagram.getElements();
     }

@@ -136,14 +136,14 @@ public class VertexGenerator {
         for (int j = 0; j < 4; j++) {
             distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
                     , relation.getVertexes().get(index).getyPos(), 
-                    relation.getElement().getRelations().get(index).getVertexes().get(j).getxPos()
-                    , relation.getElement().getRelations().get(index).getVertexes().get(j).getyPos()));
+                    relation.getElement().getContained().get(index).getVertexes().get(j).getxPos()
+                    , relation.getElement().getContained().get(index).getVertexes().get(j).getyPos()));
         }
-        return relation.getElement().getRelations().get(index).getVertexes().get(minorIndex(distances));
+        return relation.getElement().getContained().get(index).getVertexes().get(minorIndex(distances));
     }
     
     public Vertex determinateVertex(ElementWrapper relation, int index, boolean xd){
-        return relation.getElement().getRelations().get(index).getVertexes().get(index+2);
+        return relation.getElement().getContained().get(index).getVertexes().get(index+2);
     }
     /**
      * Funcion que solo devuelve la distancia entre 2 puntos
@@ -184,5 +184,25 @@ public class VertexGenerator {
             v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
         }
         
+    }
+    
+    public static void recalculateNearestVertexes(List<ElementWrapper> unions){
+        ElementWrapper parent = null;
+        for(ElementWrapper union : unions){
+            ElementWrapper selected = ((ConnectsWrappers)union.getElement()).getParent();
+            if (selected != parent){
+                parent = selected;
+                
+                for(Vertex v:parent.getVertexes())
+                    v.setUsed(false);
+                
+                for(ElementWrapper unionInParent: parent.getElement().getContained()){
+                    if (unionInParent.getElement() instanceof Union){
+                        unionInParent.setVertexes(GeometricUtilities.nearestVertexes
+                            (parent.getVertexes(), ((ConnectsWrappers)unionInParent.getElement()).getChild().getVertexes()));
+                    }
+                }
+            }
+        }
     }
 }

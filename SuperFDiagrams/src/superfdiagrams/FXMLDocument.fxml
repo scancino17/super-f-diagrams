@@ -23,5 +23,7 @@
       <Text layoutX="119.0" layoutY="152.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Relación" />
       <Text layoutX="26.0" layoutY="576.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Exportar..." />
       <Text layoutX="121.0" layoutY="576.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Limpiar" />
+      <Button fx:id="redoButton" layoutX="20.0" layoutY="377.0" mnemonicParsing="false" onAction="#redo" prefHeight="64.0" prefWidth="64.0" text="Rehacer" />
+      <Button fx:id="undoButton" layoutX="109.0" layoutY="377.0" mnemonicParsing="false" onAction="#undo" prefHeight="64.0" prefWidth="64.0" text="Deshacer" />
    </children>
 </AnchorPane>

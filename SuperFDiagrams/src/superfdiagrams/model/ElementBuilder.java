@@ -40,7 +40,7 @@ public class ElementBuilder {
         ElementWrapper element = new ElementWrapper();
         
         element.setElement(new Entity());
-        element.getElement().setName(name);
+        element.getElement().setLabel(name);
         
         element.setVertexes(VertexGenerator.generateRectangle(size, center));
         
@@ -51,8 +51,8 @@ public class ElementBuilder {
     public ElementWrapper generateRelationship(int vertexes, List<ElementWrapper> relations){
         ElementWrapper element = new ElementWrapper();
         Relationship relation = new Relationship();
-        relation.setName(name);
-        relation.setRelations(relations);
+        relation.setLabel(name);
+        relation.setContained(relations);
         
         element.setElement(relation);
 
@@ -63,15 +63,45 @@ public class ElementBuilder {
         return element;
     }
     
+    public ElementWrapper generateRelationship(List<ElementWrapper> entities){
+        ElementWrapper element = new ElementWrapper();
+        Relationship relation = new Relationship();
+        
+        element.setVertexes(VertexGenerator.generateVertexes(entities.size(), size, center));
+        
+        relation.setLabel(name);
+        List<ElementWrapper> unions = new ArrayList<>();
+        
+        if(entities.size() > 1){
+            for(ElementWrapper el: entities){
+                unions.add(generateLine(element, el));
+            }
+        } else if (entities.size() == 1){
+            unions.add(generateLine(element, entities.get(0)));
+            unions.add(generateLine(element, entities.get(0)));
+        }
+         
+        
+        relation.setContained(unions);
+        element.setElement(relation);
+        element.setDrawer(new PolygonDrawer());
+        return element;
+        
+    }
+    
     public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){
         ElementWrapper line = new ElementWrapper();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
                 relation.getVertexes(), entity.getVertexes());
         
+        Union union = new Union();
+        union.setParent(relation);
+        union.setChild(entity);
+        
         line.setVertexes(vertexes);
         line.setDrawer(new LineDrawer());
-        line.setElement(new Union());
+        line.setElement(union);
         return line;
     }
 }

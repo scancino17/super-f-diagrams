@@ -20,14 +20,19 @@ public class Diagram {
     }
     
     public List<ElementWrapper> getElements() {
-    return elements;
+        return elements;
     }
     
     public void setElements(List<ElementWrapper> elements) {
-    this.elements = elements;
+        this.elements = elements;
     }
     
     public void addElement(ElementWrapper element){
-    this.elements.add(element);
+        this.elements.add(element);
+    }
+    
+    public void removeElement(ElementWrapper element){
+        if (elements.contains(element))
+            elements.remove(element);
     }
 }

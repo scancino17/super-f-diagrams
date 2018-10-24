@@ -22,7 +22,7 @@ public class ElementWrapper implements Drawable{
 
     @Override
     public void draw(GraphicsContext gc) {
-        drawer.doDraw(gc,vertexes,element.getName(), highlighted);
+        drawer.doDraw(gc,vertexes,element.getLabel(), highlighted);
     }
 
     public void drawVertex(GraphicsContext gc)

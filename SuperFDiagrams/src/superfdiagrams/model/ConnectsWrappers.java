@@ -5,15 +5,13 @@
  */
 package superfdiagrams.model;
 
-import java.util.List;
-
 /**
  *
  * @author sebca
  */
-public interface Element {
-    public String getLabel();
-    public void setLabel(String name);
-    public List<ElementWrapper> getContained();
-    public void setContained(List<ElementWrapper> contained);
+public interface ConnectsWrappers {
+    public ElementWrapper getParent();
+    public ElementWrapper getChild();
+    public void setParent(ElementWrapper element);
+    public void setChild(ElementWrapper element);
 }

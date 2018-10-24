@@ -39,6 +39,8 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Button btnExport;
     @FXML private Button eraseButton;
     @FXML private Button btnClose;
+    @FXML private Button undoButton;
+    @FXML private Button redoButton;
     @FXML private Text statusText;
     
     private MainController mainC;
@@ -60,6 +62,8 @@ public class FXMLDocumentController implements Initializable{
         
         canvas.setOnMouseMoved(elementOnMouseDragged);
         deactivateFinishButton();
+        deactivateButton(undoButton);
+        deactivateButton(redoButton);
         
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
@@ -78,6 +82,7 @@ public class FXMLDocumentController implements Initializable{
         mainC.runMainLoop();
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
         mainC.drawElements();
+        checkButtonStatus();
     }
 
     @FXML public void btnShowVertex()
@@ -144,16 +149,43 @@ public class FXMLDocumentController implements Initializable{
         Platform.exit();
     }
     
+    @FXML
+    public void undo(){
+        mainC.undo();
+    }
+    
+    @FXML void redo(){
+        mainC.redo();
+    }
+    
     public void activateFinishButton(){
-        finishRelationship.setDisable(false);
-        finishRelationship.setVisible(true);
+        activateButton(finishRelationship);
     }
     
     public void deactivateFinishButton(){
-        finishRelationship.setDisable(true);
-        finishRelationship.setVisible(false);
+        deactivateButton(finishRelationship);
     }
     
+    public void checkButtonStatus(){
+        if(undoButton.isDisabled() && !mainC.isUndoEmpty())
+            activateButton(undoButton);
+        if(!undoButton.isDisabled() && mainC.isUndoEmpty())
+            deactivateButton(undoButton);
+        if(redoButton.isDisabled() && !mainC.isRedoEmpty())
+            activateButton(redoButton);
+        if(!redoButton.isDisabled() && mainC.isRedoEmpty())
+            deactivateButton(redoButton);
+    }
+    
+    private void activateButton(Button button){
+        button.setDisable(false);
+        button.setVisible(true);
+    }
+    
+    private void deactivateButton(Button button){
+        button.setDisable(true);
+        //button.setVisible(false);
+    }
     
     public String getElementName(String display){
         TextInputDialog dialog = new TextInputDialog("Nombre aqui...");

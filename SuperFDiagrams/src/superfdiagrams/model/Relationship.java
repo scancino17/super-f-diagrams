@@ -19,22 +19,22 @@ public class Relationship implements Element{
 
     
     @Override
-    public String getName() {
+    public String getLabel() {
         return name;
     }
 
     @Override
-    public List<ElementWrapper> getRelations() {
+    public List<ElementWrapper> getContained() {
         return relations;
     }
 
     @Override
-    public void setRelations(List<ElementWrapper> relations) {
+    public void setContained(List<ElementWrapper> relations) {
         this.relations = relations;
     }
 
     @Override
-    public void setName(String name) {
+    public void setLabel(String name) {
         this.name = name;
     }
 
