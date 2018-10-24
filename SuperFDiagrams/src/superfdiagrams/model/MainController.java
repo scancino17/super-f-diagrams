@@ -17,6 +17,8 @@ import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.VIEW;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
+import superfdiagrams.model.action.CreateRelationshipAction;
+import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.drawer.DrawController;
 
 /**
@@ -33,6 +35,7 @@ public class MainController {
     private List<ElementWrapper> elementsToRelation;
     private ElementWrapper selected;
     private List<ElementWrapper> selectedRelated;
+    private MoveElementAction selectedAction;
     private double mouseXPos;
     private double mouseYPos;
     
@@ -112,6 +115,8 @@ public class MainController {
         for(ElementWrapper e : elementsToRelation)
             e.toggleHighlighted();
         
+        actionC.addToStack(new CreateRelationshipAction(element));
+        
         elementsToRelation = new ArrayList<>();
         this.addElement(element);
         
@@ -133,31 +138,6 @@ public class MainController {
         }
         return false;
     }
-    
-    /**
-     * Funcion que crea una linea, la cual contiene un arreglo de 2 vertices,
-     * el primer vertice de la lista de la relacion y un vertice de alguna 
-     * entidad que se determina con otras funciones
-     * //@param relation 
-     */
-    /*public void createUnion(ElementWrapper relation){
-    ElementBuilder elementConstructor = new ElementBuilder();
-    ElementWrapper element;
-    
-    if (relation.getElement().getContained().size() == 1){
-    for (int i = 0; i < 2; i++) {
-    element = elementConstructor.generateLine(relation, relation.getElement().getContained().get(0));
-    diagramC.addElement(element);
-    drawC.addToBuffer(element);
-    }
-    }else{
-    for(ElementWrapper entity: relation.getElement().getContained()){
-    element = elementConstructor.generateLine(relation, entity);
-    diagramC.addElement(element);
-    drawC.addToBuffer(element);
-    }
-    }
-    }*/
     
     public void restart(){
         actionC.restart();
@@ -215,10 +195,10 @@ public class MainController {
                 break;
             case SELECTING_ENTITIES:   
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
-                {
-                    uiController.activateFinishButton();
+                {                   
                     ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
                     if (entity.getElement() instanceof Entity) {
+                        uiController.activateFinishButton();
                         entity.toggleHighlighted();
                         if (!elementsToRelation.contains(entity)
                             &&  elementsToRelation.size() < 6)
@@ -246,8 +226,10 @@ public class MainController {
                 if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
                 {
                     selected.toggleHighlighted();
+                    selectedAction.getNewPosition();
                     selected = null;
                     selectedRelated = null;
+                    selectedAction = null;
                     stateC.setState(VIEW);
                 }
                 break;
@@ -259,6 +241,8 @@ public class MainController {
             {
                 selected = checkColition(mouseEvent.getX(), mouseEvent.getY());
                 selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
+                selectedAction = new MoveElementAction(selected, selectedRelated);
+                actionC.addToStack(selectedAction);
                 
                 if (!(selected.getElement() instanceof Union)){
                     selected.toggleHighlighted();

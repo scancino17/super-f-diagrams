@@ -37,7 +37,6 @@ public class ActionController {
         if (!undoStack.isEmpty()){
             Action undoAction = undoStack.pop();
             undoAction.undo();
-            //addToStack(new UndoAction(undoAction));
             redoStack.push(undoAction);
         }
     }
@@ -52,7 +51,9 @@ public class ActionController {
     
     public void addToStack(Action added){
         if (added != null)
-            undoStack.add(added);
+            undoStack.push(added);
+        if (!redoStack.isEmpty())
+            redoStack = new ArrayDeque<>();
     }
     
     public boolean isUndoEmpty(){

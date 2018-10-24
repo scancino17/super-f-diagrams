@@ -70,4 +70,9 @@ public class Vertex {
         return "Vertice en (" + xPos + ", " + yPos + ")";
     }
 
+    public Vertex obtainCopy(){
+        Vertex v = new Vertex(xPos, yPos);
+        v.used = this.used;
+        return v;
+    }
 }
