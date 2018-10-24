@@ -7,7 +7,7 @@ package superfdiagrams.model;
 
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
-import superfdiagrams.controller.Drawable;
+import superfdiagrams.model.drawer.Drawable;
 import superfdiagrams.model.drawer.Drawer;
 
 /**
@@ -18,10 +18,16 @@ public class ElementWrapper implements Drawable{
     private Element element;
     private Drawer drawer;
     private List<Vertex> vertexes;
+    private boolean highlighted = false;
 
     @Override
     public void draw(GraphicsContext gc) {
-        drawer.doDraw(gc,vertexes,element.getName());
+        drawer.doDraw(gc,vertexes,element.getName(), highlighted, element.getType());
+    }
+
+    public void drawVertex(GraphicsContext gc)
+    {
+        drawer.doDrawVertex(gc,vertexes);
     }
 
     public Element getElement() {
@@ -48,4 +54,7 @@ public class ElementWrapper implements Drawable{
         this.vertexes = vertexes;
     }
     
+    public void toggleHighlighted(){
+        this.highlighted = !highlighted;
+    }
 }

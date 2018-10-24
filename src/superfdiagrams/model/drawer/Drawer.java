@@ -14,5 +14,6 @@ import superfdiagrams.model.Vertex;
  * @author sebca
  */
 public interface Drawer {
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name);
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted, int type);
+    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes);
 }

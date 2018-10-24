@@ -6,6 +6,9 @@
 package superfdiagrams.model;
 
 import java.util.ArrayList;
+import java.util.List;
+import superfdiagrams.model.drawer.ElipseDrawer;
+import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
 
 /**
@@ -13,7 +16,7 @@ import superfdiagrams.model.drawer.PolygonDrawer;
  * @author sebca
  */
 public class ElementBuilder {
-    private static final int DEFAULT_SIZE = 100;
+    private static final int DEFAULT_SIZE = 75;
     private String name;
     private Vertex center;
     private int size;
@@ -46,7 +49,7 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(int vertexes, ArrayList<ElementWrapper> relations){
+    public ElementWrapper generateRelationship(int vertexes, List<ElementWrapper> relations){
         ElementWrapper element = new ElementWrapper();
         Relationship relation = new Relationship();
         relation.setName(name);
@@ -58,6 +61,30 @@ public class ElementBuilder {
         element.setVertexes(VertexGenerator.generateVertexes(vertexes, size, center));
         
         element.setDrawer(new PolygonDrawer());
+        return element;
+    }
+    
+    public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){
+        ElementWrapper line = new ElementWrapper();
+        
+        List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
+                relation.getVertexes(), entity.getVertexes());
+        
+        line.setVertexes(vertexes);
+        line.setDrawer(new LineDrawer());
+        line.setElement(new Union());
+        return line;
+    }
+    
+    public ElementWrapper generateAttribute(Attribute attribute){
+        ElementWrapper element = new ElementWrapper();
+        
+        element.setElement(attribute);
+        element.getElement().setName(name);
+        
+        element.setVertexes(VertexGenerator.generateVertexes(50, size, center));
+        
+        element.setDrawer(new ElipseDrawer());
         return element;
     }
 }

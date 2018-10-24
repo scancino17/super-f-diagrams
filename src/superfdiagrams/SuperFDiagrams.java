@@ -23,6 +23,8 @@ public class SuperFDiagrams extends Application {
         
         Scene scene = new Scene(root);
         
+        stage.setResizable(false);
+        stage.setTitle("SuperF Diagrams");
         stage.setScene(scene);
         stage.show();
     }

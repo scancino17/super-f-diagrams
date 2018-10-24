@@ -6,6 +6,7 @@
 package superfdiagrams.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -13,9 +14,10 @@ import java.util.ArrayList;
  */
 public interface Element {
     public String getName();
-
+    
     public void setName(String name);
     
-    public ArrayList<ElementWrapper> getRelations();
-    public void setRelations(ArrayList<ElementWrapper> relations);
+    public List<ElementWrapper> getRelations();
+    public void setRelations(List<ElementWrapper> relations);
+    public int getType();
 }

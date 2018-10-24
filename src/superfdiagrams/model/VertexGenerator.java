@@ -15,6 +15,11 @@ import java.util.List;
  */
 public class VertexGenerator {
     /**
+     * Constructor de clase privado para evitar la instanceación.
+     */
+    private VertexGenerator(){}
+    
+    /**
      * Método principal de la clase. Este método se encarga de recibir una serie
      * de parámetros: cantidad de vertices a ser generados, tamaño de la figura y
      * centro de la figura, para regresar una lista de instancias Vertex a ser
@@ -34,7 +39,7 @@ public class VertexGenerator {
         if (number < 3)
             number = 4;
         
-        int[] denormalized = denormalize(calculateVertexes(number), number, size);
+        double[] denormalized = denormalize(calculateVertexes(number), number, size);
         Vertex vertex;
         
         for(int i =0; i < number*2; i+=2){
@@ -55,7 +60,7 @@ public class VertexGenerator {
         List<Vertex> vertexes = new ArrayList<>();
         
         double[] normalized = new double[]{-1, -0.5, -1, 0.5, 1, 0.5, 1, -0.5};
-        int[] denormalized = denormalize(normalized, 4, size);
+        double[] denormalized = denormalize(normalized, 4, size);
         
         Vertex vertex;
         for (int i = 0; i<8; i+=2){
@@ -82,7 +87,6 @@ public class VertexGenerator {
         for(int i = 0, j=0; i<number*2; i+=2, j++){
             points[i]   =   Math.sin(constant*j);
             points[i+1] = - Math.cos(constant*j);
-            System.out.println("Hecho " + j + " veces!");
         }
         
         return points;
@@ -97,12 +101,12 @@ public class VertexGenerator {
      * @param size Multiplicador usado para generar los puntos.
      * @return Array que continene valores para generar instancias Vertex.
      */
-    private static int[] denormalize(double[] normalized, int number, int size){
-        int[] denormalized = new int[number * 2];
+    private static double[] denormalize(double[] normalized, int number, int size){
+        double[] denormalized = new double[number * 2];
         
         for(int i = 0; i < number * 2 - 1; i+=2){
-            denormalized[i] = (int) Math.round(normalized[i] * size);
-            denormalized[i+1] = (int) Math.round(normalized[i+1] * size);
+            denormalized[i] = Math.round(normalized[i] * size);
+            denormalized[i+1] = Math.round(normalized[i+1] * size);
         }
         
         return denormalized;
@@ -116,7 +120,69 @@ public class VertexGenerator {
      * @param yPos Posciion en y del vertice.
      * @return Instancia de la clase Vertex
      */
-    public static Vertex generateVertex(int xPos, int yPos){
-        return new Vertex(new int[]{xPos, yPos});
+    public static Vertex generateVertex(double xPos, double yPos){
+        return new Vertex(new double[]{xPos, yPos});
+    }
+    
+    /**
+     * Funcion que crea un arreglo de distancia entre los vertices de la entidad
+     * con la de la relacion.
+     * @param relation
+     * @param index
+     * @return retorna el vertice de la entidad mas cercano al de la relacion
+     */
+    public static Vertex determinateVertex(ElementWrapper relation, int index){
+        ArrayList<Double> distances = new ArrayList();
+        for (int j = 0; j < 4; j++) {
+            distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
+                    , relation.getVertexes().get(index).getyPos(), 
+                    relation.getElement().getRelations().get(index).getVertexes().get(j).getxPos()
+                    , relation.getElement().getRelations().get(index).getVertexes().get(j).getyPos()));
+        }
+        return relation.getElement().getRelations().get(index).getVertexes().get(minorIndex(distances));
+    }
+    
+    public Vertex determinateVertex(ElementWrapper relation, int index, boolean xd){
+        return relation.getElement().getRelations().get(index).getVertexes().get(index+2);
+    }
+    /**
+     * Funcion que solo devuelve la distancia entre 2 puntos
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return 
+     */
+    public static double twoPointsDistance(double x1, double y1, double x2,double y2){
+        return Math.hypot(x2-x1, y2-y1);
+    }
+    
+    /**
+     * Funcion que revisa cual de las distancias fue la menor para saber que 
+     * vertice es el mas cercano al de la relacion.
+     * @param distances
+     * @return 
+     */
+    public static int minorIndex(ArrayList<Double> distances){
+        double minor = distances.get(0);
+        int j= 0;
+        for (int i = 0; i < 4; i++) {
+            if (distances.get(i) < minor){
+                minor = distances.get(i);   
+                j = i;
+            }
+        }
+        return j;
+    }
+    
+    public static void recalculateVertexes(List<Vertex> vertexes, 
+                                    Vertex newCenter)
+    {
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        for(Vertex v: vertexes){
+            v.setxPos(v.getxPos() - center.getxPos() + newCenter.getxPos());
+            v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
+        }
+        
     }
 }

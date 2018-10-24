@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Relationship implements Element{
     private String name;
-    private ArrayList<ElementWrapper> relations;
+    private List<ElementWrapper> relations;
 
 
     
@@ -24,19 +24,23 @@ public class Relationship implements Element{
     }
 
     @Override
-    public ArrayList<ElementWrapper> getRelations() {
+    public List<ElementWrapper> getRelations() {
         return relations;
     }
 
     @Override
-    public void setRelations(ArrayList<ElementWrapper> relations) {
+    public void setRelations(List<ElementWrapper> relations) {
         this.relations = relations;
-        System.out.println(relations.size());
     }
 
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int getType() {
+        return 0;
     }
 
  

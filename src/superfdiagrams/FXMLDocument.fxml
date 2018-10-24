@@ -3,16 +3,26 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane id="AnchorPane" fx:id="root" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superfdiagrams.FXMLDocumentController">
+<AnchorPane id="AnchorPane" fx:id="root" prefHeight="720.0" prefWidth="1280.0" stylesheets="@buttons.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superfdiagrams.FXMLDocumentController">
    <children>
       <Canvas fx:id="canvas" height="720.0" layoutX="199.0" onMouseClicked="#CanvasClickEvent" width="1080.0" />
-      <Button fx:id="entityButton" layoutX="61.0" layoutY="79.0" mnemonicParsing="false" onAction="#changeStatusEntity" text="Dibujar Entidad" />
-      <Button fx:id="relationButton" layoutX="59.0" layoutY="147.0" mnemonicParsing="false" onAction="#changeStatusRelation" text="Dibujar Relacion" />
-      <Button fx:id="eraseButton" layoutX="85.0" layoutY="572.0" mnemonicParsing="false" onAction="#erase" text="Reinciar" />
-      <Button layoutX="88.0" layoutY="617.0" mnemonicParsing="false" text="Salir" />
-      <Button fx:id="btnExport" layoutX="84.0" layoutY="530.0" mnemonicParsing="false" onAction="#Export" text="Exportar" />
-      <Button layoutX="38.0" layoutY="497.0" mnemonicParsing="false" text="Mostrar Puntos Control" />
-      <Button layoutX="1214.0" layoutY="681.0" mnemonicParsing="false" onAction="#acceptRelation" text="Aceptar" />
+      <Button fx:id="entityButton" layoutX="20.0" layoutY="75.0" mnemonicParsing="false" onAction="#changeStatusEntity" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: \superfdiagrams\assets\rectangle.png;" />
+      <Button fx:id="relationButton" layoutX="109.0" layoutY="75.0" mnemonicParsing="false" onAction="#changeStatusRelation" prefHeight="64.0" prefWidth="64.0" />
+      <Button fx:id="eraseButton" layoutX="109.0" layoutY="499.0" mnemonicParsing="false" onAction="#erase" prefHeight="64.0" prefWidth="64.0" />
+      <Button fx:id="btnClose" layoutX="78.0" layoutY="605.0" mnemonicParsing="false" onAction="#close" text="Salir" />
+      <Button fx:id="btnExport" layoutX="20.0" layoutY="499.0" mnemonicParsing="false" onAction="#Export" prefHeight="64.0" prefWidth="64.0" />
+      <Button fx:id="btnShowVertex" layoutX="20.0" layoutY="457.0" mnemonicParsing="false" onAction="#btnShowVertex" prefHeight="25.0" prefWidth="155.0" text="Mostrar puntos de control" />
+      <Button fx:id="finishRelationship" layoutX="20.0" layoutY="328.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" />
+      <Line endY="720.0" layoutX="200.0" />
+      <Text fx:id="statusText" layoutX="200.0" layoutY="711.0" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="156.13671875" />
+      <Text layoutX="78.0" layoutY="62.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dibujar" />
+      <Text layoutX="32.0" layoutY="152.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Entidad" />
+      <Text layoutX="119.0" layoutY="152.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Relación" />
+      <Text layoutX="26.0" layoutY="576.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Exportar..." />
+      <Text layoutX="121.0" layoutY="576.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Limpiar" />
+      <Button fx:id="attributeButton" layoutX="26.0" layoutY="182.0" mnemonicParsing="false" onAction="#changeStatusAtrribute" text="atributo xd" />
    </children>
 </AnchorPane>
