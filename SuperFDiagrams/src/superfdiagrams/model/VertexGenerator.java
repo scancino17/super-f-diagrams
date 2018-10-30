@@ -205,4 +205,12 @@ public class VertexGenerator {
             }
         }
     }
+    
+    public static List<Vertex> cloneVertex(List<Vertex> toClone){
+        List<Vertex> newVertexes = new ArrayList<>();
+        for (Vertex original: toClone){
+            newVertexes.add(new Vertex(original.getCoordinates()));
+        }
+        return newVertexes;
+    }
 }

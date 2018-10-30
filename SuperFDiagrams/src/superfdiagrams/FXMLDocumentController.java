@@ -26,6 +26,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
 import static superfdiagrams.model.State.CHOSING_ENTITY;
+import static superfdiagrams.model.State.DELETING_ELEMENT;
 
 import static superfdiagrams.model.State.ENTITY;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
@@ -45,6 +46,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Button undoButton;
     @FXML private Button redoButton;
     @FXML private Button attributeBtn;
+    @FXML private Button deleteBtn;
     @FXML private Text statusText;
     
     private MainController mainC;
@@ -242,6 +244,11 @@ public class FXMLDocumentController implements Initializable{
             selected = selected.substring(0, 1);
         }
         return selected;
+    }
+    
+    @FXML
+    private void changeStatusDelete(){
+        mainC.setState(DELETING_ELEMENT);
     }
     
 }

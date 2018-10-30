@@ -20,6 +20,7 @@ import static superfdiagrams.model.State.VIEW;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.action.CreateRelationshipAction;
+import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.drawer.DrawController;
 
@@ -188,7 +189,9 @@ public class MainController {
                 uiController.setStatusText("Escogiendo Entidad...");
                 break;
             case ATTRIBUTE:
-                uiController.setStatusText("Creando Atributo");
+                uiController.setStatusText("Creando Atributo...");
+            case DELETING_ELEMENT:
+                uiController.setStatusText("Eliminando elemento...");
         }
     }
     
@@ -271,6 +274,13 @@ public class MainController {
                     stateC.setState(VIEW);
                 }
                 break;
+            case DELETING_ELEMENT:
+                ElementWrapper toDelete = checkColition
+                                (mouseEvent.getX(), mouseEvent.getY());
+                if (toDelete != null){
+                    deleteElement(toDelete);
+                    stateC.setState(VIEW);
+                }
         }
         
         if (checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
@@ -327,6 +337,47 @@ public class MainController {
     public void addElement(ElementWrapper element){
         diagramC.addElement(element);
         drawC.addToBuffer(element);
+    }
+    
+    public void deleteElement(ElementWrapper deleted){
+        List<ElementWrapper> related;
+        List<ElementWrapper> toMorph = new ArrayList<>();
+        related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted);
+        
+        actionC.addToStack(new DeleteElementAction(deleted, related, toMorph));
+        
+        for(ElementWrapper element: related){
+            ElementWrapper parent = ((ConnectsWrappers)element.getElement()).getParent();
+            parent.getElement().getContained().remove(element);
+            if (!toMorph.contains(parent))
+                toMorph.add(parent);
+            removeElement(element);
+        }
+        removeElement(deleted);
+        morphElements(toMorph);
+    }
+    
+    public void morphElements(List<ElementWrapper> toMorph){
+        for(ElementWrapper element: toMorph){
+            
+            if (element.getElement() instanceof Relationship
+            &&  element.getElement().getContained().size() == 1)
+            {
+                ElementWrapper clone = new ElementBuilder().cloneElement
+                                      (element.getElement().getContained().get(0));
+                element.getElement().getContained().add(clone);
+                addElement(clone);
+            }
+            
+            if(element.getElement().getContained().isEmpty())
+                deleteElement(element);
+                
+            element.setVertexes(VertexGenerator.generateVertexes
+                (element.getElement().getContained().size(),
+                 ElementBuilder.getDefaultSize(),
+                 GeometricUtilities.getCenterOfMass(element.getVertexes())));
+            VertexGenerator.recalculateNearestVertexes(element.getElement().getContained());
+        }
     }
     
     public void removeElement(ElementWrapper element){

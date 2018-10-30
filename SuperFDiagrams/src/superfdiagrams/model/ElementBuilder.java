@@ -24,7 +24,11 @@ public class ElementBuilder {
     public ElementBuilder(){
         this.size = DEFAULT_SIZE;
     }
-
+    
+    public static int getDefaultSize(){
+        return DEFAULT_SIZE;
+    }
+    
     public void setName(String name) {
         this.name = name;
     }
@@ -126,5 +130,17 @@ public class ElementBuilder {
         line.setDrawer(new LineDrawer());
         line.setElement(union);
         return line;
+    }
+    
+    public ElementWrapper cloneElement(ElementWrapper element){
+        ElementWrapper clone = new ElementWrapper();
+        
+        List<Vertex> vertexes = VertexGenerator.cloneVertex(element.getVertexes());
+        
+        clone.setVertexes(vertexes);
+        clone.setElement(element.getElement());
+        clone.setDrawer(element.getDrawer());
+        
+        return clone;
     }
 }
