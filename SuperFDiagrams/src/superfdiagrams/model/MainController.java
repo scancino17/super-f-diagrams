@@ -42,6 +42,7 @@ public class MainController {
     private double mouseXPos;
     private double mouseYPos;
     private boolean choosed;
+    private ElementWrapper currentElement;
     
     public static MainController getController(){
         if (mc == null)
@@ -56,6 +57,7 @@ public class MainController {
         actionC = ActionController.getController();
         elementsToRelation = new ArrayList<>();
         this.choosed = false;
+        currentElement = null;
     }
     
     public void setUiController(FXMLDocumentController dc){
@@ -196,9 +198,11 @@ public class MainController {
     }
     
     public void doClickAction(MouseEvent mouseEvent){
+
+        currentElement = checkColition(mouseEvent.getX(), mouseEvent.getY());
         switch(stateC.getState()){
             case ENTITY:
-                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
+                if(currentElement == null)
                 {
                     String name = uiController.getElementName("entidad");
                     if (name != null) {
@@ -208,7 +212,7 @@ public class MainController {
                 }
                 break;
             case SELECTING_ENTITIES:   
-                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
+                if(currentElement != null)
                 {                   
                     ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
                     if (entity.getElement() instanceof Entity) {
@@ -223,7 +227,7 @@ public class MainController {
                 }
                 break;
             case RELATIONSHIP:
-                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
+                if(currentElement == null)
                 {
                     String name = uiController.getElementName("relación");
                     if (name != null){
@@ -238,7 +242,7 @@ public class MainController {
                 break;
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
-                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+                if(currentElement != null){
                     ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
                     if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
                             && !choosed){
@@ -249,7 +253,7 @@ public class MainController {
                 }
                 break;
             case ATTRIBUTE:
-                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) == null)
+                if(currentElement == null)
                 {
                     String name = uiController.getElementName("Atributo");
                     if (name != null){
@@ -264,7 +268,7 @@ public class MainController {
                 }
                 break;
             case MOVING_ELEMENT:
-                if(checkColition(mouseEvent.getX(), mouseEvent.getY()) != null)
+                if(currentElement != null)
                 {
                     selected.toggleHighlighted();
                     selectedAction.getNewPosition();
@@ -274,13 +278,12 @@ public class MainController {
                     stateC.setState(VIEW);
                 }
                 break;
-            case DELETING_ELEMENT:
-                ElementWrapper toDelete = checkColition
-                                (mouseEvent.getX(), mouseEvent.getY());
-                if (toDelete != null){
-                    deleteElement(toDelete);
+            /*case DELETING_ELEMENT:
+                if (currentElement != null){
+                    deleteElement(currentElement);
                     stateC.setState(VIEW);
-                }
+                    currentElement = null;
+                }*/
         }
         
         if (checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
@@ -436,5 +439,7 @@ public class MainController {
     public List<ElementWrapper> fetchElements() {
         return diagramC.fetchElements();
     }
+
+    public ElementWrapper getCurrentElement() {return currentElement;}
 
 }

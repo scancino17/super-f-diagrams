@@ -19,10 +19,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
 import static superfdiagrams.model.State.CHOSING_ENTITY;
@@ -48,6 +50,8 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Button attributeBtn;
     @FXML private Button deleteBtn;
     @FXML private Text statusText;
+    @FXML private TextField currentElementText;
+    @FXML private Button applyChanges;
     
     private MainController mainC;
 
@@ -105,6 +109,16 @@ public class FXMLDocumentController implements Initializable{
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
         mainC.doClickAction(mouseEvent);
+
+        //aquí cargaría toda la info del elemento para que se pueda modificar...
+        if(mainC.getCurrentElement() != null)
+        {
+            currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
+        }
+        else
+        {
+            currentElementText.clear();
+        }
     }
     
 
@@ -211,7 +225,8 @@ public class FXMLDocumentController implements Initializable{
     }
     
     public void setStatusText(String text){
-        statusText.setText(text);
+        //statusText.setText(text);
+        ((Stage)(btnExport.getScene().getWindow())).setTitle("Super F Diagrams " + text);
     }
     
     @FXML public void canvasZoom(ScrollEvent scroll){
@@ -248,7 +263,16 @@ public class FXMLDocumentController implements Initializable{
     
     @FXML
     private void changeStatusDelete(){
-        mainC.setState(DELETING_ELEMENT);
+        if(mainC.getCurrentElement() != null)
+            mainC.deleteElement(mainC.getCurrentElement());
+        //mainC.setState(DELETING_ELEMENT);
     }
-    
+
+    @FXML private void applyChanges()
+    {
+        if(mainC.getCurrentElement() != null)
+        {
+            mainC.getCurrentElement().getElement().setLabel(currentElementText.getText());
+        }
+    }  
 }
