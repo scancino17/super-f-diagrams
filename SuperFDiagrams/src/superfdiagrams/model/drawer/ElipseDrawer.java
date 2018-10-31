@@ -10,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.Vertex;
+import superfdiagrams.model.VertexGenerator;
 
 /**
  *
@@ -17,6 +18,7 @@ import superfdiagrams.model.Vertex;
  */
 public class ElipseDrawer implements Drawer{
     private int type;
+    private Vertex center;
 
     public int getType() {
         return type;
@@ -24,6 +26,10 @@ public class ElipseDrawer implements Drawer{
 
     public void setType(int type) {
         this.type = type;
+    }
+    
+    public void setCenter(Vertex center){
+        this.center = center;
     }
 
     @Override
@@ -45,6 +51,12 @@ public class ElipseDrawer implements Drawer{
             case 4:
                 genericDraw(gc, vertexes, name, highlighted);
                 break;
+            case 5:
+                multivaluateDraw(gc, vertexes, name, highlighted);
+                break;
+            case 6:
+                keyDraw(gc, vertexes, name, highlighted);
+                break;       
         }
     }
 
@@ -144,6 +156,34 @@ public class ElipseDrawer implements Drawer{
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.strokeText(name, center.getxPos() - 50 , center.getyPos());
         gc.strokeLine(center.getxPos()-50, center.getyPos()+5, center.getxPos()+50, center.getyPos()+5);
+    }
+    
+    private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        List<Vertex> vertexes2 = VertexGenerator.generateVertexes(50, 50, center);
+        if(!highlighted){
+            gc.setStroke(Color.BLACK);
+        } else{
+            gc.setStroke(Color.CORNFLOWERBLUE);
+        }
+
+        gc.setLineWidth(1);
+        
+        int size = vertexes.size();
+        for(int i = 0; i < size; i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
+                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+        }
+        for(int i = 0; i < vertexes2.size(); i++){
+            gc.strokeLine(vertexes2.get(i % size).getxPos(), vertexes2.get(i % size).getyPos(),
+                    vertexes2.get((i + 1) % size).getxPos(), vertexes2.get(( i +1 )% size).getyPos());
+        }
+        
+        if(highlighted)
+            gc.setStroke(Color.BLACK);
+        
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        gc.strokeText(name, center.getxPos() - 10 , center.getyPos());
+        
     }
 
 }

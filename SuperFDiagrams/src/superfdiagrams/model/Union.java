@@ -15,7 +15,8 @@ import java.util.List;
 public class Union implements Element, ConnectsWrappers{
     private ElementWrapper entity;
     private ElementWrapper relationship;
- 
+    private int type;
+    
     @Override
     public String getLabel() {
         return null;
@@ -51,6 +52,14 @@ public class Union implements Element, ConnectsWrappers{
     public void setChild(ElementWrapper element) {
         this.entity = element;
     }
+
+    @Override
+    public int getType(){
+        return type;
+    }
     
-    
+    @Override
+    public void setType(int type){
+        this.type = type;
+    }
 }

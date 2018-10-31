@@ -16,12 +16,26 @@ import superfdiagrams.model.Vertex;
  * @author sebca
  */
 public class LineDrawer implements Drawer{
+    private int type;
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+    
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
-        gc.strokeLine(vertexes.get(0).getxPos(), vertexes.get(0).getyPos(),
-                vertexes.get(1).getxPos(),vertexes.get(1).getyPos());
+        switch(type){
+            case 1:
+                normalDraw(gc, vertexes, name, highlighted);
+                break;
+            case 2:
+                weakDraw(gc, vertexes, name, highlighted);
+                break;
+        }
     }
     
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name){
@@ -33,5 +47,23 @@ public class LineDrawer implements Drawer{
     {
        
     }
-
+    
+    public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
+        gc.strokeLine(vertexes.get(0).getxPos(), vertexes.get(0).getyPos(),
+                vertexes.get(1).getxPos(),vertexes.get(1).getyPos());
+    }
+    
+    public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        System.out.println("xd");
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(3);
+        gc.strokeLine(vertexes.get(0).getxPos(), vertexes.get(0).getyPos(),
+                vertexes.get(1).getxPos(),vertexes.get(1).getyPos());
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(1);
+        gc.strokeLine(vertexes.get(0).getxPos(), vertexes.get(0).getyPos(),
+                vertexes.get(1).getxPos(),vertexes.get(1).getyPos());
+    }
 }

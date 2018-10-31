@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class Entity implements Element{
     private String name = "";
+    private int type;
     
     @Override
     public String getLabel() {
@@ -31,4 +32,14 @@ public class Entity implements Element{
 
     @Override
     public void setContained(List<ElementWrapper> relations) {}
+    
+    @Override
+    public int getType(){
+        return type;
+    }
+    
+    @Override
+    public void setType(int type){
+        this.type = type;
+    }
 }
