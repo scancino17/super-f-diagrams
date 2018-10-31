@@ -29,4 +29,28 @@ public class Finder {
         
         return relatedUnions;
     }
+    
+    public boolean isParentPresent(List<ElementWrapper> list, ElementWrapper element){
+        boolean isPresent = false;
+        Element union = element.getElement();
+        if (!(union instanceof Union))
+            return false;
+        else
+            if(list.contains(((Union)union).getParent()))
+                return true;
+        
+        return isPresent;
+    }
+    
+    public List<ElementWrapper> obtainChildren(ElementWrapper element){
+        List<ElementWrapper> childrenList = new ArrayList<>();
+        
+        return null;
+    }
+    
+    private void insertChildren(List<ElementWrapper> list, ElementWrapper element){
+        if(element.getElement() instanceof Union){
+            ((ConnectsWrappers)element.getElement()).getChild();
+        }
+    }
 }

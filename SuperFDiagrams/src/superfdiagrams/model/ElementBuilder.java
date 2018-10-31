@@ -143,4 +143,23 @@ public class ElementBuilder {
         
         return clone;
     }
+    
+    public ElementWrapper cloneUnion(ElementWrapper union){
+        ElementWrapper clone = new ElementWrapper();
+        
+        ElementWrapper parent = ((Union) union.getElement()).getParent();
+        ElementWrapper child = ((Union) union.getElement()).getChild();
+        
+        List<Vertex> vertexes = GeometricUtilities.nearestVertexes(parent.getVertexes(), child.getVertexes());
+        
+        Union primitive = new Union();
+        primitive.setParent(parent);
+        primitive.setChild(child);
+        
+        clone.setVertexes(vertexes);
+        clone.setDrawer(new LineDrawer());
+        clone.setElement(primitive);
+        
+        return clone;
+    }
 }

@@ -340,44 +340,54 @@ public class MainController {
     }
     
     public void deleteElement(ElementWrapper deleted){
-        List<ElementWrapper> related;
-        List<ElementWrapper> toMorph = new ArrayList<>();
-        related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted);
+        List<ElementWrapper> related = null;
         
-        actionC.addToStack(new DeleteElementAction(deleted, related, toMorph));
-        
-        for(ElementWrapper element: related){
-            ElementWrapper parent = ((ConnectsWrappers)element.getElement()).getParent();
-            parent.getElement().getContained().remove(element);
-            if (!toMorph.contains(parent))
-                toMorph.add(parent);
-            removeElement(element);
+        if (deleted.getElement() instanceof Entity){
+            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
+        } else if (deleted.getElement() instanceof Relationship){
+            related = deleted.getElement().getContained();
+        } else if (deleted.getElement() instanceof Attribute){
+            related = deleted.getElement().getContained();
         }
-        removeElement(deleted);
-        morphElements(toMorph);
+        if (related != null){
+            DeleteElementAction deleteAction = new DeleteElementAction(deleted, related);
+            deleteAction.execute();
+            actionC.addToStack(deleteAction);
+        }
     }
     
-    public void morphElements(List<ElementWrapper> toMorph){
-        for(ElementWrapper element: toMorph){
-            
-            if (element.getElement() instanceof Relationship
-            &&  element.getElement().getContained().size() == 1)
-            {
-                ElementWrapper clone = new ElementBuilder().cloneElement
-                                      (element.getElement().getContained().get(0));
-                element.getElement().getContained().add(clone);
-                addElement(clone);
+    public void morphElement(List<ElementWrapper> elementList){
+        for(ElementWrapper element : elementList)
+            morphElement(element);
+    }
+    
+    public void morphElement(ElementWrapper element){
+        List<ElementWrapper> contained = element.getElement().getContained();
+        
+        if(contained.isEmpty()){
+            removeElement(element);
+            return;
+        }
+        
+        if(element.getElement() instanceof Relationship){
+            if(contained.size() == 1){
+                ElementWrapper union = new ElementBuilder().cloneUnion(contained.get(0));
+                contained.add(union);
+                this.addElement(union);
             }
             
-            if(element.getElement().getContained().isEmpty())
-                deleteElement(element);
-                
-            element.setVertexes(VertexGenerator.generateVertexes
-                (element.getElement().getContained().size(),
-                 ElementBuilder.getDefaultSize(),
-                 GeometricUtilities.getCenterOfMass(element.getVertexes())));
-            VertexGenerator.recalculateNearestVertexes(element.getElement().getContained());
+            if(contained.get(0).equals(contained.get(1))){
+                contained.remove(0);
+            }
+            
+            element.setVertexes(VertexGenerator.generateVertexes(
+                    contained.size(), 
+                    ElementBuilder.getDefaultSize(), 
+                    GeometricUtilities.getCenterOfMass(element.getVertexes())));
         }
+        
+        VertexGenerator.recalculateNearestVertexes(contained);
+           
     }
     
     public void removeElement(ElementWrapper element){
@@ -421,6 +431,10 @@ public class MainController {
         } else {
             cancelEntitySelection();
         }
+    }
+
+    public List<ElementWrapper> fetchElements() {
+        return diagramC.fetchElements();
     }
 
 }
