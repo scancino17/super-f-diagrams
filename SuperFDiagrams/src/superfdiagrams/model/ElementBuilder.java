@@ -108,7 +108,7 @@ public class ElementBuilder {
         element.setElement(attribute);
         element.getElement().setLabel(name);
         
-        element.setVertexes(VertexGenerator.generateVertexes(50, 55, center));
+        element.setVertexes(VertexGenerator.generateEllipse(50, 55, center));
         
         List<ElementWrapper> unions = new ArrayList<>();
         

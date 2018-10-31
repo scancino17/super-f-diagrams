@@ -16,6 +16,7 @@ import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.ATTRIBUTE;
 import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
+import static superfdiagrams.model.State.SELECTING_ENTITIES;
 import static superfdiagrams.model.State.VIEW;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
@@ -214,9 +215,8 @@ public class MainController {
     }
     
     public void doClickAction(MouseEvent mouseEvent){
-        if (currentElement != null)
+        if (currentElement != null && stateC.getState() == VIEW)
             currentElement.toggleHighlighted();
-        
         
         currentElement = checkColition(mouseEvent.getX(), mouseEvent.getY());
         switch(stateC.getState()){
