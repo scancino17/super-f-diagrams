@@ -14,28 +14,27 @@ import java.util.List;
  */
 public class Relationship implements Element{
     private String name;
-    private ArrayList<ElementWrapper> relations;
+    private List<ElementWrapper> relations;
 
 
     
     @Override
-    public String getName() {
+    public String getLabel() {
         return name;
     }
 
     @Override
-    public ArrayList<ElementWrapper> getRelations() {
+    public List<ElementWrapper> getContained() {
         return relations;
     }
 
     @Override
-    public void setRelations(ArrayList<ElementWrapper> relations) {
+    public void setContained(List<ElementWrapper> relations) {
         this.relations = relations;
-        System.out.println(relations.size());
     }
 
     @Override
-    public void setName(String name) {
+    public void setLabel(String name) {
         this.name = name;
     }
 

@@ -6,48 +6,54 @@
 package superfdiagrams;
 
 import java.net.URL;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
+import static superfdiagrams.model.State.CHOSING_ENTITY;
+import static superfdiagrams.model.State.DELETING_ELEMENT;
 
-import static superfdiagrams.model.GeometricUtilities.*;
 import static superfdiagrams.model.State.ENTITY;
-import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
-import superfdiagrams.model.drawer.DrawController;
-import static superfdiagrams.model.State.VIEW;
 
 /**
  *
  * @author sebca
  */
 public class FXMLDocumentController implements Initializable{
-    @FXML public Canvas canvas;
-    @FXML public Button entityButton;
-    @FXML public Button relationButton;
-    @FXML public Button eraseButton;
-    @FXML public Button btnExport;
-    @FXML public Button btnShowVertex;
+    @FXML private Canvas canvas;
+    @FXML private Button finishRelationship;
+    @FXML private Button entityButton;
+    @FXML private Button relationButton;
+    @FXML private Button btnExport;
+    @FXML private Button eraseButton;
+    @FXML private Button btnClose;
+    @FXML private Button undoButton;
+    @FXML private Button redoButton;
+    @FXML private Button attributeBtn;
+    @FXML private Button deleteBtn;
+    @FXML private Text statusText;
+    @FXML private TextField currentElementText;
+    @FXML private Button applyChanges;
     
-    private StateController stateC;
-    private DrawController drawC;
-    private DiagramController diagramC;
-    
-    public Scanner reader = new Scanner(System.in).useDelimiter("\n");
-    public ArrayList<ElementWrapper> elementsToRelation = new ArrayList();
+    private MainController mainC;
 
     /**
      * Estado inicial del canvas y del controlador
@@ -56,13 +62,18 @@ public class FXMLDocumentController implements Initializable{
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        stateC = StateController.getController();
-        diagramC = DiagramController.getController();
-        diagramC.newDiagram();
+        mainC = MainController.getController();
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        drawC = DrawController.getDrawController();
-        drawC.setGraphicsContext(gc);
+        mainC.setContext(gc);
+        mainC.newDiagram();
+        mainC.setUiController(this);
+        
+        
+        canvas.setOnMouseMoved(elementOnMouseDragged);
+        deactivateFinishButton();
+        deactivateButton(undoButton);
+        deactivateButton(redoButton);
         
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
@@ -77,71 +88,36 @@ public class FXMLDocumentController implements Initializable{
      * @param gc 
      */
     public void run(GraphicsContext gc)
-    {
+    {   
+        mainC.runMainLoop();
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
-        drawElements(gc);
-    }
-
-    /**
-     * Pide un String por pantalla (muestra un cuadro de dialogo  pidiendo un String)
-     * @return retorna el string ingresado o null en caso de cancelar
-     */
-    public String askString()
-    {
-        TextInputDialog dialog = new TextInputDialog("Name here...");
-        dialog.setTitle("Insert Name");
-        dialog.setHeaderText("Enter Text:");
-        dialog.setContentText("Name:");
-        Optional<String> result = dialog.showAndWait();
-        String newName = null;
-        if (result.isPresent())
-            newName = result.get();
-        //else //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
-        return newName;
-
+        mainC.drawElements();
+        checkButtonStatus();
     }
 
     @FXML public void btnShowVertex()
     {
-        drawC.toggleDrawVertex();
+        mainC.toggleDrawVertex();
     }
 
+    EventHandler<MouseEvent> elementOnMouseDragged =
+        (MouseEvent event) -> {
+            mainC.setMousePos(event.getX(), event.getY());
+    };
+
+    
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
+        mainC.doClickAction(mouseEvent);
 
-        switch(stateC.getState()){
-            case ENTITY:
-                if(checkColition(new Vertex((int)mouseEvent.getX(), (int)mouseEvent.getY())) == null)
-                {
-                    String name = askString();
-                    if(name != null)
-                        createNewEntity((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
-                    stateC.setState(State.VIEW);
-                }
-                break;
-            case SELECTING_ENTITIES:   
-                if(checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY())) != null)
-                {
-                    ElementWrapper entity = checkColition(new Vertex((int)mouseEvent.getX(),(int)mouseEvent.getY()));
-                    entity.toggleHighlighted();
-                    this.elementsToRelation.add(entity);
-                }
-                break;
-            case RELATIONSHIP:
-                if(checkColition(new Vertex((int)mouseEvent.getX(), (int)mouseEvent.getY())) == null)
-                {
-                    String name = askString();
-                    if(name != null)
-                        createNewRelation((int) Math.round(mouseEvent.getX()), (int) Math.round(mouseEvent.getY()), name);
-                    stateC.setState(VIEW);
-                }
-                break;      
-        }
-        
-        if(mouseEvent.getButton().equals(MouseButton.PRIMARY) && mouseEvent.getClickCount() == 2) //Evento que verifica si es doble click
+        //aquí cargaría toda la info del elemento para que se pueda modificar...
+        if(mainC.getCurrentElement() != null)
         {
-            System.out.printf("doble click");
-
+            currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
+        }
+        else
+        {
+            currentElementText.clear();
         }
     }
     
@@ -152,7 +128,8 @@ public class FXMLDocumentController implements Initializable{
      */
     @FXML
     public void changeStatusEntity(){
-        stateC.setState(ENTITY);
+        mainC.setState(ENTITY);
+        mainC.cancelEntitySelection();
     }
     
     /**
@@ -161,71 +138,7 @@ public class FXMLDocumentController implements Initializable{
      */
     @FXML
     public void changeStatusRelation(){
-        stateC.setState(SELECTING_ENTITIES);
-    }
-    
-    /**
-     * Funcion que cambia el estado para que no se haga nada cuando se hace click
-     * Por ahora no se usa.
-     */
-    @FXML
-    public void changeStatusView(){
-        stateC.setState(VIEW);
-    }
-    
-    /**
-     * Funcion que crea una nueva entidad y la guarda en la lista
-     * @param posX
-     * @param posY
-     * @param name
-     */
-    public void createNewEntity(int posX, int posY, String name){
-        Vertex vertex = new Vertex(posX, posY);
-        ElementBuilder elementConstructor = new ElementBuilder();
-        elementConstructor.setCenter(vertex);
-        elementConstructor.setName(name);
-        ElementWrapper element = elementConstructor.generateEntity();
-        diagramC.addElement(element);
-        drawC.addToBuffer(element);
-    }
-    
-    /**
-     * Funcion que crea una nueva relacion
-     * @param posX
-     * @param posY
-     * @param name 
-     */
-    public void createNewRelation(int posX, int posY, String name){
-        System.out.println("el tamaño:"+ elementsToRelation.size());
-        Vertex vertex = new Vertex (posX, posY);
-        
-        ElementBuilder elementConstructor = new ElementBuilder();
-        elementConstructor.setCenter(vertex);
-        elementConstructor.setName(name);
-        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation.size(),elementsToRelation);
-        
-        for(ElementWrapper e : elementsToRelation)
-            e.toggleHighlighted();
-        
-        elementsToRelation = new ArrayList<>();
-        diagramC.addElement(element);
-        drawC.addToBuffer(element);
-        createUnion(element);
-        
-    }
-    
-    /**
-     * Funcion que dibuja los elementos de la lista.
-     * Esta funcion va dibujando constantemente, cuando la lista se encuentra
-     * vacia estara limpiando la pantalla.
-     * @param gc 
-     */
-    public void drawElements(GraphicsContext gc){
-        if (!drawC.isBufferEmpty()){
-            drawC.doDrawLoop();
-        }else{
-            gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        }
+        mainC.setState(SELECTING_ENTITIES);
     }
     
     /**
@@ -234,10 +147,7 @@ public class FXMLDocumentController implements Initializable{
      */
     @FXML
     public void erase(){
-        diagramC.newDiagram();
-        elementsToRelation.clear();
-        drawC.eraseBuffer();
-
+        mainC.restart();
     }
 
     /**
@@ -250,35 +160,120 @@ public class FXMLDocumentController implements Initializable{
     
     @FXML
     public void acceptRelation(){
-        if (elementsToRelation.isEmpty())
-            stateC.setState(VIEW);
-        else
-            stateC.setState(RELATIONSHIP);
+        deactivateFinishButton();
+        mainC.finishEntitySelection();
     }
     
-    /**
-     * Funcion que crea una linea, la cual contiene un arreglo de 2 vertices,
-     * el primer vertice de la lista de la relacion y un vertice de alguna 
-     * entidad que se determina con otras funciones
-     * @param relation 
-     */
-    public void createUnion(ElementWrapper relation){  
-        ElementBuilder elementConstructor = new ElementBuilder();
-        ElementWrapper element;
+    @FXML
+    public void close(){
+        Platform.exit();
+    }
+    
+    @FXML
+    public void undo(){
+        mainC.undo();
+    }
+    
+    @FXML void redo(){
+        mainC.redo();
+    }
+    
+    public void activateFinishButton(){
+        activateButton(finishRelationship);
+    }
+    
+    public void deactivateFinishButton(){
+        deactivateButton(finishRelationship);
+    }
+    
+    public void checkButtonStatus(){
+        if(undoButton.isDisabled() && !mainC.isUndoEmpty())
+            activateButton(undoButton);
+        if(!undoButton.isDisabled() && mainC.isUndoEmpty())
+            deactivateButton(undoButton);
+        if(redoButton.isDisabled() && !mainC.isRedoEmpty())
+            activateButton(redoButton);
+        if(!redoButton.isDisabled() && mainC.isRedoEmpty())
+            deactivateButton(redoButton);
+    }
+    
+    private void activateButton(Button button){
+        button.setDisable(false);
+        button.setVisible(true);
+    }
+    
+    private void deactivateButton(Button button){
+        button.setDisable(true);
+        //button.setVisible(false);
+    }
+    
+    public String getElementName(String display){
+        TextInputDialog dialog = new TextInputDialog("Nombre aqui...");
+        dialog.setTitle("Ingrese nombre de la " + display + ".");
+        dialog.setHeaderText("Ingrese nombre: ");
+        dialog.setContentText("Nombre:");
+        Optional<String> result = dialog.showAndWait();
+        String newName = null;
+        if (result.isPresent())
+            newName = result.get();
+        //else 
+            //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
         
-        if (relation.getElement().getRelations().size() == 1){
-            for (int i = 0; i < 2; i++) {                
-                element = elementConstructor.generateLine(relation, 0);
-                diagramC.addElement(element);
-                drawC.addToBuffer(element);
-            }  
-        }else{
-            for (int i = 0; i < relation.getElement().getRelations().size(); i++) {
-                element = elementConstructor.generateLine(relation, i);
-                diagramC.addElement(element);
-                drawC.addToBuffer(element);
-            }
+        if (newName != null && newName.length() > 10)
+            newName = newName.substring(0, 10);
+        return newName;
+    }
+    
+    public void setStatusText(String text){
+        //statusText.setText(text);
+        ((Stage)(btnExport.getScene().getWindow())).setTitle("Super F Diagrams " + text);
+    }
+    
+    @FXML public void canvasZoom(ScrollEvent scroll){
+        //implementar
+        double zoom = 1.1;
+        if (scroll.getDeltaY() < 0)
+            zoom = 2.0 - zoom;
+        
+        canvas.setScaleX(canvas.getScaleX() * zoom);
+        canvas.setScaleY(canvas.getScaleY() * zoom);
+    }
+    
+    @FXML
+    public void changeStatusAtrribute(){
+        mainC.setState(CHOSING_ENTITY);
+    }
+    
+    public String getType(){
+        String[] choices =  new String[]{"1 - Derivado",
+                                         "2 - Genérico",
+                                         "3 - Clave",
+                                         "4 - Compuesto",
+                                         "5 - Multivaluado (WIP)"};
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        
+        if (result.isPresent()){
+            selected = result.get();
+            selected = selected.substring(0, 1);
+        }
+        return selected;
+    }
+    
+    @FXML
+    private void changeStatusDelete(){
+        if(mainC.getCurrentElement() != null)
+            mainC.deleteElement(mainC.getCurrentElement());
+        //mainC.setState(DELETING_ELEMENT);
+    }
+
+    @FXML private void applyChanges()
+    {
+        if(mainC.getCurrentElement() != null)
+        {
+            mainC.getCurrentElement().getElement().setLabel(currentElementText.getText());
         }
     }
-        
+    
 }

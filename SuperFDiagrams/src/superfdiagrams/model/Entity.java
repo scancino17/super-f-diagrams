@@ -5,7 +5,7 @@
  */
 package superfdiagrams.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -15,22 +15,20 @@ public class Entity implements Element{
     private String name = "";
     
     @Override
-    public String getName() {
+    public String getLabel() {
         return name;
     }
     
     
-    public void setName(String name){
+    public void setLabel(String name){
         this.name = name;
     }
 
     @Override
-    public ArrayList<ElementWrapper> getRelations() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<ElementWrapper> getContained() {
+        return null;
     }
 
     @Override
-    public void setRelations(ArrayList<ElementWrapper> relations) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    public void setContained(List<ElementWrapper> relations) {}
 }

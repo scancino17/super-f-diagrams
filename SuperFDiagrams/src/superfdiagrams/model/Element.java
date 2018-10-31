@@ -5,17 +5,15 @@
  */
 package superfdiagrams.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author sebca
  */
 public interface Element {
-    public String getName();
-
-    public void setName(String name);
-    
-    public ArrayList<ElementWrapper> getRelations();
-    public void setRelations(ArrayList<ElementWrapper> relations);
+    public String getLabel();
+    public void setLabel(String name);
+    public List<ElementWrapper> getContained();
+    public void setContained(List<ElementWrapper> contained);
 }

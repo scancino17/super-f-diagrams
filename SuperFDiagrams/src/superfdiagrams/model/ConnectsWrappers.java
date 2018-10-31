@@ -9,7 +9,9 @@ package superfdiagrams.model;
  *
  * @author sebca
  */
-public enum State {
-    VIEW,ENTITY,RELATIONSHIP, SELECTING_ENTITIES, MOVING_ELEMENT, ATTRIBUTE,
-    CHOSING_ENTITY, DELETING_ELEMENT
+public interface ConnectsWrappers {
+    public ElementWrapper getParent();
+    public ElementWrapper getChild();
+    public void setParent(ElementWrapper element);
+    public void setChild(ElementWrapper element);
 }

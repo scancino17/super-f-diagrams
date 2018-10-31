@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 /**
@@ -55,10 +56,9 @@ public class Exporter {
                     //Creo un pdf...
                     PDDocument doc = new PDDocument();
                     //creo una pagina
-                    PDPage page = new PDPage();
+                    PDPage page = new PDPage(new PDRectangle((float)canvas.getWidth(),(float)canvas.getHeight()));
                     //agrego la pagina al pdf
                     doc.addPage(page);
-
                     //creo un ByteArrayOutputStream y guardo la imagen ahi
                     ByteArrayOutputStream f = new ByteArrayOutputStream();
                     ImageIO.write( renderedImage, "png", f);
@@ -66,7 +66,8 @@ public class Exporter {
                     //Creo una imagen que acepta el pdf
                     PDImageXObject image =  PDImageXObject.createFromByteArray(doc, f.toByteArray(), "img");
                     PDPageContentStream content = new PDPageContentStream(doc, page);
-                    content.drawImage(image, 0, 0,page.getMediaBox().getWidth(), page.getMediaBox().getHeight()); //falta corregir la redimencion para que se vea bien...
+                    //content.drawImage(image, 0, 0,page.getMediaBox().getWidth(), page.getMediaBox().getHeight()); //falta corregir la redimencion para que se vea bien...
+                    content.drawImage(image, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
                     content.close();
                     doc.save(file);
                     doc.close();

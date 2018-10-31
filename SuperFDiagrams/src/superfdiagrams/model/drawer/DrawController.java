@@ -42,6 +42,10 @@ public class DrawController {
         buffer.add(toDraw);
     }
     
+    public void removeFromBuffer(Drawable toRemove){
+        buffer.remove(toRemove);
+    }
+    
     public boolean isBufferEmpty(){
         return this.buffer.isEmpty();
     }

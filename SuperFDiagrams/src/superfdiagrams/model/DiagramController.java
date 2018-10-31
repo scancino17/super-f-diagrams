@@ -36,10 +36,14 @@ public class DiagramController {
     }
     
     public void addElement(ElementWrapper element){
-    diagram.addElement(element);
+        diagram.addElement(element);
+    }
+    
+    public void removeElement(ElementWrapper element){
+        diagram.removeElement(element);
     }
     
     public List<ElementWrapper> fetchElements(){
-    return diagram.getElements();
+        return diagram.getElements();
     }
 }

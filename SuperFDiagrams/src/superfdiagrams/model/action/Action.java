@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package superfdiagrams.model;
+package superfdiagrams.model.action;
 
 /**
  *
  * @author sebca
  */
-public enum State {
-    VIEW,ENTITY,RELATIONSHIP, SELECTING_ENTITIES, MOVING_ELEMENT, ATTRIBUTE,
-    CHOSING_ENTITY, DELETING_ELEMENT
+public interface Action {
+    public void redo();
+    public void undo();
 }
