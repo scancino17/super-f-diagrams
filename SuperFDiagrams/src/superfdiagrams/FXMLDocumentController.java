@@ -21,6 +21,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Text;
@@ -52,6 +53,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Text statusText;
     @FXML private TextField currentElementText;
     @FXML private Button applyChanges;
+    @FXML private TitledPane editElementPane;
     
     private MainController mainC;
 
@@ -74,6 +76,7 @@ public class FXMLDocumentController implements Initializable{
         deactivateFinishButton();
         deactivateButton(undoButton);
         deactivateButton(redoButton);
+        hideElementPane();
         
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
@@ -113,11 +116,14 @@ public class FXMLDocumentController implements Initializable{
         //aquí cargaría toda la info del elemento para que se pueda modificar...
         if(mainC.getCurrentElement() != null)
         {
+            showElementPane();
             currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
+            mainC.getCurrentElement().toggleHighlighted();
         }
         else
         {
             currentElementText.clear();
+            hideElementPane();
         }
     }
     
@@ -230,13 +236,10 @@ public class FXMLDocumentController implements Initializable{
     }
     
     @FXML public void canvasZoom(ScrollEvent scroll){
-        //implementar
         double zoom = 1.1;
         if (scroll.getDeltaY() < 0)
             zoom = 2.0 - zoom;
-        
-        canvas.setScaleX(canvas.getScaleX() * zoom);
-        canvas.setScaleY(canvas.getScaleY() * zoom);
+        mainC.setZoomFactor(mainC.getZoomFactor() * zoom);
     }
     
     @FXML
@@ -249,7 +252,22 @@ public class FXMLDocumentController implements Initializable{
                                          "2 - Genérico",
                                          "3 - Clave",
                                          "4 - Compuesto",
-                                         "5 - Multivaluado (WIP)"};
+                                         "5 - Multivaluado",
+                                         "6 - Clave Parcial(WIP)"};
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        
+        if (result.isPresent()){
+            selected = result.get();
+            selected = selected.substring(0, 1);
+        }
+        return selected;
+    }
+    
+     public String askType(){
+        String[] choices =  new String[]{"1 - Normal",
+                                         "2 - Débil",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
         Optional<String> result = dialog.showAndWait();
         String selected = "0";
@@ -272,8 +290,17 @@ public class FXMLDocumentController implements Initializable{
     {
         if(mainC.getCurrentElement() != null)
         {
-            mainC.getCurrentElement().getElement().setLabel(currentElementText.getText());
+            mainC.renameCurrentElement(currentElementText.getText());
         }
     }
     
+    public void showElementPane(){
+        editElementPane.setDisable(false);
+        editElementPane.setVisible(true);
+    }
+    
+    public void hideElementPane(){
+        editElementPane.setDisable(true);
+        editElementPane.setVisible(false);
+    }
 }

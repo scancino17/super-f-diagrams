@@ -16,12 +16,14 @@ import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.ATTRIBUTE;
 import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
+import static superfdiagrams.model.State.SELECTING_ENTITIES;
 import static superfdiagrams.model.State.VIEW;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.action.CreateRelationshipAction;
 import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
+import superfdiagrams.model.action.RenameElementAction;
 import superfdiagrams.model.drawer.DrawController;
 
 /**
@@ -41,6 +43,7 @@ public class MainController {
     private MoveElementAction selectedAction;
     private double mouseXPos;
     private double mouseYPos;
+    private double zoomFactor = 1;
     private boolean choosed;
     private ElementWrapper currentElement;
     
@@ -96,13 +99,17 @@ public class MainController {
      * @param name
      */
     public void createNewEntity(double posX, double posY, String name){
-        Vertex vertex = new Vertex(posX, posY);
-        ElementBuilder elementConstructor = new ElementBuilder();
-        elementConstructor.setCenter(vertex);
-        elementConstructor.setName(name);
-        ElementWrapper element = elementConstructor.generateEntity();
-        actionC.addToStack(new CreateElementAction(element));
-        this.addElement(element);
+        int type = Integer.parseInt(uiController.askType());
+        if(type != 0)
+        {
+            Vertex vertex = new Vertex(posX, posY);
+            ElementBuilder elementConstructor = new ElementBuilder();
+            elementConstructor.setCenter(vertex);
+            elementConstructor.setName(name);        
+            ElementWrapper element = elementConstructor.generateEntity(type);
+            actionC.addToStack(new CreateElementAction(element));
+            this.addElement(element);
+        }
     }
     
     /**
@@ -114,10 +121,20 @@ public class MainController {
     public void createNewRelation(double posX, double posY, String name){
         Vertex vertex = new Vertex (posX, posY);
         
+        int type = 1;
+        
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
-        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation);
+        
+        for (int i = 0; i < elementsToRelation.size(); i++) {
+            if (elementsToRelation.get(i).getElement().getType() == 2){
+                type = 3;
+                i = elementsToRelation.size();
+            }
+        }
+        
+        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
         for(ElementWrapper e : elementsToRelation)
             e.toggleHighlighted();
@@ -136,7 +153,7 @@ public class MainController {
      * Funcion que dibuja los elementos de la lista.
      * Esta funcion va dibujando constantemente, cuando la lista se encuentra
      * vacia estara limpiando la pantalla.
-     * @param gc 
+     * @param gc
      */
     public boolean drawElements(){
         if (!drawC.isBufferEmpty()){
@@ -152,6 +169,7 @@ public class MainController {
         elementsToRelation.clear();
         drawC.eraseBuffer();
         selected = null;
+        currentElement = null;
         stateC.setState(VIEW);
         
     }
@@ -198,7 +216,9 @@ public class MainController {
     }
     
     public void doClickAction(MouseEvent mouseEvent){
-
+        if (currentElement != null && stateC.getState() == VIEW)
+            currentElement.toggleHighlighted();
+        
         currentElement = checkColition(mouseEvent.getX(), mouseEvent.getY());
         switch(stateC.getState()){
             case ENTITY:
@@ -278,15 +298,9 @@ public class MainController {
                     stateC.setState(VIEW);
                 }
                 break;
-            /*case DELETING_ELEMENT:
-                if (currentElement != null){
-                    deleteElement(currentElement);
-                    stateC.setState(VIEW);
-                    currentElement = null;
-                }*/
         }
         
-        if (checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+        if (currentElement != null){
             if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
             && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
             {
@@ -303,13 +317,6 @@ public class MainController {
                 }
             }
         }
-        
-        /*Método para probar caracteristica de vertex*/
-        /*if(mouseEvent.getClickCount() == 3 && checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
-        ElementWrapper element = checkColition(mouseEvent.getX(), mouseEvent.getY());
-        for (Vertex v: element.getVertexes())
-        System.out.println(v.isUsed());
-        }*/
     }
     
     public void cancelEntitySelection(){
@@ -436,10 +443,25 @@ public class MainController {
         }
     }
 
+    public int askType(){
+        Scanner leer = new Scanner(System.in);
+        System.out.println("1.- Normal");
+        System.out.println("2.- Debil");
+        return leer.nextInt();
+    }
+
     public List<ElementWrapper> fetchElements() {
         return diagramC.fetchElements();
     }
 
     public ElementWrapper getCurrentElement() {return currentElement;}
 
+    public void renameCurrentElement(String label){
+        RenameElementAction action = new RenameElementAction(currentElement, label);
+        action.execute();;
+        actionC.addToStack(action);
+    }
+
+    public double getZoomFactor(){ return  zoomFactor;}
+    public void setZoomFactor(double _zoomFactor) {zoomFactor = _zoomFactor;}
 }

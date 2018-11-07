@@ -39,10 +39,12 @@ public class Attribute implements Element{
         this.contained = relations;
     }
     
+    @Override
     public int getType(){
         return type;
     }
     
+    @Override
     public void setType(int type){
         this.type = type;
     }

@@ -15,9 +15,8 @@ import java.util.List;
 public class Relationship implements Element{
     private String name;
     private List<ElementWrapper> relations;
+    private int type = 1;
 
-
-    
     @Override
     public String getLabel() {
         return name;
@@ -38,8 +37,14 @@ public class Relationship implements Element{
         this.name = name;
     }
 
- 
+    @Override
+    public int getType(){
+        return type;
+    }
     
-    
-    
+    @Override
+    public void setType(int type){
+        this.type = type;
+    }
+  
 }

@@ -16,4 +16,6 @@ public interface Element {
     public void setLabel(String name);
     public List<ElementWrapper> getContained();
     public void setContained(List<ElementWrapper> contained);
+    public void setType(int type);
+    public int getType();
 }

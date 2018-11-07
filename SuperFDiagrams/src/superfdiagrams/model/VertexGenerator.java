@@ -50,6 +50,24 @@ public class VertexGenerator {
         
         return vertexes;
     }
+    
+    public static List<Vertex> generateEllipse(int number, int size, Vertex center){
+        List<Vertex> vertexes = new ArrayList<>();
+        
+        if (number < 3)
+            number = 4;
+        
+        double[] denormalized = denormalize(calculateEllipseVertexes(number), number, size);
+        Vertex vertex;
+        
+        for(int i =0; i < number*2; i+=2){
+            vertex = generateVertex(denormalized[i], denormalized[i+1]);
+            vertex.displace(center.getCoordinates());
+            vertexes.add(vertex);
+        }
+        
+        return vertexes;
+    }
     /**
      * Método utilizado para obtner rectángulos.
      * @param size int que representa proporción de tamaño del rectángulo
@@ -87,6 +105,19 @@ public class VertexGenerator {
         for(int i = 0, j=0; i<number*2; i+=2, j++){
             points[i]   =   Math.sin(constant*j);
             points[i+1] = - Math.cos(constant*j);
+        }
+        
+        return points;
+    }
+    
+    private static double[] calculateEllipseVertexes(int number){
+        double[] points = new double[number*2];
+        
+        double constant = 2*Math.PI/number;
+        
+        for(int i = 0, j=0; i<number*2; i+=2, j++){
+            points[i]   =   Math.sin(constant*j);
+            points[i+1] = (0- Math.cos(constant*j)/1.75);
         }
         
         return points;

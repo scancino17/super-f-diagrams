@@ -22,13 +22,14 @@ public class GeometricUtilities {
     public static boolean PointInPolygon(List<Vertex> p, Vertex q)
     {
         boolean c = false;
+        double zoomFactor = MainController.getController().getZoomFactor();
         for (int i = 0; i < p.size(); i++)
         {
             int j = (i+1)%p.size();
-            if ((p.get(i).getyPos() <= q.getyPos() && q.getyPos() < p.get(j).getyPos() ||
-                    p.get(j).getyPos() <= q.getyPos() && q.getyPos() < p.get(i).getyPos()) &&
-                    q.getxPos() < p.get(i).getxPos() + (p.get(j).getxPos() - p.get(i).getxPos()) *
-                            (q.getyPos() - p.get(i).getyPos()) / (p.get(j).getyPos() - p.get(i).getyPos()))
+            if ((p.get(i).getyPos() * zoomFactor <= q.getyPos() && q.getyPos() < p.get(j).getyPos() * zoomFactor ||
+                    p.get(j).getyPos() * zoomFactor <= q.getyPos() && q.getyPos() < p.get(i).getyPos() * zoomFactor) &&
+                    q.getxPos() < p.get(i).getxPos() * zoomFactor + (p.get(j).getxPos() * zoomFactor - p.get(i).getxPos() * zoomFactor) *
+                            (q.getyPos() - p.get(i).getyPos() * zoomFactor) / (p.get(j).getyPos() * zoomFactor - p.get(i).getyPos() * zoomFactor))
                 c = !c;
         }
         return c;
@@ -45,7 +46,7 @@ public class GeometricUtilities {
     }
     
     public static ElementWrapper checkColition(double x, double y){
-        return checkColition(VertexGenerator.generateVertex(x, y));
+        return checkColition(VertexGenerator.generateVertex(x  , y ));
     }
     
     public static Vertex getCenterOfMass(List<Vertex> polygon){
