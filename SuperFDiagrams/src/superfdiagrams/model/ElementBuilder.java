@@ -125,6 +125,32 @@ public class ElementBuilder {
         return element;
     }
     
+    public ElementWrapper generateHeritage(Relationship heritage){
+        ElementWrapper element = new ElementWrapper();
+        
+        element.setElement(heritage);
+ 
+        element.getElement().setLabel(name);
+        
+        element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
+        
+        List<ElementWrapper> unions = new ArrayList<>();
+        
+        for(ElementWrapper el: heritage.getContained()){
+                    unions.add(generateLine(element, el));
+                }
+        
+        heritage.setContained(unions);
+        
+        PolygonDrawer drawer = new PolygonDrawer();
+        drawer.setCenter(center);
+        drawer.setType(heritage.getType());
+        element.setDrawer(drawer);
+        return element;
+        
+    }
+
+    
     public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){
         ElementWrapper line = new ElementWrapper();
         

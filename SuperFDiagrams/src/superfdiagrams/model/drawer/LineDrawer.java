@@ -59,7 +59,6 @@ public class LineDrawer implements Drawer{
     }
     
     public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        System.out.println("xd");
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(3);
         gc.strokeLine(vertexes.get(0).getxPos() * zoom, vertexes.get(0).getyPos() * zoom,

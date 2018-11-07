@@ -12,6 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.ATTRIBUTE;
+import static superfdiagrams.model.State.HERITAGE;
 import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
@@ -123,19 +124,20 @@ public class MainController {
      */
     public void createNewRelation(double posX, double posY, String name){
         Vertex vertex = new Vertex (posX, posY);
-        
         int type = 1;
+        
+        for(ElementWrapper element: elementsToRelation){
+            if(element.getElement().getType() == 2){
+                type = Integer.parseInt(uiController.askType());
+            }
+        }
         
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         
-        for (int i = 0; i < elementsToRelation.size(); i++) {
-            if (elementsToRelation.get(i).getElement().getType() == 2){
-                type = 3;
-                i = elementsToRelation.size();
-            }
-        }
+        if(type == 2)
+            type++;
         
         ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
@@ -182,6 +184,8 @@ public class MainController {
             stateC.setState(VIEW);
         else if(stateC.getState() == State.CHOSING_ENTITY)
             stateC.setState(ATTRIBUTE);
+        else if(stateC.getState() == State.SELECTING_CHILDREN)
+            stateC.setState(HERITAGE);
         else
             stateC.setState(RELATIONSHIP);
     }
@@ -214,8 +218,16 @@ public class MainController {
                 break;
             case ATTRIBUTE:
                 uiController.setStatusText("Creando Atributo...");
+                break;
             case DELETING_ELEMENT:
                 uiController.setStatusText("Eliminando elemento...");
+                break;
+            case HERITAGE:
+                uiController.setStatusText("Creando herencia...");
+                break;
+            case SELECTING_CHILDREN:
+                uiController.setStatusText("Seleccionando hijos...");
+                break;
         }
     }
     
@@ -263,11 +275,34 @@ public class MainController {
                     }
                 }
                 break;
+            case SELECTING_CHILDREN:
+                if(currentElement != null)
+                {                   
+                    ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
+                    if (entity.getElement() instanceof Entity) {
+                        uiController.activateFinishButton();
+                        entity.setHighlighted(true);
+                        if (!elementsToRelation.contains(entity)
+                            &&  elementsToRelation.size() < 6)
+                            this.elementsToRelation.add(entity);
+                        else
+                            entity.setHighlighted(false);
+                    }
+                }
+                break;
+            case HERITAGE:
+                if(currentElement == null)
+                {
+                    createNewHeritage(mouseXPos, mouseYPos);
+                    stateC.setState(VIEW);
+                    choosed = false;
+                }
+                break;  
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
                 if(currentElement != null){
                     ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
-                    if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
+                    if((entity.getElement() instanceof Relationship) ||(entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
                             && !choosed){
                         elementsToRelation.add(entity);
                         entity.setHighlighted(true);
@@ -443,7 +478,38 @@ public class MainController {
             cancelEntitySelection();
         }
     }
+    
+    public void createNewHeritage(double posX, double posY){
+        String name = null;
+        Vertex vertex = new Vertex(posX, posY);
+        ElementBuilder elementConstructor = new ElementBuilder();
+        elementConstructor.setCenter(vertex);
+        if (askType() == 1){
+            name = "D";
+        }else{
+            name = "S";
+        }
+        elementConstructor.setName(name);
+        
+        Relationship heritage = new Relationship();
+        heritage.setContained(elementsToRelation);
+        heritage.setType(1);
+        
+        for(ElementWrapper e : elementsToRelation)
+            e.setHighlighted(false);
+        
+        ElementWrapper element = elementConstructor.generateHeritage(heritage);
 
+        actionC.addToStack(new CreateRelationshipAction(element));
+        
+        elementsToRelation = new ArrayList<>();
+        this.addElement(element);
+        
+        for(ElementWrapper union: element.getElement().getContained()){
+            this.addElement(union);
+        }
+        
+    }
     public int askType(){
         Scanner leer = new Scanner(System.in);
         System.out.println("1.- Normal");

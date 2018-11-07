@@ -298,6 +298,11 @@ public class FXMLDocumentController implements Initializable{
         }
     }
     
+    @FXML
+    public void changeStatusHeritage(){
+        mainC.setState(State.SELECTING_CHILDREN);
+    }
+    
     public void showElementPane(){
         editElementPane.setDisable(false);
         editElementPane.setVisible(true);
