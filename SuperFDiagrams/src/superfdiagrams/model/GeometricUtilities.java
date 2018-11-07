@@ -35,10 +35,6 @@ public class GeometricUtilities {
         return c;
     }
     
-    public static ElementWrapper checkColition(MouseEvent mouse, double zoomConstt){
-        return checkColition(mouse.getX() / zoomConstt, mouse.getY() / zoomConstt);
-    }
-    
     // solo para probar... recorre todos los elementos y ve si el Vertex p está pertenece a alguno
     public static ElementWrapper checkColition(Vertex p)
     {

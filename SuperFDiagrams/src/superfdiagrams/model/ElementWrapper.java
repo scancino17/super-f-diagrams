@@ -54,7 +54,7 @@ public class ElementWrapper implements Drawable{
         this.vertexes = vertexes;
     }
     
-    public void toggleHighlighted(){
-        this.highlighted = !highlighted;
+    public void setHighlighted(boolean value){
+        this.highlighted = value;
     }
 }

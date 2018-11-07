@@ -22,6 +22,7 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Text;
@@ -33,6 +34,7 @@ import static superfdiagrams.model.State.DELETING_ELEMENT;
 
 import static superfdiagrams.model.State.ENTITY;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
+import static superfdiagrams.model.State.VIEW;
 
 /**
  *
@@ -111,14 +113,16 @@ public class FXMLDocumentController implements Initializable{
     
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
-        mainC.doClickAction(mouseEvent);
+        mainC.setDoubleClick(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
+                             && mouseEvent.getClickCount() == 2 );
+        mainC.doClickAction();
 
         //aquí cargaría toda la info del elemento para que se pueda modificar...
-        if(mainC.getCurrentElement() != null)
+        if(mainC.getCurrentElement() != null && mainC.getState() == VIEW)
         {
             showElementPane();
             currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
-            mainC.getCurrentElement().toggleHighlighted();
+            mainC.getCurrentElement().setHighlighted(true);
         }
         else
         {

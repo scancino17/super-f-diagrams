@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import superfdiagrams.FXMLDocumentController;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.ATTRIBUTE;
@@ -40,11 +38,14 @@ public class MainController {
     private List<ElementWrapper> elementsToRelation;
     private ElementWrapper selected;
     private List<ElementWrapper> selectedRelated;
+    
     private MoveElementAction selectedAction;
+    private boolean doubleClick;
     private double mouseXPos;
     private double mouseYPos;
     private double zoomFactor;
     private boolean choosed;
+    
     private ElementWrapper currentElement;
     
     public static MainController getController(){
@@ -62,6 +63,7 @@ public class MainController {
         this.choosed = false;
         currentElement = null;
         this.zoomFactor = 1;
+        this.doubleClick = false;
     }
     
     public void setUiController(FXMLDocumentController dc){
@@ -138,7 +140,7 @@ public class MainController {
         ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
         for(ElementWrapper e : elementsToRelation)
-            e.toggleHighlighted();
+            e.setHighlighted(false);
         
         actionC.addToStack(new CreateRelationshipAction(element));
         
@@ -217,11 +219,11 @@ public class MainController {
         }
     }
     
-    public void doClickAction(MouseEvent mouseEvent){
+    public void doClickAction(){
         if (currentElement != null && stateC.getState() == VIEW)
-            currentElement.toggleHighlighted();
+            currentElement.setHighlighted(false);
         
-        currentElement = checkColition(mouseEvent, zoomFactor);
+        currentElement = checkColition(mouseXPos, mouseYPos);
         switch(stateC.getState()){
             case ENTITY:
                 if(currentElement == null)
@@ -236,15 +238,15 @@ public class MainController {
             case SELECTING_ENTITIES:   
                 if(currentElement != null)
                 {                   
-                    ElementWrapper entity = checkColition(mouseEvent, zoomFactor);
+                    ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
                     if (entity.getElement() instanceof Entity) {
                         uiController.activateFinishButton();
-                        entity.toggleHighlighted();
+                        entity.setHighlighted(true);
                         if (!elementsToRelation.contains(entity)
                             &&  elementsToRelation.size() < 6)
                             this.elementsToRelation.add(entity);
                         else
-                            entity.toggleHighlighted();
+                            entity.setHighlighted(false);
                     }
                 }
                 break;
@@ -257,18 +259,18 @@ public class MainController {
                         stateC.setState(VIEW);
                     } else {
                         for(ElementWrapper element: elementsToRelation)
-                            element.toggleHighlighted();
+                            element.setHighlighted(false);
                     }
                 }
                 break;
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
                 if(currentElement != null){
-                    ElementWrapper entity = checkColition(mouseEvent, zoomFactor);
+                    ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
                     if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
                             && !choosed){
                         elementsToRelation.add(entity);
-                        entity.toggleHighlighted();
+                        entity.setHighlighted(true);
                         choosed = true;
                     }
                 }
@@ -283,14 +285,14 @@ public class MainController {
                         choosed = false;
                     } else {
                         for(ElementWrapper element: elementsToRelation)
-                            element.toggleHighlighted();
+                            element.setHighlighted(false);
                     }
                 }
                 break;
             case MOVING_ELEMENT:
                 if(currentElement != null)
                 {
-                    selected.toggleHighlighted();
+                    selected.setHighlighted(false);
                     selectedAction.getNewPosition();
                     selected = null;
                     selectedRelated = null;
@@ -301,16 +303,15 @@ public class MainController {
         }
         
         if (currentElement != null){
-            if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
-            && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
+            if(doubleClick && stateC.getState() == VIEW)
             {
-                selected = checkColition(mouseEvent, zoomFactor);
+                selected = checkColition(mouseXPos, mouseYPos);
                 selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
                 selectedAction = new MoveElementAction(selected, selectedRelated);
                 actionC.addToStack(selectedAction);
                 
                 if (!(selected.getElement() instanceof Union)){
-                    selected.toggleHighlighted();
+                    selected.setHighlighted(true);
                     stateC.setState(MOVING_ELEMENT);
                 } else {
                     selected = null;
@@ -322,7 +323,7 @@ public class MainController {
     public void cancelEntitySelection(){
         if (elementsToRelation != null && !elementsToRelation.isEmpty())
             for (ElementWrapper element: elementsToRelation)
-                element.toggleHighlighted();
+                element.setHighlighted(false);
         
         elementsToRelation = new ArrayList<>();
         choosed = false;
@@ -420,7 +421,7 @@ public class MainController {
         elementCostructor.setName(name);
         
         for(ElementWrapper e : elementsToRelation)
-            e.toggleHighlighted();
+            e.setHighlighted(false);
         
         Attribute attribute = new Attribute();
         attribute.setContained(elementsToRelation);
@@ -458,10 +459,14 @@ public class MainController {
 
     public void renameCurrentElement(String label){
         RenameElementAction action = new RenameElementAction(currentElement, label);
-        action.execute();;
+        action.execute();
         actionC.addToStack(action);
     }
 
     public double getZoomFactor(){ return  zoomFactor;}
     public void setZoomFactor(double _zoomFactor) {zoomFactor = _zoomFactor;}
+    
+    public void setDoubleClick(boolean value){
+        this.doubleClick = value;
+    }
 }
