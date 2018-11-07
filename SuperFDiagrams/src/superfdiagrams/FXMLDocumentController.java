@@ -269,9 +269,23 @@ public class FXMLDocumentController implements Initializable{
         return selected;
     }
     
-     public String askType(){
+    public String askType(){
         String[] choices =  new String[]{"1 - Normal",
                                          "2 - Débil",};
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        
+        if (result.isPresent()){
+            selected = result.get();
+            selected = selected.substring(0, 1);
+        }
+        return selected;
+    }
+    
+    public String askHeritage(){
+        String[] choices =  new String[]{"1 - Disyunción",
+                                         "2 - Solapamiento",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], choices);
         Optional<String> result = dialog.showAndWait();
         String selected = "0";

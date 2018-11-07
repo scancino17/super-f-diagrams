@@ -28,6 +28,7 @@ public class DeleteElementAction implements Action{
         this.deleted = deleted;
         this.related = related;
         this.mainC = MainController.getController();
+        System.out.println(related.size());
     }
     
     @Override

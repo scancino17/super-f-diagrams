@@ -44,6 +44,7 @@
             </AnchorPane>
         </content>
       </TitledPane>
-      <Button layoutX="108.0" layoutY="186.0" mnemonicParsing="false" onAction="#changeStatusHeritage" text="Herencia xd" />
+      <Button fx:id="heritageBtn" layoutX="109.0" layoutY="166.0" mnemonicParsing="false" onAction="#changeStatusHeritage" prefHeight="64.0" prefWidth="64.0" />
+      <Text layoutX="117.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" />
    </children>
 </AnchorPane>

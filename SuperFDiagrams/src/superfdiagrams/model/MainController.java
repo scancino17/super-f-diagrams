@@ -484,7 +484,7 @@ public class MainController {
         Vertex vertex = new Vertex(posX, posY);
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
-        if (askType() == 1){
+        if (Integer.parseInt(uiController.askHeritage()) == 1){
             name = "D";
         }else{
             name = "S";
@@ -509,12 +509,6 @@ public class MainController {
             this.addElement(union);
         }
         
-    }
-    public int askType(){
-        Scanner leer = new Scanner(System.in);
-        System.out.println("1.- Normal");
-        System.out.println("2.- Debil");
-        return leer.nextInt();
     }
 
     public List<ElementWrapper> fetchElements() {
