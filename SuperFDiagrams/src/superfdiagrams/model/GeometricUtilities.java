@@ -19,6 +19,22 @@ public class GeometricUtilities {
      * @param q - Vertex a verificar si está contenido
      * @return true o false en caso de que el Vertex esté contenido o no (no verifica si está en los limites del polígono)
      */
+    public static boolean AlternativePointInPolygon(List<Vertex> p, Vertex q)
+    {
+        boolean c = false;
+        double zoomFactor = MainController.getController().getZoomFactor();
+        for (int i = 0; i < p.size(); i++)
+        {
+            int j = (i+1)%p.size();
+            if ((p.get(i).getyPos() * zoomFactor <= q.getyPos() && q.getyPos() < p.get(j).getyPos() * zoomFactor ||
+                    p.get(j).getyPos() * zoomFactor <= q.getyPos() && q.getyPos() < p.get(i).getyPos() * zoomFactor) &&
+                    q.getxPos() < p.get(i).getxPos() * zoomFactor + (p.get(j).getxPos() * zoomFactor - p.get(i).getxPos() * zoomFactor) *
+                            (q.getyPos() - p.get(i).getyPos() * zoomFactor) / (p.get(j).getyPos() * zoomFactor - p.get(i).getyPos() * zoomFactor))
+                c = !c;
+        }
+        return c;
+    }
+    
     public static boolean PointInPolygon(List<Vertex> p, Vertex q)
     {
         boolean c = false;
@@ -45,7 +61,7 @@ public class GeometricUtilities {
     }
     
     public static ElementWrapper checkColition(double x, double y){
-        return checkColition(VertexGenerator.generateVertex(x, y));
+        return checkColition(VertexGenerator.generateVertex(x  , y ));
     }
     
     public static Vertex getCenterOfMass(List<Vertex> polygon){

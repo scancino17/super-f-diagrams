@@ -11,6 +11,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import superfdiagrams.model.GeometricUtilities;
+import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
 import superfdiagrams.model.VertexGenerator;
 
@@ -21,7 +22,7 @@ import superfdiagrams.model.VertexGenerator;
 public class ElipseDrawer implements Drawer{
     private int type;
     private Vertex center;
-
+    private double zoom = 1;
     public int getType() {
         return type;
     }
@@ -32,10 +33,11 @@ public class ElipseDrawer implements Drawer{
     
     public void setCenter(Vertex center){
         this.center = center;
-    }
+    } 
 
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
+        zoom = MainController.getController().getZoomFactor();
         this.doDraw(gc, vertexes, name, highlighted, type);
     }
 
@@ -68,7 +70,7 @@ public class ElipseDrawer implements Drawer{
         {
             gc.setStroke(Color.RED);
             gc.setLineWidth(5);
-            gc.strokeLine(v.getxPos(), v.getyPos() , v.getxPos(), v.getyPos());
+            gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
     }
     
@@ -89,8 +91,8 @@ public class ElipseDrawer implements Drawer{
         int j = 0;
         int size = vertexes.size();
         for (int i = 0; i < vertexes.size(); i++) {
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
             if (j == 2){
                 i = i+1;
                 j = 0;
@@ -99,7 +101,7 @@ public class ElipseDrawer implements Drawer{
         }
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
     }
     
     /**
@@ -120,8 +122,8 @@ public class ElipseDrawer implements Drawer{
         
         int size = vertexes.size();
         for(int i = 0; i < size; i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
         if(highlighted)
@@ -129,7 +131,7 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
     }
     
     /**
@@ -150,8 +152,8 @@ public class ElipseDrawer implements Drawer{
         
         int size = vertexes.size();
         for(int i = 0; i < size; i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
         if(highlighted)
@@ -159,8 +161,9 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
-        gc.strokeLine(center.getxPos()-50, center.getyPos()+5, center.getxPos()+50, center.getyPos()+5);
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        gc.strokeLine(center.getxPos() * zoom - 50, center.getyPos() * zoom + 5,
+                center.getxPos() * zoom + 50, center.getyPos() * zoom + 5);
     }
     
     private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
@@ -175,14 +178,14 @@ public class ElipseDrawer implements Drawer{
         
         int size = vertexes.size();
         for(int i = 0; i < size; i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         gc.setLineWidth(1);
         gc.setStroke(Color.WHITE);
         for(int i = 0; i < vertexes.size(); i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
         if(highlighted)
@@ -190,8 +193,7 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
         
     }
-
 }

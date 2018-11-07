@@ -236,13 +236,10 @@ public class FXMLDocumentController implements Initializable{
     }
     
     @FXML public void canvasZoom(ScrollEvent scroll){
-        //implementar
         double zoom = 1.1;
         if (scroll.getDeltaY() < 0)
             zoom = 2.0 - zoom;
-        
-        canvas.setScaleX(canvas.getScaleX() * zoom);
-        canvas.setScaleY(canvas.getScaleY() * zoom);
+        mainC.setZoomFactor(mainC.getZoomFactor() * zoom);
     }
     
     @FXML

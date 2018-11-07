@@ -43,6 +43,7 @@ public class MainController {
     private MoveElementAction selectedAction;
     private double mouseXPos;
     private double mouseYPos;
+    private double zoomFactor;
     private boolean choosed;
     private ElementWrapper currentElement;
     
@@ -60,6 +61,7 @@ public class MainController {
         elementsToRelation = new ArrayList<>();
         this.choosed = false;
         currentElement = null;
+        this.zoomFactor = 1;
     }
     
     public void setUiController(FXMLDocumentController dc){
@@ -152,7 +154,7 @@ public class MainController {
      * Funcion que dibuja los elementos de la lista.
      * Esta funcion va dibujando constantemente, cuando la lista se encuentra
      * vacia estara limpiando la pantalla.
-     * @param gc 
+     * @param gc
      */
     public boolean drawElements(){
         if (!drawC.isBufferEmpty()){
@@ -170,7 +172,7 @@ public class MainController {
         selected = null;
         currentElement = null;
         stateC.setState(VIEW);
-        
+        zoomFactor = 1;
     }
     
     public void finishEntitySelection(){
@@ -218,7 +220,7 @@ public class MainController {
         if (currentElement != null && stateC.getState() == VIEW)
             currentElement.toggleHighlighted();
         
-        currentElement = checkColition(mouseEvent.getX(), mouseEvent.getY());
+        currentElement = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
         switch(stateC.getState()){
             case ENTITY:
                 if(currentElement == null)
@@ -233,7 +235,7 @@ public class MainController {
             case SELECTING_ENTITIES:   
                 if(currentElement != null)
                 {                   
-                    ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                    ElementWrapper entity = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
                     if (entity.getElement() instanceof Entity) {
                         uiController.activateFinishButton();
                         entity.toggleHighlighted();
@@ -262,7 +264,7 @@ public class MainController {
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
                 if(currentElement != null){
-                    ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                    ElementWrapper entity = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
                     if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
                             && !choosed){
                         elementsToRelation.add(entity);
@@ -299,11 +301,11 @@ public class MainController {
                 break;
         }
         
-        if (checkColition(mouseEvent.getX(), mouseEvent.getY()) != null){
+        if (currentElement != null){
             if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
             && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
             {
-                selected = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                selected = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
                 selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
                 selectedAction = new MoveElementAction(selected, selectedRelated);
                 actionC.addToStack(selectedAction);
@@ -448,7 +450,7 @@ public class MainController {
         System.out.println("2.- Debil");
         return leer.nextInt();
     }
-    
+
     public List<ElementWrapper> fetchElements() {
         return diagramC.fetchElements();
     }
@@ -460,4 +462,7 @@ public class MainController {
         action.execute();;
         actionC.addToStack(action);
     }
+
+    public double getZoomFactor(){ return  zoomFactor;}
+    public void setZoomFactor(double _zoomFactor) {zoomFactor = _zoomFactor;}
 }
