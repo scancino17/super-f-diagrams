@@ -103,7 +103,7 @@ public class FXMLDocumentController implements Initializable{
         mainC.toggleDrawVertex();
     }
 
-    EventHandler<MouseEvent> elementOnMouseDragged =
+    private final EventHandler<MouseEvent> elementOnMouseDragged =
         (MouseEvent event) -> {
             mainC.setMousePos(event.getX(), event.getY());
     };

@@ -81,8 +81,8 @@ public class MainController {
     }
     
     public void setMousePos(double x, double y){
-        this.mouseXPos = x;
-        this.mouseYPos = y;
+        this.mouseXPos = x / zoomFactor;
+        this.mouseYPos = y / zoomFactor;
     }
     
     public void toggleDrawVertex(){
@@ -187,7 +187,8 @@ public class MainController {
     public void runMainLoop(){
         if(selected != null && stateC.getState() == MOVING_ELEMENT ){
             VertexGenerator.recalculateVertexes(selected.getVertexes(),
-                                    new Vertex(mouseXPos, mouseYPos));
+                                    new Vertex(mouseXPos,
+                                               mouseYPos));
             VertexGenerator.recalculateNearestVertexes(selectedRelated);
         }
         
@@ -220,14 +221,14 @@ public class MainController {
         if (currentElement != null && stateC.getState() == VIEW)
             currentElement.toggleHighlighted();
         
-        currentElement = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
+        currentElement = checkColition(mouseEvent, zoomFactor);
         switch(stateC.getState()){
             case ENTITY:
                 if(currentElement == null)
                 {
                     String name = uiController.getElementName("entidad");
                     if (name != null) {
-                        createNewEntity( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
+                        createNewEntity(mouseXPos, mouseYPos, name);
                         stateC.setState(State.VIEW);
                     }
                 }
@@ -235,7 +236,7 @@ public class MainController {
             case SELECTING_ENTITIES:   
                 if(currentElement != null)
                 {                   
-                    ElementWrapper entity = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
+                    ElementWrapper entity = checkColition(mouseEvent, zoomFactor);
                     if (entity.getElement() instanceof Entity) {
                         uiController.activateFinishButton();
                         entity.toggleHighlighted();
@@ -252,8 +253,7 @@ public class MainController {
                 {
                     String name = uiController.getElementName("relación");
                     if (name != null){
-                        createNewRelation( Math.round(mouseEvent.getX()), 
-                                           Math.round(mouseEvent.getY()), name);
+                        createNewRelation(mouseXPos, mouseYPos, name);
                         stateC.setState(VIEW);
                     } else {
                         for(ElementWrapper element: elementsToRelation)
@@ -264,7 +264,7 @@ public class MainController {
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
                 if(currentElement != null){
-                    ElementWrapper entity = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
+                    ElementWrapper entity = checkColition(mouseEvent, zoomFactor);
                     if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
                             && !choosed){
                         elementsToRelation.add(entity);
@@ -278,8 +278,7 @@ public class MainController {
                 {
                     String name = uiController.getElementName("Atributo");
                     if (name != null){
-                        createNewAttribute( Math.round(mouseEvent.getX()), 
-                                           Math.round(mouseEvent.getY()), name);
+                        createNewAttribute(mouseXPos, mouseYPos, name);
                         stateC.setState(VIEW);
                         choosed = false;
                     } else {
@@ -305,7 +304,7 @@ public class MainController {
             if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
             && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
             {
-                selected = checkColition(mouseEvent.getX() / zoomFactor, mouseEvent.getY() / zoomFactor);
+                selected = checkColition(mouseEvent, zoomFactor);
                 selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
                 selectedAction = new MoveElementAction(selected, selectedRelated);
                 actionC.addToStack(selectedAction);
