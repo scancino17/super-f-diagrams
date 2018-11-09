@@ -82,12 +82,16 @@ public class LineDrawer implements Drawer{
         Vertex a = vertexes.get(0);
         Vertex b = vertexes.get(1);
         Vertex mid = GeometricUtilities.midPoint(a, b);
-        double angle =  (b.getxPos() - a.getxPos())/(b.getyPos() - a.getyPos());
+        double y = (a.getyPos() - b.getyPos()) ;
+        double x = (a.getxPos() - b.getxPos());
+        double angle = x / y;
+        angle = Math.toDegrees(Math.atan(angle));
+        
         gc.strokeArc((mid.getxPos() - 25) * zoom,
                      (mid.getyPos() - 25) * zoom,
                      50 * zoom,
                      50 * zoom,
-                     Math.toDegrees(Math.atan(angle) + Math.PI),
+                     (y < 0) ? angle + 180 : angle,
                      180, ArcType.OPEN);
     }
 }

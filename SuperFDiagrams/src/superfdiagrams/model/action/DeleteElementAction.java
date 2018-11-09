@@ -7,8 +7,7 @@ package superfdiagrams.model.action;
 
 import java.util.List;
 import superfdiagrams.model.Attribute;
-import superfdiagrams.model.ConnectsWrappers;
-import superfdiagrams.model.ElementWrapper;
+import superfdiagrams.model.Element;
 import superfdiagrams.model.Entity;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Relationship;
@@ -20,11 +19,11 @@ import superfdiagrams.model.Union;
  * @author sebca
  */
 public class DeleteElementAction implements Action{
-    private ElementWrapper deleted;
-    private List<ElementWrapper> related;
+    private Element deleted;
+    private List<Element> related;
     private MainController mainC;
     
-    public DeleteElementAction(ElementWrapper deleted, List<ElementWrapper> related){
+    public DeleteElementAction(Element deleted, List<Element> related){
         this.deleted = deleted;
         this.related = related;
         this.mainC = MainController.getController();
@@ -38,7 +37,7 @@ public class DeleteElementAction implements Action{
 
     @Override
     public void undo() {
-        for(ElementWrapper r : related){
+        for(Element r : related){
             if(deleted.getElement() instanceof Entity){
                 addUnion(r);
             } else
@@ -48,7 +47,7 @@ public class DeleteElementAction implements Action{
     }
      
     public void execute(){
-        for(ElementWrapper r : related){
+        for(Element r : related){
             if(deleted.getElement() instanceof Entity)
                 removeUnion(r);
             else
@@ -57,13 +56,13 @@ public class DeleteElementAction implements Action{
             mainC.removeElement(deleted);
     }
     
-    private void removeUnion(ElementWrapper union){
-        ElementWrapper parent = ((ConnectsWrappers)union.getElement()).getParent();
-        List<ElementWrapper> parentContained = parent.getElement().getContained();
+    private void removeUnion(Element union){
+        Element parent = ((Union)union.getElement()).getParent();
+        List<Element> parentContained = parent.getElement().getChildren();
         
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
-            ElementWrapper child1 = ((Union)parentContained.get(0).getElement()).getChild();
-            ElementWrapper child2 = ((Union)parentContained.get(1).getElement()).getChild();
+            Element child1 = ((Union)parentContained.get(0).getElement()).getChild();
+            Element child2 = ((Union)parentContained.get(1).getElement()).getChild();
             if (child1 == child2){
                 mainC.removeElement(parentContained.get(0));
                 mainC.removeElement(parentContained.get(1));
@@ -85,20 +84,20 @@ public class DeleteElementAction implements Action{
         mainC.morphElement(parent);
     }
     
-    private void addUnion(ElementWrapper union){
-        ElementWrapper parent = ((ConnectsWrappers)union.getElement()).getParent();
-        List<ElementWrapper> parentContained = parent.getElement().getContained();
+    private void addUnion(Element union){
+        Element parent = ((Union)union.getElement()).getParent();
+        List<Element> parentContained = parent.getElement().getChildren();
         
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
-            ElementWrapper child1 = ((Union)parentContained.get(0).getElement()).getChild();
-            ElementWrapper child2 = ((Union)parentContained.get(1).getElement()).getChild();
+            Element child1 = ((Union)parentContained.get(0).getElement()).getChild();
+            Element child2 = ((Union)parentContained.get(1).getElement()).getChild();
             if (child1 == child2){
                 mainC.removeElement(parentContained.get(0));
                 parentContained.remove(0);
             }
         }
         
-        parent.getElement().getContained().add(union);    
+        parent.getElement().getChildren().add(union);    
             
         if(!mainC.fetchElements().contains(parent))
             mainC.addElement(parent);

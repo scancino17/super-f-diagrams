@@ -11,9 +11,10 @@ import java.util.List;
  *
  * @author sebca
  */
-public class Entity implements Element{
+public class Entity implements Primitive {
     private String name = "";
-    private int type;
+    private Type type;
+    private List<Element> children;
     
     @Override
     public String getLabel() {
@@ -26,20 +27,22 @@ public class Entity implements Element{
     }
 
     @Override
-    public List<ElementWrapper> getContained() {
-        return null;
+    public List<Element> getChildren() {
+        return children;
     }
 
     @Override
-    public void setContained(List<ElementWrapper> relations) {}
+    public void setChildren(List<Element> children) {
+        this.children = children;
+    }
     
     @Override
-    public int getType(){
+    public Type getType(){
         return type;
     }
     
     @Override
-    public void setType(int type){
+    public void setType(Type type){
         this.type = type;
     }
 }

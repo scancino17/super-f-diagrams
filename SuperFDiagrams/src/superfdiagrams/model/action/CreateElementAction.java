@@ -5,7 +5,7 @@
  */
 package superfdiagrams.model.action;
 
-import superfdiagrams.model.ElementWrapper;
+import superfdiagrams.model.Element;
 import superfdiagrams.model.MainController;
 
 /**
@@ -13,9 +13,9 @@ import superfdiagrams.model.MainController;
  * @author sebca
  */
 public class CreateElementAction implements Action{
-    private ElementWrapper container;
+    private Element container;
     
-    public CreateElementAction(ElementWrapper element){
+    public CreateElementAction(Element element){
         container = element;
     }
     

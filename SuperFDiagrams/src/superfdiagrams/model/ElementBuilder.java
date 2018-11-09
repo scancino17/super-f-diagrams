@@ -41,8 +41,8 @@ public class ElementBuilder {
         this.size = size;
     }
     
-    public ElementWrapper generateEntity(int type){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateEntity(int type){
+        Element element = new Element();
         Entity entity = new Entity();
         entity.setType(type);
         element.setElement(entity);
@@ -57,11 +57,11 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(int vertexes, List<ElementWrapper> relations){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateRelationship(int vertexes, List<Element> relations){
+        Element element = new Element();
         Relationship relation = new Relationship();
         relation.setLabel(name);
-        relation.setContained(relations);
+        relation.setChildren(relations);
         
         element.setElement(relation);
 
@@ -72,19 +72,19 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(List<ElementWrapper> entities, int type){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateRelationship(List<Element> entities, int type){
+        Element element = new Element();
         Relationship relation = new Relationship();
         
         element.setVertexes(VertexGenerator.generateVertexes(entities.size(), size, center));
         
         relation.setLabel(name);
         relation.setType(type);
-        List<ElementWrapper> unions = new ArrayList<>();
+        List<Element> unions = new ArrayList<>();
         
         element.setElement(relation);
         if(entities.size() > 1){
-            for(ElementWrapper el: entities){
+            for(Element el: entities){
                 unions.add(generateLine(element, el));
             }
         } else if (entities.size() == 1){
@@ -93,7 +93,7 @@ public class ElementBuilder {
         }
          
         
-        relation.setContained(unions);
+        relation.setChildren(unions);
         PolygonDrawer drawer = new PolygonDrawer();
         drawer.setType(type);
         drawer.setCenter(center);
@@ -102,21 +102,21 @@ public class ElementBuilder {
         
     }
     
-    public ElementWrapper generateAttribute(Attribute attribute){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateAttribute(Attribute attribute){
+        Element element = new Element();
         
         element.setElement(attribute);
         element.getElement().setLabel(name);
         
         element.setVertexes(VertexGenerator.generateEllipse(50, 55, center));
         
-        List<ElementWrapper> unions = new ArrayList<>();
+        List<Element> unions = new ArrayList<>();
         
-        for(ElementWrapper el: attribute.getContained()){
+        for(Element el: attribute.getChildren()){
                     unions.add(generateLine(element, el));
                 }
         
-        attribute.setContained(unions);
+        attribute.setChildren(unions);
         
         ElipseDrawer drawer = new ElipseDrawer();
         drawer.setCenter(center);
@@ -125,8 +125,8 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateHeritage(Relationship heritage){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateHeritage(Relationship heritage){
+        Element element = new Element();
         
         element.setElement(heritage);
  
@@ -134,15 +134,15 @@ public class ElementBuilder {
         
         element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
         
-        List<ElementWrapper> unions = new ArrayList<>();
+        List<Element> unions = new ArrayList<>();
         
-        for(ElementWrapper el: heritage.getContained()){
-                    ElementWrapper line = generateLine(element, el);
+        for(Element el: heritage.getChildren()){
+                    Element line = generateLine(element, el);
                     ((LineDrawer)line.getDrawer()).setType(3);
                     unions.add(line);
                 }
         ((LineDrawer)unions.get(0).getDrawer()).setType(1);
-        heritage.setContained(unions);
+        heritage.setChildren(unions);
         
         PolygonDrawer drawer = new PolygonDrawer();
         drawer.setCenter(center);
@@ -153,8 +153,8 @@ public class ElementBuilder {
     }
 
     
-    public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){
-        ElementWrapper line = new ElementWrapper();
+    public Element generateLine(Element relation, Element entity){
+        Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
                 relation.getVertexes(), entity.getVertexes());
@@ -176,8 +176,8 @@ public class ElementBuilder {
         return line;
     }
     
-    public ElementWrapper cloneElement(ElementWrapper element){
-        ElementWrapper clone = new ElementWrapper();
+    public Element cloneElement(Element element){
+        Element clone = new Element();
         
         List<Vertex> vertexes = VertexGenerator.cloneVertex(element.getVertexes());
         
@@ -188,11 +188,11 @@ public class ElementBuilder {
         return clone;
     }
     
-    public ElementWrapper cloneUnion(ElementWrapper union){
-        ElementWrapper clone = new ElementWrapper();
+    public Element cloneUnion(Element union){
+        Element clone = new Element();
         
-        ElementWrapper parent = ((Union) union.getElement()).getParent();
-        ElementWrapper child = ((Union) union.getElement()).getChild();
+        Element parent = ((Union) union.getElement()).getParent();
+        Element child = ((Union) union.getElement()).getChild();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(parent.getVertexes(), child.getVertexes());
         

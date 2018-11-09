@@ -12,54 +12,73 @@ import java.util.List;
  *
  * @author sebca
  */
-public class Union implements Element, ConnectsWrappers{
-    private ElementWrapper entity;
-    private ElementWrapper relationship;
-    private int type;
+public class Union implements Primitive{
+    private String label;
+    private Type type;
+    private Element child;
+    private Element parent;
+    // 0 es hijo
+    // 1 es padre
     
     @Override
     public String getLabel() {
-        return null;
+        return label;
     }
 
     @Override
-    public void setLabel(String name) {}   
+    public void setLabel(String name) {
+        this.label = name;
+    }   
     
-    @Override
-    public List<ElementWrapper> getContained() {
-        return null;
+    public Element getParent() {
+       return parent;
+    }
+
+    public Element getChild() {
+        return child;
+    }
+
+    public void setParent(Element element) {
+        this.parent = element;
+    }
+
+    public void setChild(Element element) {
+        this.child = element;
     }
 
     @Override
-    public void setContained(List<ElementWrapper> relations) {}
-
-    @Override
-    public ElementWrapper getParent() {
-       return relationship;
-    }
-
-    @Override
-    public ElementWrapper getChild() {
-        return entity;
-    }
-
-    @Override
-    public void setParent(ElementWrapper element) {
-        this.relationship = element;
-    }
-
-    @Override
-    public void setChild(ElementWrapper element) {
-        this.entity = element;
-    }
-
-    @Override
-    public int getType(){
+    public Type getType(){
         return type;
     }
     
     @Override
-    public void setType(int type){
+    public void setType(Type type){
         this.type = type;
     }
+
+    @Override
+    public List<Element> getChildren() {
+        List<Element> children = new ArrayList<>();
+        children.add(child);
+        children.add(parent);
+        return children;
+    }
+
+    /**
+     * Se recomienda encarecidamente que prefiera los métodos setParent() 
+     * y setChild().
+     * 
+     * <p>Método que define los elementos hijos de este elemento. Tomar en
+     * consideración que el primer elemento de la union se consiedra el "hijo" 
+     * de esta unión, y el segundo elementos de la lista se considera el padre.
+     * Elementos adicionales serán ignorados.
+     * @param children Lista de Elementos a ser asignada como los "hijos" de
+     * esta instancia.
+     */
+    @Override
+    public void setChildren(List<Element> children) {
+        this.child = children.get(0);
+        this.parent = children.get(1);      
+    }
+    
 }

@@ -5,7 +5,7 @@
  */
 package superfdiagrams.model.action;
 
-import superfdiagrams.model.ElementWrapper;
+import superfdiagrams.model.Element;
 
 /**
  *
@@ -14,9 +14,9 @@ import superfdiagrams.model.ElementWrapper;
 public class RenameElementAction implements Action{
     private String oldName;
     private String name;
-    private ElementWrapper contained;
+    private Element contained;
     
-    public RenameElementAction(ElementWrapper contained, String name){
+    public RenameElementAction(Element contained, String name){
         this.contained = contained;
         this.name = name;
         this.oldName = contained.getElement().getLabel();

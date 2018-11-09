@@ -9,9 +9,6 @@ package superfdiagrams.model;
  *
  * @author sebca
  */
-public interface ConnectsWrappers {
-    public ElementWrapper getParent();
-    public ElementWrapper getChild();
-    public void setParent(ElementWrapper element);
-    public void setChild(ElementWrapper element);
+public enum Type {
+    
 }

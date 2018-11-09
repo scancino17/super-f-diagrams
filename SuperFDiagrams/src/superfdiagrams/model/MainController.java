@@ -36,9 +36,9 @@ public class MainController {
     private DiagramController diagramC;
     private FXMLDocumentController uiController;
     private ActionController actionC;
-    private List<ElementWrapper> elementsToRelation;
-    private ElementWrapper selected;
-    private List<ElementWrapper> selectedRelated;
+    private List<Element> elementsToRelation;
+    private Element selected;
+    private List<Element> selectedRelated;
     
     private MoveElementAction selectedAction;
     private boolean doubleClick;
@@ -47,7 +47,7 @@ public class MainController {
     private double zoomFactor;
     private boolean choosed;
     
-    private ElementWrapper currentElement;
+    private Element currentElement;
     
     public static MainController getController(){
         if (mc == null)
@@ -110,7 +110,7 @@ public class MainController {
             ElementBuilder elementConstructor = new ElementBuilder();
             elementConstructor.setCenter(vertex);
             elementConstructor.setName(name);        
-            ElementWrapper element = elementConstructor.generateEntity(type);
+            Element element = elementConstructor.generateEntity(type);
             actionC.addToStack(new CreateElementAction(element));
             this.addElement(element);
         }
@@ -126,7 +126,7 @@ public class MainController {
         Vertex vertex = new Vertex (posX, posY);
         int type = 1;
         
-        for(ElementWrapper element: elementsToRelation){
+        for(Element element: elementsToRelation){
             if(element.getElement().getType() == 2){
                 type = Integer.parseInt(uiController.askType());
             }
@@ -139,9 +139,9 @@ public class MainController {
         if(type == 2)
             type++;
         
-        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation, type);
+        Element element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
-        for(ElementWrapper e : elementsToRelation)
+        for(Element e : elementsToRelation)
             e.setHighlighted(false);
         
         actionC.addToStack(new CreateRelationshipAction(element));
@@ -149,7 +149,7 @@ public class MainController {
         elementsToRelation = new ArrayList<>();
         this.addElement(element);
         
-        for(ElementWrapper union: element.getElement().getContained()){
+        for(Element union: element.getElement().getChildren()){
             this.addElement(union);
         }
     }
@@ -252,7 +252,7 @@ public class MainController {
             case SELECTING_ENTITIES:   
                 if(currentElement != null)
                 {                   
-                    ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
+                    Element entity = checkColition(mouseXPos, mouseYPos);
                     if (entity.getElement() instanceof Entity) {
                         uiController.activateFinishButton();
                         entity.setHighlighted(true);
@@ -272,7 +272,7 @@ public class MainController {
                         createNewRelation(mouseXPos, mouseYPos, name);
                         stateC.setState(VIEW);
                     } else {
-                        for(ElementWrapper element: elementsToRelation)
+                        for(Element element: elementsToRelation)
                             element.setHighlighted(false);
                     }
                 }
@@ -280,7 +280,7 @@ public class MainController {
             case SELECTING_CHILDREN:
                 if(currentElement != null)
                 {                   
-                    ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
+                    Element entity = checkColition(mouseXPos, mouseYPos);
                     if (entity.getElement() instanceof Entity) {
                         uiController.activateFinishButton();
                         entity.setHighlighted(true);
@@ -303,7 +303,7 @@ public class MainController {
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
                 if(currentElement != null){
-                    ElementWrapper entity = checkColition(mouseXPos, mouseYPos);
+                    Element entity = checkColition(mouseXPos, mouseYPos);
                     if((entity.getElement() instanceof Relationship) ||(entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
                             && !choosed){
                         elementsToRelation.add(entity);
@@ -321,7 +321,7 @@ public class MainController {
                         stateC.setState(VIEW);
                         choosed = false;
                     } else {
-                        for(ElementWrapper element: elementsToRelation)
+                        for(Element element: elementsToRelation)
                             element.setHighlighted(false);
                     }
                 }
@@ -359,7 +359,7 @@ public class MainController {
     
     public void cancelEntitySelection(){
         if (elementsToRelation != null && !elementsToRelation.isEmpty())
-            for (ElementWrapper element: elementsToRelation)
+            for (Element element: elementsToRelation)
                 element.setHighlighted(false);
         
         elementsToRelation = new ArrayList<>();
@@ -382,20 +382,20 @@ public class MainController {
         return actionC.isRedoEmpty();
     }
     
-    public void addElement(ElementWrapper element){
+    public void addElement(Element element){
         diagramC.addElement(element);
         drawC.addToBuffer(element);
     }
     
-    public void deleteElement(ElementWrapper deleted){
-        List<ElementWrapper> related = null;
+    public void deleteElement(Element deleted){
+        List<Element> related = null;
         
         if (deleted.getElement() instanceof Entity){
             related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
         } else if (deleted.getElement() instanceof Relationship){
-            related = deleted.getElement().getContained();
+            related = deleted.getElement().getChildren();
         } else if (deleted.getElement() instanceof Attribute){
-            related = deleted.getElement().getContained();
+            related = deleted.getElement().getChildren();
         }
         if (related != null){
             DeleteElementAction deleteAction = new DeleteElementAction(deleted, related);
@@ -404,13 +404,13 @@ public class MainController {
         }
     }
     
-    public void morphElement(List<ElementWrapper> elementList){
-        for(ElementWrapper element : elementList)
+    public void morphElement(List<Element> elementList){
+        for(Element element : elementList)
             morphElement(element);
     }
     
-    public void morphElement(ElementWrapper element){
-        List<ElementWrapper> contained = element.getElement().getContained();
+    public void morphElement(Element element){
+        List<Element> contained = element.getElement().getChildren();
         
         if(contained.isEmpty()){
             removeElement(element);
@@ -419,7 +419,7 @@ public class MainController {
         
         if(element.getElement() instanceof Relationship){
             if(contained.size() == 1){
-                ElementWrapper union = new ElementBuilder().cloneUnion(contained.get(0));
+                Element union = new ElementBuilder().cloneUnion(contained.get(0));
                 contained.add(union);
                 this.addElement(union);
             }
@@ -438,7 +438,7 @@ public class MainController {
            
     }
     
-    public void removeElement(ElementWrapper element){
+    public void removeElement(Element element){
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
     }
@@ -457,23 +457,23 @@ public class MainController {
         elementCostructor.setCenter(vertex);
         elementCostructor.setName(name);
         
-        for(ElementWrapper e : elementsToRelation)
+        for(Element e : elementsToRelation)
             e.setHighlighted(false);
         
         Attribute attribute = new Attribute();
-        attribute.setContained(elementsToRelation);
+        attribute.setChildren(elementsToRelation);
         int type = Integer.parseInt(uiController.getType());
         if (type != 0){
             attribute.setType(type);
 
-            ElementWrapper element = elementCostructor.generateAttribute(attribute);
+            Element element = elementCostructor.generateAttribute(attribute);
 
             actionC.addToStack(new CreateRelationshipAction(element));
 
             elementsToRelation = new ArrayList<>();
             this.addElement(element);
 
-            for(ElementWrapper union: element.getElement().getContained()){
+            for(Element union: element.getElement().getChildren()){
                 this.addElement(union);
             }
         } else {
@@ -494,30 +494,30 @@ public class MainController {
         elementConstructor.setName(name);
         
         Relationship heritage = new Relationship();
-        heritage.setContained(elementsToRelation);
+        heritage.setChildren(elementsToRelation);
         heritage.setType(1);
         
-        for(ElementWrapper e : elementsToRelation)
+        for(Element e : elementsToRelation)
             e.setHighlighted(false);
         
-        ElementWrapper element = elementConstructor.generateHeritage(heritage);
+        Element element = elementConstructor.generateHeritage(heritage);
 
         actionC.addToStack(new CreateRelationshipAction(element));
         
         elementsToRelation = new ArrayList<>();
         this.addElement(element);
         
-        for(ElementWrapper union: element.getElement().getContained()){
+        for(Element union: element.getElement().getChildren()){
             this.addElement(union);
         }
         
     }
 
-    public List<ElementWrapper> fetchElements() {
+    public List<Element> fetchElements() {
         return diagramC.fetchElements();
     }
 
-    public ElementWrapper getCurrentElement() {return currentElement;}
+    public Element getCurrentElement() {return currentElement;}
 
     public void renameCurrentElement(String label){
         RenameElementAction action = new RenameElementAction(currentElement, label);

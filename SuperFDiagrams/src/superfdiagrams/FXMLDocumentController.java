@@ -251,6 +251,11 @@ public class FXMLDocumentController implements Initializable{
         mainC.setState(CHOSING_ENTITY);
     }
     
+    @FXML
+    public void changeStatusHeritage(){
+        mainC.setState(State.SELECTING_CHILDREN);
+}
+    
     public String getType(){
         String[] choices =  new String[]{"1 - Derivado",
                                          "2 - Genérico",
@@ -310,11 +315,6 @@ public class FXMLDocumentController implements Initializable{
         {
             mainC.renameCurrentElement(currentElementText.getText());
         }
-    }
-    
-    @FXML
-    public void changeStatusHeritage(){
-        mainC.setState(State.SELECTING_CHILDREN);
     }
     
     public void showElementPane(){

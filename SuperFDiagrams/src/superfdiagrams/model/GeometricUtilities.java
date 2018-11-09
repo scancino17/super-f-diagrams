@@ -36,16 +36,16 @@ public class GeometricUtilities {
     }
     
     // solo para probar... recorre todos los elementos y ve si el Vertex p está pertenece a alguno
-    public static ElementWrapper checkColition(Vertex p)
+    public static Element checkColition(Vertex p)
     {
-        for(ElementWrapper element: DiagramController.getController().fetchElements())
+        for(Element element: DiagramController.getController().fetchElements())
             if(PointInPolygon(element.getVertexes(), p))
                 return element;
 
         return null;
     }
     
-    public static ElementWrapper checkColition(double x, double y){
+    public static Element checkColition(double x, double y){
         return checkColition(VertexGenerator.generateVertex(x  , y ));
     }
     
