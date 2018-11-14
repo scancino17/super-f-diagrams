@@ -184,10 +184,12 @@ public class MainController {
             stateC.setState(VIEW);
         else if(stateC.getState() == State.CHOSING_ENTITY)
             stateC.setState(ATTRIBUTE);
-        else if(stateC.getState() == State.SELECTING_CHILDREN)
+        else if(stateC.getState() == State.SELECTING_CHILDREN && elementsToRelation.size() != 1)
             stateC.setState(HERITAGE);
-        else
+        else if (stateC.getState() == State.SELECTING_ENTITIES)
             stateC.setState(RELATIONSHIP);
+        else
+            stateC.setState(VIEW);
     }
     
     public void runMainLoop(){

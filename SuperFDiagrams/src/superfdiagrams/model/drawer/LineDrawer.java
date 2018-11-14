@@ -9,6 +9,8 @@ import static java.util.Collections.list;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.ArcType;
+import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
 
@@ -38,6 +40,8 @@ public class LineDrawer implements Drawer{
             case 2:
                 weakDraw(gc, vertexes, name, highlighted);
                 break;
+            case 3:
+                heritageDraw(gc, vertexes, name, highlighted);
         }
     }
     
@@ -67,5 +71,23 @@ public class LineDrawer implements Drawer{
         gc.setLineWidth(1);
         gc.strokeLine(vertexes.get(0).getxPos() * zoom, vertexes.get(0).getyPos() * zoom,
                 vertexes.get(1).getxPos() * zoom,vertexes.get(1).getyPos() * zoom);
+    }
+    
+    public void heritageDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        this.normalDraw(gc, vertexes, name, highlighted);
+        this.drawSemicircle(gc, vertexes);
+    }
+    
+    public void drawSemicircle(GraphicsContext gc, List<Vertex> vertexes){
+        Vertex a = vertexes.get(0);
+        Vertex b = vertexes.get(1);
+        Vertex mid = GeometricUtilities.midPoint(a, b);
+        double angle =  (b.getxPos() - a.getxPos())/(b.getyPos() - a.getyPos());
+        gc.strokeArc((mid.getxPos() - 25) * zoom,
+                     (mid.getyPos() - 25) * zoom,
+                     50 * zoom,
+                     50 * zoom,
+                     Math.toDegrees(Math.atan(angle) + Math.PI),
+                     180, ArcType.OPEN);
     }
 }

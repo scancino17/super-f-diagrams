@@ -137,9 +137,11 @@ public class ElementBuilder {
         List<ElementWrapper> unions = new ArrayList<>();
         
         for(ElementWrapper el: heritage.getContained()){
-                    unions.add(generateLine(element, el));
+                    ElementWrapper line = generateLine(element, el);
+                    ((LineDrawer)line.getDrawer()).setType(3);
+                    unions.add(line);
                 }
-        
+        ((LineDrawer)unions.get(0).getDrawer()).setType(1);
         heritage.setContained(unions);
         
         PolygonDrawer drawer = new PolygonDrawer();

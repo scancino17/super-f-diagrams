@@ -93,4 +93,8 @@ public class GeometricUtilities {
         
         return nearestVertexes;
     }
+    
+    public static Vertex midPoint(Vertex a, Vertex b){
+        return new Vertex((a.getxPos() + b.getxPos()) / 2, (a.getyPos() + b.getyPos()) /2);
+    }
 }
