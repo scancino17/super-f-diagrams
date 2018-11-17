@@ -5,11 +5,18 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Relationship;
+import superfdiagrams.model.primitive.Entity;
+import superfdiagrams.model.primitive.Union;
+import superfdiagrams.model.primitive.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
+import superfdiagrams.model.primitive.Heritage;
+import superfdiagrams.model.primitive.Type;
+import static superfdiagrams.model.primitive.Type.*;
 
 /**
  *
@@ -41,7 +48,7 @@ public class ElementBuilder {
         this.size = size;
     }
     
-    public Element generateEntity(int type){
+    public Element generateEntity(Type type){
         Element element = new Element();
         Entity entity = new Entity();
         entity.setType(type);
@@ -72,7 +79,7 @@ public class ElementBuilder {
         return element;
     }
     
-    public Element generateRelationship(List<Element> entities, int type){
+    public Element generateRelationship(List<Element> entities, Type type){
         Element element = new Element();
         Relationship relation = new Relationship();
         
@@ -125,7 +132,7 @@ public class ElementBuilder {
         return element;
     }
     
-    public Element generateHeritage(Relationship heritage){
+    public Element generateHeritage(Heritage heritage){
         Element element = new Element();
         
         element.setElement(heritage);
@@ -138,10 +145,10 @@ public class ElementBuilder {
         
         for(Element el: heritage.getChildren()){
                     Element line = generateLine(element, el);
-                    ((LineDrawer)line.getDrawer()).setType(3);
+                    ((LineDrawer)line.getDrawer()).setType(UNION_HERITAGE);
                     unions.add(line);
                 }
-        ((LineDrawer)unions.get(0).getDrawer()).setType(1);
+        ((LineDrawer)unions.get(0).getDrawer()).setType(ROLE_STRONG);
         heritage.setChildren(unions);
         
         PolygonDrawer drawer = new PolygonDrawer();
@@ -164,10 +171,10 @@ public class ElementBuilder {
         union.setChild(entity);
         LineDrawer drawer = new LineDrawer();
         
-        if (relation.getElement().getType() == 3 && entity.getElement().getType() == 2){
-            drawer.setType(2);
+        if (relation.getElement().getType() == ROLE_WEAK && entity.getElement().getType() == ROLE_WEAK){
+            drawer.setType(ROLE_WEAK);
         }else{
-            drawer.setType(1);
+            drawer.setType(ROLE_STRONG);
         }
         
         line.setVertexes(vertexes);

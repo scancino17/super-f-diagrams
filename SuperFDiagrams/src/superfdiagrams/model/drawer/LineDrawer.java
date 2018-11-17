@@ -13,20 +13,21 @@ import javafx.scene.shape.ArcType;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
  * @author sebca
  */
 public class LineDrawer implements Drawer{
-    private int type;
-    private double zoom = 1;
+    private Type type;
+    private double zoom;
 
-    public int getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Type type) {
         this.type = type;
     }
     
@@ -34,14 +35,14 @@ public class LineDrawer implements Drawer{
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
         zoom =  MainController.getController().getZoomFactor();
         switch(type){
-            case 1:
-                normalDraw(gc, vertexes, name, highlighted);
-                break;
-            case 2:
+            case ROLE_WEAK:
                 weakDraw(gc, vertexes, name, highlighted);
                 break;
-            case 3:
+            case UNION_HERITAGE:
                 heritageDraw(gc, vertexes, name, highlighted);
+            default:
+                normalDraw(gc, vertexes, name, highlighted);
+                break;
         }
     }
     

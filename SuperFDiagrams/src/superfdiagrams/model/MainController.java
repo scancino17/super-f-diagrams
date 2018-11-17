@@ -5,9 +5,12 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Relationship;
+import superfdiagrams.model.primitive.Entity;
+import superfdiagrams.model.primitive.Union;
+import superfdiagrams.model.primitive.Attribute;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
@@ -24,6 +27,9 @@ import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.action.RenameElementAction;
 import superfdiagrams.model.drawer.DrawController;
+import superfdiagrams.model.primitive.Heritage;
+import superfdiagrams.model.primitive.Type;
+import static superfdiagrams.model.primitive.Type.*;
 
 /**
  *
@@ -103,8 +109,8 @@ public class MainController {
      * @param name
      */
     public void createNewEntity(double posX, double posY, String name){
-        int type = Integer.parseInt(uiController.askType());
-        if(type != 0)
+        Type type = parseRoleType(Integer.parseInt(uiController.askType()));
+        if(type != null)
         {
             Vertex vertex = new Vertex(posX, posY);
             ElementBuilder elementConstructor = new ElementBuilder();
@@ -124,11 +130,11 @@ public class MainController {
      */
     public void createNewRelation(double posX, double posY, String name){
         Vertex vertex = new Vertex (posX, posY);
-        int type = 1;
+        Type type = ROLE_STRONG;
         
         for(Element element: elementsToRelation){
-            if(element.getElement().getType() == 2){
-                type = Integer.parseInt(uiController.askType());
+            if(element.getElement().getType() == ROLE_WEAK){
+                type = parseRoleType(Integer.parseInt(uiController.askType()));
             }
         }
         
@@ -136,8 +142,8 @@ public class MainController {
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         
-        if(type == 2)
-            type++;
+        /*if(type == 2)
+        type++;*/
         
         Element element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
@@ -304,7 +310,7 @@ public class MainController {
                 uiController.activateFinishButton();
                 if(currentElement != null){
                     Element entity = checkColition(mouseXPos, mouseYPos);
-                    if((entity.getElement() instanceof Relationship) ||(entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
+                    if((entity.getElement() instanceof Relationship) ||(entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == ATTRIBUTE_COMPOSITE) 
                             && !choosed){
                         elementsToRelation.add(entity);
                         entity.setHighlighted(true);
@@ -464,7 +470,7 @@ public class MainController {
         attribute.setChildren(elementsToRelation);
         int type = Integer.parseInt(uiController.getType());
         if (type != 0){
-            attribute.setType(type);
+            attribute.setType(parseAttributeType(type));
 
             Element element = elementCostructor.generateAttribute(attribute);
 
@@ -493,9 +499,9 @@ public class MainController {
         }
         elementConstructor.setName(name);
         
-        Relationship heritage = new Relationship();
+        Heritage heritage = new Heritage();
         heritage.setChildren(elementsToRelation);
-        heritage.setType(1);
+        heritage.setLabel(name);
         
         for(Element e : elementsToRelation)
             e.setHighlighted(false);
@@ -517,7 +523,12 @@ public class MainController {
         return diagramC.fetchElements();
     }
 
-    public Element getCurrentElement() {return currentElement;}
+    public Element getCurrentElement(){
+        if (currentElement == null || currentElement.getElement() instanceof Heritage)
+            return null;
+        
+        return currentElement;
+    }
 
     public void renameCurrentElement(String label){
         RenameElementAction action = new RenameElementAction(currentElement, label);
@@ -530,5 +541,31 @@ public class MainController {
     
     public void setDoubleClick(boolean value){
         this.doubleClick = value;
+    }
+    
+    private Type parseAttributeType(int type){
+        switch(type){
+            case 1:
+                return ATTRIBUTE_DERIVATE;
+            case 3:
+                return ATTRIBUTE_KEY;
+            case 4:
+                return ATTRIBUTE_COMPOSITE;
+            case 5:
+                return ATTRIBUTE_MULTIVALUATED;
+            case 6:
+                return ATTRIBUTE_PARTIAL_KEY;
+            default:
+                return ATTRIBUTE_GENERIC;
+        }
+    }
+    
+    private Type parseRoleType(int type){
+        switch(type){
+            case 2:
+                return ROLE_WEAK;
+            default:
+                return ROLE_STRONG;
+        }
     }
 }

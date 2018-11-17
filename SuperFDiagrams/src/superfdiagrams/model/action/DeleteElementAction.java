@@ -6,12 +6,12 @@
 package superfdiagrams.model.action;
 
 import java.util.List;
-import superfdiagrams.model.Attribute;
+import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.Element;
-import superfdiagrams.model.Entity;
+import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.MainController;
-import superfdiagrams.model.Relationship;
-import superfdiagrams.model.Union;
+import superfdiagrams.model.primitive.Relationship;
+import superfdiagrams.model.primitive.Union;
 
 
 /**

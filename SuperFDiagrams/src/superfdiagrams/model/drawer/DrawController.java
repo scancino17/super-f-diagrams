@@ -56,7 +56,7 @@ public class DrawController {
     
     public void doDrawLoop(){
         if (gc == null){
-            System.out.println("Error. GraphicsContext no entregado.");
+            System.err.println("Error. GraphicsContext no entregado.");
             return;
         }
         
@@ -67,8 +67,8 @@ public class DrawController {
                     toDraw.drawVertex(gc);
             }    
         } catch (Exception e){
-            System.out.println("Error en la rutina de dibujo. Entregando error: ");
-            System.out.println(e.toString());
+            System.err.println("Error en la rutina de dibujo. Entregando error: ");
+            System.err.println(e.toString());
         }
     }
 }

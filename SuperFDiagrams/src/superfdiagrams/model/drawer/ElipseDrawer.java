@@ -14,20 +14,22 @@ import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
 import superfdiagrams.model.VertexGenerator;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
  * @author Diego
  */
 public class ElipseDrawer implements Drawer{
-    private int type;
+    private Type type;
     private Vertex center;
     private double zoom = 1;
-    public int getType() {
+    
+    public Type getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Type type) {
         this.type = type;
     }
     
@@ -41,26 +43,23 @@ public class ElipseDrawer implements Drawer{
         this.doDraw(gc, vertexes, name, highlighted, type);
     }
 
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted, int type) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted, Type type) {
         switch (type){
-            case 1:
+            case ATTRIBUTE_DERIVATE:
                 derivateDraw(gc, vertexes, name, highlighted);
                 break;
-            case 2:
-                genericDraw(gc, vertexes, name, highlighted);
-                break;
-            case 3:
+            case ATTRIBUTE_KEY:
                 keyDraw(gc, vertexes, name, highlighted);
                 break;
-            case 4:
-                genericDraw(gc, vertexes, name, highlighted);
-                break;
-            case 5:
+            case ATTRIBUTE_MULTIVALUATED:
                 multivaluateDraw(gc, vertexes, name, highlighted);
                 break;
-            case 6:
+            case ATTRIBUTE_PARTIAL_KEY:
                 keyDraw(gc, vertexes, name, highlighted);
-                break;       
+                break;
+            default:
+                genericDraw(gc, vertexes, name, highlighted);
+                break;
         }
     }
 

@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Primitive;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.model.drawer.Drawable;
