@@ -6,7 +6,6 @@
 package superfdiagrams.model.action;
 
 import java.util.List;
-import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.MainController;
@@ -63,6 +62,7 @@ public class DeleteElementAction implements Action{
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
             Element child1 = ((Union)parentContained.get(0).getElement()).getChild();
             Element child2 = ((Union)parentContained.get(1).getElement()).getChild();
+            
             if (child1 == child2){
                 mainC.removeElement(parentContained.get(0));
                 mainC.removeElement(parentContained.get(1));
@@ -91,6 +91,7 @@ public class DeleteElementAction implements Action{
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
             Element child1 = ((Union)parentContained.get(0).getElement()).getChild();
             Element child2 = ((Union)parentContained.get(1).getElement()).getChild();
+            
             if (child1 == child2){
                 mainC.removeElement(parentContained.get(0));
                 parentContained.remove(0);

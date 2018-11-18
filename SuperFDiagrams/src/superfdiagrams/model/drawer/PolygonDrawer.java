@@ -20,10 +20,12 @@ public class PolygonDrawer implements Drawer{
     public Vertex center;
     private double zoom = 1;
     
+    @Override
     public Type getType() {
         return type;
     }
 
+    @Override
     public void setType(Type type) {
         this.type = type;
     }

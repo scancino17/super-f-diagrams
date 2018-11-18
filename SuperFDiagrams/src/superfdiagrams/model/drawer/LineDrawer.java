@@ -23,10 +23,12 @@ public class LineDrawer implements Drawer{
     private Type type;
     private double zoom;
 
+    @Override
     public Type getType() {
         return type;
     }
 
+    @Override
     public void setType(Type type) {
         this.type = type;
     }

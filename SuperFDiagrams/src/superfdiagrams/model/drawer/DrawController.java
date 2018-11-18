@@ -8,6 +8,7 @@ package superfdiagrams.model.drawer;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
+import superfdiagrams.model.Element;
 
 /**
  *
@@ -60,15 +61,16 @@ public class DrawController {
             return;
         }
         
-        try{
-            for (Drawable toDraw: buffer){
+        for (Drawable toDraw: buffer){
+            try {
                 toDraw.draw(gc);
-                if (shouldDrawVertex)
+                if(shouldDrawVertex) 
                     toDraw.drawVertex(gc);
-            }    
-        } catch (Exception e){
-            System.err.println("Error en la rutina de dibujo. Entregando error: ");
-            System.err.println(e.toString());
+            } catch (Exception e) {
+                System.err.println("Error en la rutina de dibujo. Entregando error: ");
+                System.err.println(e.toString());
+                e.printStackTrace();
+            }
         }
     }
 }

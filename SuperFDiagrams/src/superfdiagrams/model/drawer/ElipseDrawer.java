@@ -25,10 +25,12 @@ public class ElipseDrawer implements Drawer{
     private Vertex center;
     private double zoom = 1;
     
+    @Override
     public Type getType() {
         return type;
     }
 
+    @Override
     public void setType(Type type) {
         this.type = type;
     }

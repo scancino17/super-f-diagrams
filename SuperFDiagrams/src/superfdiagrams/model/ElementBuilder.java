@@ -206,10 +206,13 @@ public class ElementBuilder {
         Union primitive = new Union();
         primitive.setParent(parent);
         primitive.setChild(child);
+        primitive.setType(union.getElement().getType());
         
         clone.setVertexes(vertexes);
         clone.setDrawer(new LineDrawer());
+        clone.getDrawer().setType(union.getDrawer().getType());
         clone.setElement(primitive);
+        
         
         return clone;
     }
