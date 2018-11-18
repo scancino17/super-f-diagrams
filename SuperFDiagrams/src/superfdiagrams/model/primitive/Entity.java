@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model.primitive;
 
+import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.Element;
 
@@ -22,6 +23,23 @@ public class Entity implements Primitive {
         return name;
     }
     
+    public void addChildren(List<Element> children){
+        if (this.children != null)
+            this.children.addAll(children);
+        else
+            this.children = children;
+    }
+    
+    public void addChildren(Element element){
+        if (this.children != null)
+            this.children.add(element);
+        else{
+            List<Element> children = new ArrayList<>();
+            children.add(element);
+            this.children = children;
+        }
+            
+    }
     
     public void setLabel(String name){
         this.name = name;

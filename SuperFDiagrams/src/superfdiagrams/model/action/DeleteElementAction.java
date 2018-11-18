@@ -5,10 +5,13 @@
  */
 package superfdiagrams.model.action;
 
+import java.util.Iterator;
 import java.util.List;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.MainController;
+import superfdiagrams.model.primitive.Attribute;
+import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Relationship;
 import superfdiagrams.model.primitive.Union;
 
@@ -46,12 +49,12 @@ public class DeleteElementAction implements Action{
     }
      
     public void execute(){
-        for(Element r : related){
+        for (Element r : related) {
             if(deleted.getElement() instanceof Entity)
                 removeUnion(r);
             else
                 mainC.removeElement(r);
-            }
+        }
             mainC.removeElement(deleted);
     }
     
@@ -79,6 +82,9 @@ public class DeleteElementAction implements Action{
         
         if(parentContained.isEmpty())
             mainC.removeElement(parent);
+        else if(parent.getElement() instanceof Attribute)
+            for (Element u: parentContained)
+                removeUnion(u);
         
         mainC.removeElement(union); 
         mainC.morphElement(parent);

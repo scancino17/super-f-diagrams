@@ -401,7 +401,7 @@ public class MainController {
         } else if (deleted.getElement() instanceof Relationship){
             related = deleted.getElement().getChildren();
         } else if (deleted.getElement() instanceof Attribute){
-            related = deleted.getElement().getChildren();
+            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted);
         }
         if (related != null){
             DeleteElementAction deleteAction = new DeleteElementAction(deleted, related);
@@ -498,7 +498,7 @@ public class MainController {
             name = "S";
         }
         elementConstructor.setName(name);
-        
+             
         Heritage heritage = new Heritage();
         heritage.setChildren(elementsToRelation);
         heritage.setLabel(name);
@@ -507,7 +507,7 @@ public class MainController {
             e.setHighlighted(false);
         
         Element element = elementConstructor.generateHeritage(heritage);
-
+        
         actionC.addToStack(new CreateRelationshipAction(element));
         
         elementsToRelation = new ArrayList<>();
