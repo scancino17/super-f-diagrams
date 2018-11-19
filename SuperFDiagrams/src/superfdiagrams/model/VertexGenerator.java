@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Union;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -162,19 +163,19 @@ public class VertexGenerator {
      * @param index
      * @return retorna el vertice de la entidad mas cercano al de la relacion
      */
-    public static Vertex determinateVertex(ElementWrapper relation, int index){
+    public static Vertex determinateVertex(Element relation, int index){
         ArrayList<Double> distances = new ArrayList();
         for (int j = 0; j < 4; j++) {
             distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
                     , relation.getVertexes().get(index).getyPos(), 
-                    relation.getElement().getContained().get(index).getVertexes().get(j).getxPos()
-                    , relation.getElement().getContained().get(index).getVertexes().get(j).getyPos()));
+                    relation.getElement().getChildren().get(index).getVertexes().get(j).getxPos()
+                    , relation.getElement().getChildren().get(index).getVertexes().get(j).getyPos()));
         }
-        return relation.getElement().getContained().get(index).getVertexes().get(minorIndex(distances));
+        return relation.getElement().getChildren().get(index).getVertexes().get(minorIndex(distances));
     }
     
-    public Vertex determinateVertex(ElementWrapper relation, int index, boolean xd){
-        return relation.getElement().getContained().get(index).getVertexes().get(index+2);
+    public Vertex determinateVertex(Element relation, int index, boolean xd){
+        return relation.getElement().getChildren().get(index).getVertexes().get(index+2);
     }
     /**
      * Funcion que solo devuelve la distancia entre 2 puntos
@@ -217,20 +218,21 @@ public class VertexGenerator {
         
     }
     
-    public static void recalculateNearestVertexes(List<ElementWrapper> unions){
-        ElementWrapper parent = null;
-        for(ElementWrapper union : unions){
-            ElementWrapper selected = ((ConnectsWrappers)union.getElement()).getParent();
+    public static void recalculateNearestVertexes(List<Element> unions){
+        Element parent = null;
+        for(Element union : unions){
+            Element selected = ((Union)union.getElement()).getParent();
             if (selected != parent){
                 parent = selected;
                 
                 for(Vertex v:parent.getVertexes())
                     v.setUsed(false);
                 
-                for(ElementWrapper unionInParent: parent.getElement().getContained()){
+                
+                for(Element unionInParent: parent.getElement().getChildren()){
                     if (unionInParent.getElement() instanceof Union){
                         unionInParent.setVertexes(GeometricUtilities.nearestVertexes
-                            (parent.getVertexes(), ((ConnectsWrappers)unionInParent.getElement()).getChild().getVertexes()));
+                            (parent.getVertexes(), ((Union)unionInParent.getElement()).getChild().getVertexes()));
                     }
                 }
             }

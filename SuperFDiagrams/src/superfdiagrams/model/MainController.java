@@ -5,15 +5,17 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Relationship;
+import superfdiagrams.model.primitive.Entity;
+import superfdiagrams.model.primitive.Union;
+import superfdiagrams.model.primitive.Attribute;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import superfdiagrams.FXMLDocumentController;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.ATTRIBUTE;
+import static superfdiagrams.model.State.HERITAGE;
 import static superfdiagrams.model.State.MOVING_ELEMENT;
 import static superfdiagrams.model.State.RELATIONSHIP;
 import static superfdiagrams.model.State.SELECTING_ENTITIES;
@@ -25,6 +27,9 @@ import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.action.RenameElementAction;
 import superfdiagrams.model.drawer.DrawController;
+import superfdiagrams.model.primitive.Heritage;
+import superfdiagrams.model.primitive.Type;
+import static superfdiagrams.model.primitive.Type.*;
 
 /**
  *
@@ -37,15 +42,20 @@ public class MainController {
     private DiagramController diagramC;
     private FXMLDocumentController uiController;
     private ActionController actionC;
-    private List<ElementWrapper> elementsToRelation;
-    private ElementWrapper selected;
-    private List<ElementWrapper> selectedRelated;
+    private List<Element> elementsToRelation;
+    private Element selected;
+    private List<Element> selectedRelated;
+    
     private MoveElementAction selectedAction;
+    private boolean doubleClick;
     private double mouseXPos;
     private double mouseYPos;
-    private double zoomFactor = 1;
+    private double zoomFactor;
+    private double maxWith;
+    private double maxHeight;
     private boolean choosed;
-    private ElementWrapper currentElement;
+    
+    private Element currentElement;
     
     public static MainController getController(){
         if (mc == null)
@@ -61,6 +71,11 @@ public class MainController {
         elementsToRelation = new ArrayList<>();
         this.choosed = false;
         currentElement = null;
+        this.zoomFactor = 1;
+        this.doubleClick = false;
+        maxWith = 800; //defualt minimum with posible
+        maxHeight = 700; //default minimum height posible
+
     }
     
     public void setUiController(FXMLDocumentController dc){
@@ -80,8 +95,8 @@ public class MainController {
     }
     
     public void setMousePos(double x, double y){
-        this.mouseXPos = x;
-        this.mouseYPos = y;
+        this.mouseXPos = x / zoomFactor;
+        this.mouseYPos = y / zoomFactor;
     }
     
     public void toggleDrawVertex(){
@@ -99,14 +114,14 @@ public class MainController {
      * @param name
      */
     public void createNewEntity(double posX, double posY, String name){
-        int type = Integer.parseInt(uiController.askType());
-        if(type != 0)
+        Type type = parseRoleType(Integer.parseInt(uiController.askType()));
+        if(type != null)
         {
             Vertex vertex = new Vertex(posX, posY);
             ElementBuilder elementConstructor = new ElementBuilder();
             elementConstructor.setCenter(vertex);
             elementConstructor.setName(name);        
-            ElementWrapper element = elementConstructor.generateEntity(type);
+            Element element = elementConstructor.generateEntity(type);
             actionC.addToStack(new CreateElementAction(element));
             this.addElement(element);
         }
@@ -120,31 +135,32 @@ public class MainController {
      */
     public void createNewRelation(double posX, double posY, String name){
         Vertex vertex = new Vertex (posX, posY);
+        Type type = ROLE_STRONG;
         
-        int type = 1;
+        for(Element element: elementsToRelation){
+            if(element.getElement().getType() == ROLE_WEAK){
+                type = parseRoleType(Integer.parseInt(uiController.askType()));
+            }
+        }
         
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
         
-        for (int i = 0; i < elementsToRelation.size(); i++) {
-            if (elementsToRelation.get(i).getElement().getType() == 2){
-                type = 3;
-                i = elementsToRelation.size();
-            }
-        }
+        /*if(type == 2)
+        type++;*/
         
-        ElementWrapper element = elementConstructor.generateRelationship(elementsToRelation, type);
+        Element element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
-        for(ElementWrapper e : elementsToRelation)
-            e.toggleHighlighted();
+        for(Element e : elementsToRelation)
+            e.setHighlighted(false);
         
         actionC.addToStack(new CreateRelationshipAction(element));
         
         elementsToRelation = new ArrayList<>();
         this.addElement(element);
         
-        for(ElementWrapper union: element.getElement().getContained()){
+        for(Element union: element.getElement().getChildren()){
             this.addElement(union);
         }
     }
@@ -171,7 +187,7 @@ public class MainController {
         selected = null;
         currentElement = null;
         stateC.setState(VIEW);
-        
+        zoomFactor = 1;
     }
     
     public void finishEntitySelection(){
@@ -179,14 +195,19 @@ public class MainController {
             stateC.setState(VIEW);
         else if(stateC.getState() == State.CHOSING_ENTITY)
             stateC.setState(ATTRIBUTE);
-        else
+        else if(stateC.getState() == State.SELECTING_CHILDREN && elementsToRelation.size() != 1)
+            stateC.setState(HERITAGE);
+        else if (stateC.getState() == State.SELECTING_ENTITIES)
             stateC.setState(RELATIONSHIP);
+        else
+            stateC.setState(VIEW);
     }
     
     public void runMainLoop(){
         if(selected != null && stateC.getState() == MOVING_ELEMENT ){
             VertexGenerator.recalculateVertexes(selected.getVertexes(),
-                                    new Vertex(mouseXPos, mouseYPos));
+                                    new Vertex(mouseXPos,
+                                               mouseYPos));
             VertexGenerator.recalculateNearestVertexes(selectedRelated);
         }
         
@@ -210,23 +231,31 @@ public class MainController {
                 break;
             case ATTRIBUTE:
                 uiController.setStatusText("Creando Atributo...");
+                break;
             case DELETING_ELEMENT:
                 uiController.setStatusText("Eliminando elemento...");
+                break;
+            case HERITAGE:
+                uiController.setStatusText("Creando herencia...");
+                break;
+            case SELECTING_CHILDREN:
+                uiController.setStatusText("Seleccionando hijos...");
+                break;
         }
     }
     
-    public void doClickAction(MouseEvent mouseEvent){
+    public void doClickAction(){
         if (currentElement != null && stateC.getState() == VIEW)
-            currentElement.toggleHighlighted();
+            currentElement.setHighlighted(false);
         
-        currentElement = checkColition(mouseEvent.getX(), mouseEvent.getY());
+        currentElement = checkColition(mouseXPos, mouseYPos);
         switch(stateC.getState()){
             case ENTITY:
                 if(currentElement == null)
                 {
                     String name = uiController.getElementName("entidad");
                     if (name != null) {
-                        createNewEntity( Math.round(mouseEvent.getX()),  Math.round(mouseEvent.getY()), name);
+                        createNewEntity(mouseXPos, mouseYPos, name);
                         stateC.setState(State.VIEW);
                     }
                 }
@@ -234,15 +263,15 @@ public class MainController {
             case SELECTING_ENTITIES:   
                 if(currentElement != null)
                 {                   
-                    ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                    Element entity = checkColition(mouseXPos, mouseYPos);
                     if (entity.getElement() instanceof Entity) {
                         uiController.activateFinishButton();
-                        entity.toggleHighlighted();
+                        entity.setHighlighted(true);
                         if (!elementsToRelation.contains(entity)
                             &&  elementsToRelation.size() < 6)
                             this.elementsToRelation.add(entity);
                         else
-                            entity.toggleHighlighted();
+                            entity.setHighlighted(false);
                     }
                 }
                 break;
@@ -251,23 +280,45 @@ public class MainController {
                 {
                     String name = uiController.getElementName("relación");
                     if (name != null){
-                        createNewRelation( Math.round(mouseEvent.getX()), 
-                                           Math.round(mouseEvent.getY()), name);
+                        createNewRelation(mouseXPos, mouseYPos, name);
                         stateC.setState(VIEW);
                     } else {
-                        for(ElementWrapper element: elementsToRelation)
-                            element.toggleHighlighted();
+                        for(Element element: elementsToRelation)
+                            element.setHighlighted(false);
                     }
                 }
                 break;
+            case SELECTING_CHILDREN:
+                if(currentElement != null)
+                {                   
+                    Element entity = checkColition(mouseXPos, mouseYPos);
+                    if (entity.getElement() instanceof Entity) {
+                        uiController.activateFinishButton();
+                        entity.setHighlighted(true);
+                        if (!elementsToRelation.contains(entity)
+                            &&  elementsToRelation.size() < 6)
+                            this.elementsToRelation.add(entity);
+                        else
+                            entity.setHighlighted(false);
+                    }
+                }
+                break;
+            case HERITAGE:
+                if(currentElement == null)
+                {
+                    createNewHeritage(mouseXPos, mouseYPos);
+                    stateC.setState(VIEW);
+                    choosed = false;
+                }
+                break;  
             case CHOSING_ENTITY:
                 uiController.activateFinishButton();
                 if(currentElement != null){
-                    ElementWrapper entity = checkColition(mouseEvent.getX(), mouseEvent.getY());
-                    if((entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == 4) 
+                    Element entity = checkColition(mouseXPos, mouseYPos);
+                    if((entity.getElement() instanceof Relationship) ||(entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == ATTRIBUTE_COMPOSITE) 
                             && !choosed){
                         elementsToRelation.add(entity);
-                        entity.toggleHighlighted();
+                        entity.setHighlighted(true);
                         choosed = true;
                     }
                 }
@@ -277,20 +328,19 @@ public class MainController {
                 {
                     String name = uiController.getElementName("Atributo");
                     if (name != null){
-                        createNewAttribute( Math.round(mouseEvent.getX()), 
-                                           Math.round(mouseEvent.getY()), name);
+                        createNewAttribute(mouseXPos, mouseYPos, name);
                         stateC.setState(VIEW);
                         choosed = false;
                     } else {
-                        for(ElementWrapper element: elementsToRelation)
-                            element.toggleHighlighted();
+                        for(Element element: elementsToRelation)
+                            element.setHighlighted(false);
                     }
                 }
                 break;
             case MOVING_ELEMENT:
                 if(currentElement != null)
                 {
-                    selected.toggleHighlighted();
+                    selected.setHighlighted(false);
                     selectedAction.getNewPosition();
                     selected = null;
                     selectedRelated = null;
@@ -301,16 +351,15 @@ public class MainController {
         }
         
         if (currentElement != null){
-            if(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
-            && mouseEvent.getClickCount() == 2 && stateC.getState() == VIEW)
+            if(doubleClick && stateC.getState() == VIEW)
             {
-                selected = checkColition(mouseEvent.getX(), mouseEvent.getY());
+                selected = checkColition(mouseXPos, mouseYPos);
                 selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
                 selectedAction = new MoveElementAction(selected, selectedRelated);
                 actionC.addToStack(selectedAction);
                 
                 if (!(selected.getElement() instanceof Union)){
-                    selected.toggleHighlighted();
+                    selected.setHighlighted(true);
                     stateC.setState(MOVING_ELEMENT);
                 } else {
                     selected = null;
@@ -321,8 +370,8 @@ public class MainController {
     
     public void cancelEntitySelection(){
         if (elementsToRelation != null && !elementsToRelation.isEmpty())
-            for (ElementWrapper element: elementsToRelation)
-                element.toggleHighlighted();
+            for (Element element: elementsToRelation)
+                element.setHighlighted(false);
         
         elementsToRelation = new ArrayList<>();
         choosed = false;
@@ -344,20 +393,26 @@ public class MainController {
         return actionC.isRedoEmpty();
     }
     
-    public void addElement(ElementWrapper element){
+    public void addElement(Element element){
+
+        for(Vertex v : element.getVertexes())
+        {
+            maxWith = Math.max(maxWith, v.getxPos());
+            maxHeight = Math.max(maxHeight, v.getyPos());
+        }
         diagramC.addElement(element);
         drawC.addToBuffer(element);
     }
     
-    public void deleteElement(ElementWrapper deleted){
-        List<ElementWrapper> related = null;
+    public void deleteElement(Element deleted){
+        List<Element> related = null;
         
         if (deleted.getElement() instanceof Entity){
             related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
         } else if (deleted.getElement() instanceof Relationship){
-            related = deleted.getElement().getContained();
+            related = deleted.getElement().getChildren();
         } else if (deleted.getElement() instanceof Attribute){
-            related = deleted.getElement().getContained();
+            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted);
         }
         if (related != null){
             DeleteElementAction deleteAction = new DeleteElementAction(deleted, related);
@@ -366,13 +421,13 @@ public class MainController {
         }
     }
     
-    public void morphElement(List<ElementWrapper> elementList){
-        for(ElementWrapper element : elementList)
+    public void morphElement(List<Element> elementList){
+        for(Element element : elementList)
             morphElement(element);
     }
     
-    public void morphElement(ElementWrapper element){
-        List<ElementWrapper> contained = element.getElement().getContained();
+    public void morphElement(Element element){
+        List<Element> contained = element.getElement().getChildren();
         
         if(contained.isEmpty()){
             removeElement(element);
@@ -381,7 +436,7 @@ public class MainController {
         
         if(element.getElement() instanceof Relationship){
             if(contained.size() == 1){
-                ElementWrapper union = new ElementBuilder().cloneUnion(contained.get(0));
+                Element union = new ElementBuilder().cloneUnion(contained.get(0));
                 contained.add(union);
                 this.addElement(union);
             }
@@ -400,7 +455,7 @@ public class MainController {
            
     }
     
-    public void removeElement(ElementWrapper element){
+    public void removeElement(Element element){
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
     }
@@ -419,49 +474,116 @@ public class MainController {
         elementCostructor.setCenter(vertex);
         elementCostructor.setName(name);
         
-        for(ElementWrapper e : elementsToRelation)
-            e.toggleHighlighted();
+        for(Element e : elementsToRelation)
+            e.setHighlighted(false);
         
         Attribute attribute = new Attribute();
-        attribute.setContained(elementsToRelation);
+        attribute.setChildren(elementsToRelation);
         int type = Integer.parseInt(uiController.getType());
         if (type != 0){
-            attribute.setType(type);
+            attribute.setType(parseAttributeType(type));
 
-            ElementWrapper element = elementCostructor.generateAttribute(attribute);
+            Element element = elementCostructor.generateAttribute(attribute);
 
             actionC.addToStack(new CreateRelationshipAction(element));
 
             elementsToRelation = new ArrayList<>();
             this.addElement(element);
 
-            for(ElementWrapper union: element.getElement().getContained()){
+            for(Element union: element.getElement().getChildren()){
                 this.addElement(union);
             }
         } else {
             cancelEntitySelection();
         }
     }
-
-    public int askType(){
-        Scanner leer = new Scanner(System.in);
-        System.out.println("1.- Normal");
-        System.out.println("2.- Debil");
-        return leer.nextInt();
+    
+    public void createNewHeritage(double posX, double posY){
+        String name = null;
+        Vertex vertex = new Vertex(posX, posY);
+        ElementBuilder elementConstructor = new ElementBuilder();
+        elementConstructor.setCenter(vertex);
+        if (Integer.parseInt(uiController.askHeritage()) == 1){
+            name = "D";
+        }else{
+            name = "S";
+        }
+        elementConstructor.setName(name);
+             
+        Heritage heritage = new Heritage();
+        heritage.setChildren(elementsToRelation);
+        heritage.setLabel(name);
+        
+        for(Element e : elementsToRelation)
+            e.setHighlighted(false);
+        
+        Element element = elementConstructor.generateHeritage(heritage);
+        
+        actionC.addToStack(new CreateRelationshipAction(element));
+        
+        elementsToRelation = new ArrayList<>();
+        this.addElement(element);
+        
+        for(Element union: element.getElement().getChildren()){
+            this.addElement(union);
+        }
+        
     }
 
-    public List<ElementWrapper> fetchElements() {
+    public List<Element> fetchElements() {
         return diagramC.fetchElements();
     }
 
-    public ElementWrapper getCurrentElement() {return currentElement;}
+    public Element getCurrentElement(){
+        if (currentElement == null || currentElement.getElement() instanceof Heritage)
+            return null;
+        
+        return currentElement;
+    }
 
     public void renameCurrentElement(String label){
         RenameElementAction action = new RenameElementAction(currentElement, label);
-        action.execute();;
+        action.execute();
         actionC.addToStack(action);
     }
 
     public double getZoomFactor(){ return  zoomFactor;}
     public void setZoomFactor(double _zoomFactor) {zoomFactor = _zoomFactor;}
+    
+    public void setDoubleClick(boolean value){
+        this.doubleClick = value;
+    }
+    
+    private Type parseAttributeType(int type){
+        switch(type){
+            case 1:
+                return ATTRIBUTE_DERIVATE;
+            case 3:
+                return ATTRIBUTE_KEY;
+            case 4:
+                return ATTRIBUTE_COMPOSITE;
+            case 5:
+                return ATTRIBUTE_MULTIVALUATED;
+            case 6:
+                return ATTRIBUTE_PARTIAL_KEY;
+            default:
+                return ATTRIBUTE_GENERIC;
+        }
+    }
+    
+    private Type parseRoleType(int type){
+        switch(type){
+            case 2:
+                return ROLE_WEAK;
+            default:
+                return ROLE_STRONG;
+        }
+    }
+
+    public double getMaxWith(){return Math.max((maxWith * zoomFactor)+2,800) ;} //800 minimum with posible
+    public double getMaxHeight(){return Math.max((maxHeight * zoomFactor)+2,700);} // 700 maximum with posible
+
+
+    public void normalizeDraw() {zoomFactor = 1;}
+
 }

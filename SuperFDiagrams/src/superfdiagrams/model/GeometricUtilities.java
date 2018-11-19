@@ -7,6 +7,7 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -22,30 +23,29 @@ public class GeometricUtilities {
     public static boolean PointInPolygon(List<Vertex> p, Vertex q)
     {
         boolean c = false;
-        double zoomFactor = MainController.getController().getZoomFactor();
         for (int i = 0; i < p.size(); i++)
         {
             int j = (i+1)%p.size();
-            if ((p.get(i).getyPos() * zoomFactor <= q.getyPos() && q.getyPos() < p.get(j).getyPos() * zoomFactor ||
-                    p.get(j).getyPos() * zoomFactor <= q.getyPos() && q.getyPos() < p.get(i).getyPos() * zoomFactor) &&
-                    q.getxPos() < p.get(i).getxPos() * zoomFactor + (p.get(j).getxPos() * zoomFactor - p.get(i).getxPos() * zoomFactor) *
-                            (q.getyPos() - p.get(i).getyPos() * zoomFactor) / (p.get(j).getyPos() * zoomFactor - p.get(i).getyPos() * zoomFactor))
+            if ((p.get(i).getyPos() <= q.getyPos() && q.getyPos() < p.get(j).getyPos() ||
+                    p.get(j).getyPos() <= q.getyPos() && q.getyPos() < p.get(i).getyPos()) &&
+                    q.getxPos() < p.get(i).getxPos() + (p.get(j).getxPos() - p.get(i).getxPos()) *
+                            (q.getyPos() - p.get(i).getyPos()) / (p.get(j).getyPos() - p.get(i).getyPos()))
                 c = !c;
         }
         return c;
     }
     
     // solo para probar... recorre todos los elementos y ve si el Vertex p está pertenece a alguno
-    public static ElementWrapper checkColition(Vertex p)
+    public static Element checkColition(Vertex p)
     {
-        for(ElementWrapper element: DiagramController.getController().fetchElements())
+        for(Element element: DiagramController.getController().fetchElements())
             if(PointInPolygon(element.getVertexes(), p))
                 return element;
 
         return null;
     }
     
-    public static ElementWrapper checkColition(double x, double y){
+    public static Element checkColition(double x, double y){
         return checkColition(VertexGenerator.generateVertex(x  , y ));
     }
     
@@ -92,5 +92,9 @@ public class GeometricUtilities {
                 v.setUsed(true);
         
         return nearestVertexes;
+    }
+    
+    public static Vertex midPoint(Vertex a, Vertex b){
+        return new Vertex((a.getxPos() + b.getxPos()) / 2, (a.getyPos() + b.getyPos()) /2);
     }
 }

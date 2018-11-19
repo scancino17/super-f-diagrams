@@ -35,15 +35,15 @@ public class DiagramController {
         this.diagram = new Diagram();
     }
     
-    public void addElement(ElementWrapper element){
+    public void addElement(Element element){
         diagram.addElement(element);
     }
     
-    public void removeElement(ElementWrapper element){
+    public void removeElement(Element element){
         diagram.removeElement(element);
     }
     
-    public List<ElementWrapper> fetchElements(){
+    public List<Element> fetchElements(){
         return diagram.getElements();
     }
 }

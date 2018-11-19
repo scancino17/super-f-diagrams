@@ -3,48 +3,48 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package superfdiagrams.model;
+package superfdiagrams.model.primitive;
 
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.model.Element;
 
 /**
  *
  * @author sebca
  */
-public class Relationship implements Element{
+public class Relationship implements Primitive{
     private String name;
-    private List<ElementWrapper> relations;
-    private int type = 1;
+    private List<Element> children;
+    private Type type;
 
     @Override
     public String getLabel() {
         return name;
     }
-
-    @Override
-    public List<ElementWrapper> getContained() {
-        return relations;
-    }
-
-    @Override
-    public void setContained(List<ElementWrapper> relations) {
-        this.relations = relations;
-    }
-
     @Override
     public void setLabel(String name) {
         this.name = name;
     }
 
     @Override
-    public int getType(){
+    public Type getType(){
         return type;
     }
     
     @Override
-    public void setType(int type){
+    public void setType(Type type){
         this.type = type;
+    }
+
+    @Override
+    public List<Element> getChildren() {
+        return children;
+    }
+
+    @Override
+    public void setChildren(List<Element> children) {
+        this.children = children;
     }
   
 }

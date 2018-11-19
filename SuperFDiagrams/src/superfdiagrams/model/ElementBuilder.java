@@ -5,11 +5,18 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Relationship;
+import superfdiagrams.model.primitive.Entity;
+import superfdiagrams.model.primitive.Union;
+import superfdiagrams.model.primitive.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
+import superfdiagrams.model.primitive.Heritage;
+import superfdiagrams.model.primitive.Type;
+import static superfdiagrams.model.primitive.Type.*;
 
 /**
  *
@@ -41,8 +48,8 @@ public class ElementBuilder {
         this.size = size;
     }
     
-    public ElementWrapper generateEntity(int type){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateEntity(Type type){
+        Element element = new Element();
         Entity entity = new Entity();
         entity.setType(type);
         element.setElement(entity);
@@ -57,11 +64,11 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(int vertexes, List<ElementWrapper> relations){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateRelationship(int vertexes, List<Element> relations){
+        Element element = new Element();
         Relationship relation = new Relationship();
         relation.setLabel(name);
-        relation.setContained(relations);
+        relation.setChildren(relations);
         
         element.setElement(relation);
 
@@ -72,19 +79,19 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateRelationship(List<ElementWrapper> entities, int type){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateRelationship(List<Element> entities, Type type){
+        Element element = new Element();
         Relationship relation = new Relationship();
         
         element.setVertexes(VertexGenerator.generateVertexes(entities.size(), size, center));
         
         relation.setLabel(name);
         relation.setType(type);
-        List<ElementWrapper> unions = new ArrayList<>();
+        List<Element> unions = new ArrayList<>();
         
         element.setElement(relation);
         if(entities.size() > 1){
-            for(ElementWrapper el: entities){
+            for(Element el: entities){
                 unions.add(generateLine(element, el));
             }
         } else if (entities.size() == 1){
@@ -93,7 +100,7 @@ public class ElementBuilder {
         }
          
         
-        relation.setContained(unions);
+        relation.setChildren(unions);
         PolygonDrawer drawer = new PolygonDrawer();
         drawer.setType(type);
         drawer.setCenter(center);
@@ -102,21 +109,21 @@ public class ElementBuilder {
         
     }
     
-    public ElementWrapper generateAttribute(Attribute attribute){
-        ElementWrapper element = new ElementWrapper();
+    public Element generateAttribute(Attribute attribute){
+        Element element = new Element();
         
         element.setElement(attribute);
         element.getElement().setLabel(name);
         
         element.setVertexes(VertexGenerator.generateEllipse(50, 55, center));
         
-        List<ElementWrapper> unions = new ArrayList<>();
+        List<Element> unions = new ArrayList<>();
         
-        for(ElementWrapper el: attribute.getContained()){
+        for(Element el: attribute.getChildren()){
                     unions.add(generateLine(element, el));
                 }
         
-        attribute.setContained(unions);
+        attribute.setChildren(unions);
         
         ElipseDrawer drawer = new ElipseDrawer();
         drawer.setCenter(center);
@@ -125,8 +132,36 @@ public class ElementBuilder {
         return element;
     }
     
-    public ElementWrapper generateLine(ElementWrapper relation, ElementWrapper entity){
-        ElementWrapper line = new ElementWrapper();
+    public Element generateHeritage(Heritage heritage){
+        Element element = new Element();
+        
+        element.setElement(heritage);
+ 
+        element.getElement().setLabel(name);
+        
+        element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
+        
+        List<Element> unions = new ArrayList<>();
+        
+        for(Element el: heritage.getChildren()){
+                    Element line = generateLine(element, el);
+                    ((LineDrawer)line.getDrawer()).setType(UNION_HERITAGE);
+                    unions.add(line);
+                }
+        ((LineDrawer)unions.get(0).getDrawer()).setType(ROLE_STRONG);
+        heritage.setChildren(unions);
+        
+        PolygonDrawer drawer = new PolygonDrawer();
+        drawer.setCenter(center);
+        drawer.setType(heritage.getType());
+        element.setDrawer(drawer);
+        return element;
+        
+    }
+
+    
+    public Element generateLine(Element relation, Element entity){
+        Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
                 relation.getVertexes(), entity.getVertexes());
@@ -136,10 +171,10 @@ public class ElementBuilder {
         union.setChild(entity);
         LineDrawer drawer = new LineDrawer();
         
-        if (relation.getElement().getType() == 3 && entity.getElement().getType() == 2){
-            drawer.setType(2);
+        if (relation.getElement().getType() == ROLE_WEAK && entity.getElement().getType() == ROLE_WEAK){
+            drawer.setType(ROLE_WEAK);
         }else{
-            drawer.setType(1);
+            drawer.setType(ROLE_STRONG);
         }
         
         line.setVertexes(vertexes);
@@ -148,8 +183,8 @@ public class ElementBuilder {
         return line;
     }
     
-    public ElementWrapper cloneElement(ElementWrapper element){
-        ElementWrapper clone = new ElementWrapper();
+    public Element cloneElement(Element element){
+        Element clone = new Element();
         
         List<Vertex> vertexes = VertexGenerator.cloneVertex(element.getVertexes());
         
@@ -160,21 +195,24 @@ public class ElementBuilder {
         return clone;
     }
     
-    public ElementWrapper cloneUnion(ElementWrapper union){
-        ElementWrapper clone = new ElementWrapper();
+    public Element cloneUnion(Element union){
+        Element clone = new Element();
         
-        ElementWrapper parent = ((Union) union.getElement()).getParent();
-        ElementWrapper child = ((Union) union.getElement()).getChild();
+        Element parent = ((Union) union.getElement()).getParent();
+        Element child = ((Union) union.getElement()).getChild();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(parent.getVertexes(), child.getVertexes());
         
         Union primitive = new Union();
         primitive.setParent(parent);
         primitive.setChild(child);
+        primitive.setType(union.getElement().getType());
         
         clone.setVertexes(vertexes);
         clone.setDrawer(new LineDrawer());
+        clone.getDrawer().setType(union.getDrawer().getType());
         clone.setElement(primitive);
+        
         
         return clone;
     }

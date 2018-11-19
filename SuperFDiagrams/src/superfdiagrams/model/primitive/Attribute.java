@@ -3,21 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package superfdiagrams.model;
+package superfdiagrams.model.primitive;
 
 import java.util.List;
+import superfdiagrams.model.Element;
 
 /**
  *
  * @author Diego
  */
-public class Attribute implements Element{
+public class Attribute implements Primitive {
     private String label = "";
-   // private ElementWrapper entity;
-   /* public enum AttType{GENERICO, CLAVE, MULTI, COMPUESTO, DERIVADO};
-    private AttType type;*/
-    private int type;
-    private List<ElementWrapper> contained;
+    private Type type;
+    private List<Element> children;
     
     @Override
     public String getLabel() {
@@ -30,22 +28,24 @@ public class Attribute implements Element{
     }
 
     @Override
-    public List<ElementWrapper> getContained() {
-        return contained;
+    public List<Element> getChildren() {
+        return children;
     }
 
     @Override
-    public void setContained(List<ElementWrapper> relations) {
-        this.contained = relations;
+    public void setChildren(List<Element> relations) {
+        this.children = relations;
     }
     
     @Override
-    public int getType(){
+    public Type getType(){
         return type;
     }
-    
+
     @Override
-    public void setType(int type){
-        this.type = type;
+    public void setType(Type type) {
+        this.type =  type;
     }
+
+    
 }

@@ -6,7 +6,7 @@
 package superfdiagrams.model.action;
 
 import java.util.List;
-import superfdiagrams.model.ElementWrapper;
+import superfdiagrams.model.Element;
 import superfdiagrams.model.MainController;
 
 /**
@@ -14,18 +14,18 @@ import superfdiagrams.model.MainController;
  * @author sebca
  */
 public class CreateRelationshipAction implements Action {
-    private ElementWrapper relationship;
-    private List<ElementWrapper> unions;
+    private Element relationship;
+    private List<Element> unions;
     
-    public CreateRelationshipAction(ElementWrapper relationship){
+    public CreateRelationshipAction(Element relationship){
         this.relationship = relationship;
-        this.unions = relationship.getElement().getContained();
+        this.unions = relationship.getElement().getChildren();
     }
     
     @Override
     public void redo() {
         MainController mainC = MainController.getController();
-        for(ElementWrapper union: unions)
+        for(Element union: unions)
             mainC.addElement(union);
         mainC.addElement(relationship);
     }
@@ -33,7 +33,7 @@ public class CreateRelationshipAction implements Action {
     @Override
     public void undo() {
         MainController mainC = MainController.getController();
-        for(ElementWrapper union: unions)
+        for(Element union: unions)
             mainC.removeElement(union);
         mainC.removeElement(relationship);
     }
