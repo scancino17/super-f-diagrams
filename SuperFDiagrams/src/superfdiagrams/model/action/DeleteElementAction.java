@@ -82,9 +82,6 @@ public class DeleteElementAction implements Action{
         
         if(parentContained.isEmpty())
             mainC.removeElement(parent);
-        else if(parent.getElement() instanceof Attribute)
-            for (Element u: parentContained)
-                removeUnion(u);
         
         mainC.removeElement(union); 
         mainC.morphElement(parent);
