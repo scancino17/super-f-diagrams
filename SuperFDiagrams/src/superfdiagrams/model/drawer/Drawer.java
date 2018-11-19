@@ -8,12 +8,15 @@ package superfdiagrams.model.drawer;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.model.Vertex;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
  * @author sebca
  */
 public interface Drawer {
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name);
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted);
     public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes);
+    public void setType(Type type);
+    public Type getType();
 }

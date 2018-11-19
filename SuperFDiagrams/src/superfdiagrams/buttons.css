@@ -1,0 +1,44 @@
+#btnExport 
+{
+	-fx-background-image: url("assets/export.png");
+    -fx-background-size : stretch;
+
+}
+
+#entityButton
+{
+	-fx-background-image: url("assets/rectangle.png");
+    -fx-background-size : stretch;
+}
+
+#relationButton
+{
+	-fx-background-image: url("assets/rhombus.png");
+    -fx-background-size : stretch;
+}
+#eraseButton
+{
+	-fx-background-image: url("assets/wiping-swipe-for-floors.png");
+    -fx-background-size : stretch;
+}
+#redoButton
+{
+        -fx-background-image: url("assets/redo.png");
+    -fx-background-size: stretch;
+}
+
+#undoButton
+{
+        -fx-background-image: url("assets/undo.png");
+    -fx-background-size: stretch;
+}
+#attributeBtn
+{
+        -fx-background-image: url("assets/ellipse-outline-shape-variant.png");
+    -fx-background-size: stretch;
+}
+#heritageBtn
+{
+        -fx-background-image: url("assets/circle-outline.png");
+    -fx-background-size: stretch;
+}

@@ -5,17 +5,57 @@
  */
 package superfdiagrams.model;
 
-import java.util.ArrayList;
+import superfdiagrams.model.primitive.Primitive;
+import java.util.List;
+import javafx.scene.canvas.GraphicsContext;
+import superfdiagrams.model.drawer.Drawable;
+import superfdiagrams.model.drawer.Drawer;
 
 /**
  *
  * @author sebca
  */
-public interface Element {
-    public String getName();
+public class Element implements Drawable{
+    private Primitive element;
+    private Drawer drawer;
+    private List<Vertex> vertexes;
+    private boolean highlighted = false;
 
-    public void setName(String name);
+    @Override
+    public void draw(GraphicsContext gc) {
+        drawer.doDraw(gc,vertexes,element.getLabel(), highlighted);
+    }
+
+    public void drawVertex(GraphicsContext gc)
+    {
+        drawer.doDrawVertex(gc,vertexes);
+    }
+
+    public Primitive getElement() {
+        return element;
+    }
+
+    public void setElement(Primitive element) {
+        this.element = element;
+    }
+
+    public Drawer getDrawer() {
+        return drawer;
+    }
+
+    public void setDrawer(Drawer drawer) {
+        this.drawer = drawer;
+    }
+
+    public List<Vertex> getVertexes() {
+        return vertexes;
+    }
+
+    public void setVertexes(List<Vertex> vertexes) {
+        this.vertexes = vertexes;
+    }
     
-    public ArrayList<ElementWrapper> getRelations();
-    public void setRelations(ArrayList<ElementWrapper> relations);
+    public void setHighlighted(boolean value){
+        this.highlighted = value;
+    }
 }

@@ -7,15 +7,33 @@ package superfdiagrams.model.drawer;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import superfdiagrams.model.Diagram;
-import superfdiagrams.model.Vertex;
+import javafx.scene.text.TextAlignment;
+import superfdiagrams.model.*;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
  * @author sebca
  */
 public class PolygonDrawer implements Drawer{
-    //implementar
+    private Type type;
+    public Vertex center;
+    private double zoom = 1;
+    
+    @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(Type type) {
+        this.type = type;
+    }
+    
+    public void setCenter(Vertex center){
+        this.center = center;
+    }
+    
     /**
      * Funcion que dibuja los poligonos, tan solo usa los vertices creados en las
      * otras funciones y los une, al final se une el ultimo vertice de la lista
@@ -23,35 +41,99 @@ public class PolygonDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
+     * @param highlighted
      */
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name) {
-        int i;
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(1);
-        for (i = 0; i<vertexes.size()-1; i++){
-            gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos()
-                    , vertexes.get(i+1).getxPos(), vertexes.get(i+1).getyPos());
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
+        zoom =  MainController.getController().getZoomFactor();
+        switch (type){
+            case ROLE_WEAK:
+                weakDraw(gc, vertexes, name, highlighted);
+                break;
+            default:
+                normalDraw(gc, vertexes, name, highlighted);
+                break;/*
+                case 3:
+                weakRelationDraw(gc, vertexes, name, highlighted);
+                break;*/
+             
         }
-        gc.strokeLine(vertexes.get(i).getxPos(), vertexes.get(i).getyPos(),
-                vertexes.get(0).getxPos(), vertexes.get(0).getyPos());
-        gc.strokeText(name, vertexes.get(0).getxPos() + 25 , vertexes.get(0).getyPos() + 25d);
     }
 
     /**Marca los puntos de los vertices
      * @param gc
-     * @param vextexes
+     * @param vertexes
      */
     @Override
-    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes)
+    public void doDrawVertex(GraphicsContext gc, List<Vertex> vertexes)
     {
-        for (Vertex v : vextexes)
+        for (Vertex v : vertexes)
         {
             gc.setStroke(Color.RED);
             gc.setLineWidth(5);
-            gc.strokeLine(v.getxPos(), v.getyPos() , v.getxPos(), v.getyPos());
+            gc.strokeLine(v.getxPos() * zoom,
+                    v.getyPos() * zoom,
+                    v.getxPos() * zoom,
+                    v.getyPos() * zoom);
         }
     }
+    
+    public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        if(!highlighted){
+            gc.setStroke(Color.BLACK);
+        } else{
+            gc.setStroke(Color.CORNFLOWERBLUE);
+        }
 
+        gc.setLineWidth(1);
+        
+        int size = vertexes.size();
+        for(int i = 0; i < size; i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom,
+                    vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom,
+                    vertexes.get(( i +1 )% size).getyPos() * zoom);
+        }
+        
+        if(highlighted)
+            gc.setStroke(Color.BLACK);
+        
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+    }
+    
+    public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        if(!highlighted){
+            gc.setStroke(Color.BLACK);
+        } else{
+            gc.setStroke(Color.CORNFLOWERBLUE);
+        }
 
+        gc.setLineWidth(3);
+        
+        int size = vertexes.size();
+        for(int i = 0; i < size; i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom,
+                    vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom,
+                    vertexes.get((i + 1)% size).getyPos()  * zoom);
+        }
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(1);
+        for(int i = 0; i < vertexes.size(); i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom,
+                    vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom,
+                    vertexes.get(( i +1 )% size).getyPos() * zoom);
+        }
+        
+        if(highlighted)
+            gc.setStroke(Color.BLACK);
+        gc.setLineWidth(1);
+        gc.setStroke(Color.BLACK);
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+    }
 }

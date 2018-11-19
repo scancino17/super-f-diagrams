@@ -13,26 +13,26 @@ import java.util.List;
  * @author sebca
  */
 public class Diagram {
-    private ArrayList<Entity> entitys = new ArrayList();
-    private ArrayList<Relationship> relations = new ArrayList();
+    private List<Element> elements;
     
     public Diagram() {
-
+        this.elements = new ArrayList<>();
     }
     
-    public void addEntity(Entity entity){
-        entitys.add(entity);
+    public List<Element> getElements() {
+        return elements;
     }
     
-    public void addRelation(Relationship relation){
-        relations.add(relation);
+    public void setElements(List<Element> elements) {
+        this.elements = elements;
     }
     
-    public Entity getEntity(int index){
-        return entitys.get(index);
+    public void addElement(Element element){
+        this.elements.add(element);
     }
     
-    public Relationship getRelation(int index){
-        return relations.get(index);
+    public void removeElement(Element element){
+        if (elements.contains(element))
+            elements.remove(element);
     }
 }
