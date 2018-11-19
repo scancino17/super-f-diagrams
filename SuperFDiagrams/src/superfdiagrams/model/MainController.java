@@ -51,6 +51,8 @@ public class MainController {
     private double mouseXPos;
     private double mouseYPos;
     private double zoomFactor;
+    private double maxWith;
+    private double maxHeight;
     private boolean choosed;
     
     private Element currentElement;
@@ -71,6 +73,9 @@ public class MainController {
         currentElement = null;
         this.zoomFactor = 1;
         this.doubleClick = false;
+        maxWith = 800; //defualt minimum with posible
+        maxHeight = 700; //default minimum height posible
+
     }
     
     public void setUiController(FXMLDocumentController dc){
@@ -389,6 +394,12 @@ public class MainController {
     }
     
     public void addElement(Element element){
+
+        for(Vertex v : element.getVertexes())
+        {
+            maxWith = Math.max(maxWith, v.getxPos());
+            maxHeight = Math.max(maxHeight, v.getyPos());
+        }
         diagramC.addElement(element);
         drawC.addToBuffer(element);
     }
@@ -568,4 +579,11 @@ public class MainController {
                 return ROLE_STRONG;
         }
     }
+
+    public double getMaxWith(){return Math.max((maxWith * zoomFactor)+2,800) ;} //800 minimum with posible
+    public double getMaxHeight(){return Math.max((maxHeight * zoomFactor)+2,700);} // 700 maximum with posible
+
+
+    public void normalizeDraw() {zoomFactor = 1;}
+
 }

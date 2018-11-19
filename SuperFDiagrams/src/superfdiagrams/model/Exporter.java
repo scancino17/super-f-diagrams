@@ -56,7 +56,7 @@ public class Exporter {
                     //Creo un pdf...
                     PDDocument doc = new PDDocument();
                     //creo una pagina
-                    PDPage page = new PDPage(new PDRectangle((float)canvas.getWidth(),(float)canvas.getHeight()));
+                    PDPage page = new PDPage(new PDRectangle((float) canvas.getWidth(), (float) canvas.getHeight()));
                     //agrego la pagina al pdf
                     doc.addPage(page);
                     //creo un ByteArrayOutputStream y guardo la imagen ahi
