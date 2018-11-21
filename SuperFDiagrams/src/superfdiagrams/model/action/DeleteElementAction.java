@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model.action;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import superfdiagrams.model.Element;
@@ -24,6 +25,8 @@ public class DeleteElementAction implements Action{
     private Element deleted;
     private List<Element> related;
     private MainController mainC;
+    private List <DeleteAttributeAction> attributes;
+    
     
     public DeleteElementAction(Element deleted, List<Element> related){
         this.deleted = deleted;
@@ -34,6 +37,11 @@ public class DeleteElementAction implements Action{
     
     @Override
     public void redo() {
+       //no es lo más eficiente, pero debería impedir que se vaya a las pailas
+       //en caso de sobrar tiempo, rediseñare para ver como no tener que hacer
+       //todo denuevo.
+       if (attributes != null)
+           attributes = new ArrayList<>();
        execute();
     }
 
@@ -42,10 +50,14 @@ public class DeleteElementAction implements Action{
         for(Element r : related){
             if(deleted.getElement() instanceof Entity){
                 addUnion(r);
-            } else
-                mainC.addElement(r);
-            }
-            mainC.addElement(deleted);
+            } else mainC.addElement(r);
+        }
+        
+        mainC.addElement(deleted);
+        
+        if (attributes != null)
+            for(DeleteAttributeAction attribute: attributes)
+               attribute.undo();
     }
      
     public void execute(){
@@ -60,6 +72,12 @@ public class DeleteElementAction implements Action{
     
     private void removeUnion(Element union){
         Element parent = ((Union)union.getElement()).getParent();
+        
+        if (parent.getElement() instanceof Attribute){       
+            removeAttribute(parent);
+            return;
+        }
+        
         List<Element> parentContained = parent.getElement().getChildren();
         
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
@@ -92,6 +110,10 @@ public class DeleteElementAction implements Action{
     
     private void addUnion(Element union){
         Element parent = ((Union)union.getElement()).getParent();
+        
+        if(parent.getElement() instanceof Attribute)
+            return;
+        
         List<Element> parentContained = parent.getElement().getChildren();
         
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
@@ -102,14 +124,22 @@ public class DeleteElementAction implements Action{
                 mainC.removeElement(parentContained.get(0));
                 parentContained.remove(0);
             }
-        }
+        }  
         
         parent.getElement().getChildren().add(union);    
-            
-        if(!mainC.fetchElements().contains(parent))
-            mainC.addElement(parent);
         
+        if(!mainC.fetchElements().contains(parent))
+            mainC.addElement(parent);    
         mainC.addElement(union);
         mainC.morphElement(parent);
+    }
+    
+    private void removeAttribute(Element deleted){
+        if (attributes == null)
+            attributes = new ArrayList<>();
+        
+        DeleteAttributeAction action = new DeleteAttributeAction(deleted);
+        action.execute();
+        attributes.add(action);
     }
 }

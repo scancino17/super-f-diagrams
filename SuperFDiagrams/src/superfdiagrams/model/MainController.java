@@ -23,6 +23,7 @@ import static superfdiagrams.model.State.VIEW;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.action.CreateRelationshipAction;
+import superfdiagrams.model.action.DeleteAttributeAction;
 import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.action.RenameElementAction;
@@ -407,12 +408,17 @@ public class MainController {
     public void deleteElement(Element deleted){
         List<Element> related = null;
         
+        if (deleted.getElement() instanceof Attribute){
+            DeleteAttributeAction action = new DeleteAttributeAction(deleted);
+            action.execute();
+            actionC.addToStack(action);
+            return;
+        }
+        
         if (deleted.getElement() instanceof Entity){
             related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
         } else if (deleted.getElement() instanceof Relationship){
             related = deleted.getElement().getChildren();
-        } else if (deleted.getElement() instanceof Attribute){
-            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted);
         }
         if (related != null){
             DeleteElementAction deleteAction = new DeleteElementAction(deleted, related);
