@@ -14,6 +14,8 @@ import superfdiagrams.model.MainController;
 import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Relationship;
+import static superfdiagrams.model.primitive.Type.ROLE_STRONG;
+import static superfdiagrams.model.primitive.Type.UNION_HERITAGE;
 import superfdiagrams.model.primitive.Union;
 
 
@@ -26,6 +28,7 @@ public class DeleteElementAction implements Action{
     private List<Element> related;
     private MainController mainC;
     private List <DeleteAttributeAction> attributes;
+    private List <Element> heritageRelated;
     
     
     public DeleteElementAction(Element deleted, List<Element> related){
@@ -78,6 +81,22 @@ public class DeleteElementAction implements Action{
             return;
         }
         
+        if (parent.getElement() instanceof Heritage){
+            mainC.removeElement(union);
+            parent.getElement().getChildren().remove(union);
+            
+            if (shouldRemoveHeritage(parent)){
+                System.out.println(parent.getElement().getLabel());
+                for(Element un : parent.getElement().getChildren()){
+                    addToHeritageRelated(un);
+                    mainC.removeElement(un);
+                }
+                mainC.removeElement(parent);
+            }
+            
+            return;
+        }
+        
         List<Element> parentContained = parent.getElement().getChildren();
         
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
@@ -114,6 +133,13 @@ public class DeleteElementAction implements Action{
         if(parent.getElement() instanceof Attribute)
             return;
         
+        if(heritageRelated != null){
+            for (Element u: heritageRelated){
+                parent.getElement().getChildren().add(u);
+                mainC.addElement(u);
+            }
+        }
+        
         List<Element> parentContained = parent.getElement().getChildren();
         
         if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
@@ -141,5 +167,36 @@ public class DeleteElementAction implements Action{
         DeleteAttributeAction action = new DeleteAttributeAction(deleted);
         action.execute();
         attributes.add(action);
+    }
+    
+    private boolean shouldRemoveHeritage(Element heritage){
+        if (!(heritage.getElement() instanceof Heritage))
+            return false;
+        
+        boolean hasChild = false;
+        boolean hasParent = false;
+        
+        List<Element> unions = heritage.getElement().getChildren();
+        for (Element union: unions){
+            System.out.println(union.getElement().getType());
+            if (union.getElement().getType() == ROLE_STRONG){
+                hasParent = true;
+            }
+            
+            if (union.getElement().getType() == UNION_HERITAGE){
+                hasChild = true;
+            }
+            
+            if (hasChild && hasParent)
+                return false;
+        }
+        
+        return true;
+    }
+    
+    private void addToHeritageRelated(Element element){
+        if (this.heritageRelated == null)
+            heritageRelated = new ArrayList<>();
+        heritageRelated.add(element);
     }
 }

@@ -146,9 +146,11 @@ public class ElementBuilder {
         for(Element el: heritage.getChildren()){
                     Element line = generateLine(element, el);
                     ((LineDrawer)line.getDrawer()).setType(UNION_HERITAGE);
+                    line.getElement().setType(UNION_HERITAGE);
                     unions.add(line);
                 }
         ((LineDrawer)unions.get(0).getDrawer()).setType(ROLE_STRONG);
+        unions.get(0).getElement().setType(ROLE_STRONG);
         heritage.setChildren(unions);
         
         PolygonDrawer drawer = new PolygonDrawer();
@@ -172,8 +174,10 @@ public class ElementBuilder {
         LineDrawer drawer = new LineDrawer();
         
         if (relation.getElement().getType() == ROLE_WEAK && entity.getElement().getType() == ROLE_WEAK){
+            union.setType(ROLE_WEAK);
             drawer.setType(ROLE_WEAK);
         }else{
+            union.setType(ROLE_STRONG);
             drawer.setType(ROLE_STRONG);
         }
         
