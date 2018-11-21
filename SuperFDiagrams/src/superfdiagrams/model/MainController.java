@@ -189,6 +189,7 @@ public class MainController {
         currentElement = null;
         stateC.setState(VIEW);
         zoomFactor = 1;
+        NameCounter.restartCounter();
     }
     
     public void finishEntitySelection(){
