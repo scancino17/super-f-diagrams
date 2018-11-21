@@ -35,7 +35,6 @@ public class DeleteElementAction implements Action{
         this.deleted = deleted;
         this.related = related;
         this.mainC = MainController.getController();
-        System.out.println(related.size());
     }
     
     @Override
@@ -59,7 +58,6 @@ public class DeleteElementAction implements Action{
             } else mainC.addElement(r);
         }
         
-        System.out.println("agregado en undo: " + deleted);
         mainC.addElement(deleted);
         
         if (attributes != null)
@@ -86,10 +84,8 @@ public class DeleteElementAction implements Action{
         }
         
         if (parent.getElement() instanceof Heritage){
-            System.out.println("Antes: " + parent.getElement().getChildren().size());
             mainC.removeElement(union);
             parent.getElement().getChildren().remove(union);
-            System.out.println("Despues: " + parent.getElement().getChildren().size());
             
             List<Element> heritageChildren = new ArrayList<>();
             for(Element un: parent.getElement().getChildren()){
@@ -135,7 +131,6 @@ public class DeleteElementAction implements Action{
                 removeUnion(u);
         
         mainC.removeElement(union);
-        System.out.println("Eliminado en remove: " + union);
         mainC.morphElement(parent);
     }
     
@@ -149,17 +144,9 @@ public class DeleteElementAction implements Action{
             for (Element u: heritageRelated){
                 Element heritageParent = ((Union)u.getElement()).getParent();
                 
-                System.out.println("En ciclo for");
-                for(Element i : heritageParent.getElement().getChildren())
-                    System.out.println("Hijo de " + heritageParent + ": " + i);
-                System.out.println("Intentando agregar: "  + u);
-                System.out.println(((Union)u.getElement()).getParent().getElement().getLabel());
-                System.out.println(((Union)u.getElement()).getChild().getElement().getLabel());
-                
                 if (!heritageParent.getElement().getChildren().contains(u)){
                     heritageParent.getElement().getChildren().add(u);
                     mainC.addElement(u);
-                    System.out.println("agregado en heritage: " + u);
                 }
             }
         }
@@ -180,13 +167,11 @@ public class DeleteElementAction implements Action{
         parent.getElement().getChildren().add(union);
         
         if(!mainC.fetchElements().contains(parent)){
-            mainC.addElement(parent); 
-            System.out.println("agregado en parent: " + parent);
+            mainC.addElement(parent);
         }
         
         if(!mainC.fetchElements().contains(union)){
             mainC.addElement(union);
-            System.out.println("agregado en union: " + union);
         }
         
         mainC.morphElement(parent);
@@ -210,7 +195,6 @@ public class DeleteElementAction implements Action{
         
         List<Element> unions = heritage.getElement().getChildren();
         for (Element union: unions){
-            System.out.println(union.getElement().getType());
             if (union.getElement().getType() == ROLE_STRONG){
                 hasParent = true;
             }
@@ -229,8 +213,6 @@ public class DeleteElementAction implements Action{
     private void addToHeritageRelated(Element element){
         if (this.heritageRelated == null)
             heritageRelated = new ArrayList<>();
-        System.out.println("Agregado en heritage related: " + element);
         heritageRelated.add(element);
-        System.out.println("Heritage related: " + heritageRelated.size());
     }
 }
