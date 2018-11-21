@@ -10,48 +10,48 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane id="AnchorPane" fx:id="root" prefHeight="535.0" prefWidth="792.0" stylesheets="@buttons.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superfdiagrams.FXMLDocumentController">
+<AnchorPane id="AnchorPane" fx:id="root" prefHeight="539.0" prefWidth="978.0" stylesheets="@buttons.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superfdiagrams.FXMLDocumentController">
    <children>
-      <SplitPane dividerPositions="0.1968365553602812, 0.8172231985940246" layoutX="200.0" layoutY="-1.0" prefHeight="720.0" prefWidth="815.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.18237704918032788, 0.7663934426229508" layoutX="200.0" layoutY="-1.0" prefHeight="720.0" prefWidth="815.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
-            <AnchorPane prefHeight="721.0" prefWidth="119.0">
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="721.0" prefWidth="119.0">
                <children>
-                  <Button fx:id="entityButton" layoutX="17.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusEntity" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: \superfdiagrams\assets\rectangle.png;" />
-                  <Button fx:id="relationButton" layoutX="96.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusRelation" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="eraseButton" layoutX="96.0" layoutY="367.0" mnemonicParsing="false" onAction="#erase" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="btnClose" layoutX="109.0" layoutY="487.0" mnemonicParsing="false" onAction="#close" text="Salir" />
-                  <Button fx:id="btnExport" layoutX="17.0" layoutY="367.0" mnemonicParsing="false" onAction="#Export" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="btnShowVertex" layoutX="10.0" layoutY="455.0" mnemonicParsing="false" onAction="#btnShowVertex" prefHeight="25.0" prefWidth="155.0" text="Mostrar puntos de control" />
-                  <Button fx:id="finishRelationship" layoutX="10.0" layoutY="199.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" />
+                  <Button fx:id="entityButton" layoutX="14.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusEntity" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: \superfdiagrams\assets\rectangle.png;" />
+                  <Button fx:id="relationButton" layoutX="91.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusRelation" prefHeight="64.0" prefWidth="64.0" />
+                  <Button fx:id="eraseButton" layoutX="108.0" layoutY="356.0" mnemonicParsing="false" onAction="#erase" prefHeight="64.0" prefWidth="64.0" />
+                  <Button fx:id="btnClose" layoutX="77.0" layoutY="507.0" mnemonicParsing="false" onAction="#close" text="Salir" />
+                  <Button fx:id="btnExport" layoutX="23.0" layoutY="356.0" mnemonicParsing="false" onAction="#Export" prefHeight="64.0" prefWidth="64.0" />
+                  <Button fx:id="btnShowVertex" layoutX="40.0" layoutY="457.0" mnemonicParsing="false" onAction="#btnShowVertex" prefHeight="43.0" prefWidth="125.0" text="Mostrar puntos de control" />
+                  <Button fx:id="finishRelationship" layoutX="19.0" layoutY="219.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" />
                   <Text fx:id="statusText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="156.13671875" />
-                  <Text layoutX="29.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Entidad" />
-                  <Text layoutX="106.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Relación" />
-                  <Text layoutX="23.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Exportar..." />
-                  <Text layoutX="108.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Limpiar" />
-                  <Button fx:id="redoButton" layoutX="17.0" layoutY="280.0" mnemonicParsing="false" onAction="#redo" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="undoButton" layoutX="96.0" layoutY="280.0" mnemonicParsing="false" onAction="#undo" prefHeight="64.0" prefWidth="64.0" />
-                  <Text layoutX="28.0" layoutY="356.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rehacer" />
-                  <Text layoutX="104.0" layoutY="356.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deshacer" />
-                  <Button fx:id="attributeBtn" layoutX="96.0" layoutY="109.0" mnemonicParsing="false" onAction="#changeStatusAtrribute" prefHeight="64.0" prefWidth="64.0" />
-                  <Text layoutX="106.0" layoutY="186.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Atributo" />
-                  <Button fx:id="heritageBtn" layoutX="17.0" layoutY="109.0" mnemonicParsing="false" onAction="#changeStatusHeritage" prefHeight="64.0" prefWidth="64.0" />
-                  <Text layoutX="26.0" layoutY="186.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" />
+                  <Text layoutX="21.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Entidad" />
+                  <Text layoutX="100.0" layoutY="102.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Relación" />
+                  <Text layoutX="28.0" layoutY="440.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Exportar..." />
+                  <Text layoutX="118.0" layoutY="447.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Limpiar" />
+                  <Button fx:id="redoButton" layoutX="20.0" layoutY="256.0" mnemonicParsing="false" onAction="#redo" prefHeight="64.0" prefWidth="64.0" />
+                  <Button fx:id="undoButton" layoutX="109.0" layoutY="256.0" mnemonicParsing="false" onAction="#undo" prefHeight="64.0" prefWidth="64.0" />
+                  <Text layoutX="28.0" layoutY="339.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rehacer" />
+                  <Text layoutX="112.0" layoutY="340.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deshacer" />
+                  <Button fx:id="attributeBtn" layoutX="96.0" layoutY="121.0" mnemonicParsing="false" onAction="#changeStatusAtrribute" prefHeight="64.0" prefWidth="64.0" />
+                  <Text layoutX="101.0" layoutY="204.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Atributo" />
+                  <Button fx:id="heritageBtn" layoutX="14.0" layoutY="121.0" mnemonicParsing="false" onAction="#changeStatusHeritage" prefHeight="64.0" prefWidth="64.0" />
+                  <Text layoutX="23.0" layoutY="205.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" />
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="721.0" prefWidth="538.0">
                <children>
-                  <ScrollPane fx:id="canvasContainer" prefHeight="721.0" prefWidth="826.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <ScrollPane fx:id="canvasContainer" prefHeight="537.0" prefWidth="457.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <content>
                         <Canvas fx:id="canvas" height="699" onMouseClicked="#CanvasClickEvent" onScroll="#canvasZoom" width="886.0" />
                      </content>
                   </ScrollPane>
                </children>
             </AnchorPane>
-            <AnchorPane prefHeight="721.0" prefWidth="621.0">
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="721.0" prefWidth="621.0">
                <children>
-                  <TitledPane fx:id="editElementPane" animated="false" layoutX="51.0" layoutY="66.0" prefHeight="721.0" prefWidth="564.0" text="Propiedades" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TitledPane fx:id="editElementPane" animated="false" layoutX="-38.0" layoutY="66.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="537.0" prefWidth="224.0" text="Propiedades" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="694.0" prefWidth="529.0">
+                      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="694.0" prefWidth="529.0">
                            <children>
                               <TextField fx:id="currentElementText" layoutX="14.0" layoutY="40.0" />
                               <Label layoutX="14.0" layoutY="14.0" text="Etiqueta" />
