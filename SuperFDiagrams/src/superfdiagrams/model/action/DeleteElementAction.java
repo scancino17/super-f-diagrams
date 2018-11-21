@@ -15,6 +15,7 @@ import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.ROLE_STRONG;
+import static superfdiagrams.model.primitive.Type.ROLE_WEAK;
 import static superfdiagrams.model.primitive.Type.UNION_HERITAGE;
 import superfdiagrams.model.primitive.Union;
 
@@ -175,6 +176,13 @@ public class DeleteElementAction implements Action{
         }
         
         mainC.morphElement(parent);
+        
+        for (Element u : parent.getElement().getChildren()){
+            if (u.getElement().getType() == ROLE_WEAK){
+                parent.getDrawer().setType(parent.getElement().getType());
+                break;
+            }
+        }
     }
     
     private void removeAttribute(Element deleted){

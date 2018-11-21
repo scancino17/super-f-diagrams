@@ -286,6 +286,7 @@ public class MainController {
                     } else {
                         for(Element element: elementsToRelation)
                             element.setHighlighted(false);
+                        stateC.setState(VIEW);
                     }
                 }
                 break;
@@ -309,7 +310,7 @@ public class MainController {
                 {
                     createNewHeritage(mouseXPos, mouseYPos);
                     stateC.setState(VIEW);
-                    choosed = false;
+                    cancelEntitySelection();
                 }
                 break;  
             case CHOSING_ENTITY:
@@ -335,6 +336,7 @@ public class MainController {
                     } else {
                         for(Element element: elementsToRelation)
                             element.setHighlighted(false);
+                        stateC.setState(VIEW);
                     }
                 }
                 break;
@@ -460,6 +462,20 @@ public class MainController {
                     contained.size(), 
                     ElementBuilder.getDefaultSize(), 
                     GeometricUtilities.getCenterOfMass(element.getVertexes())));
+            
+            boolean shouldMorph = true;
+            if(element.getElement().getType() == ROLE_WEAK){
+                for (Element u : element.getElement().getChildren()){
+                    if(u.getElement().getType() == ROLE_WEAK){
+                        shouldMorph = false;
+                        break;
+                    }
+                }
+            }
+            
+            if(shouldMorph){
+                element.getDrawer().setType(ROLE_STRONG);
+            }
         }
         
         VertexGenerator.recalculateNearestVertexes(contained);
@@ -514,25 +530,22 @@ public class MainController {
         Vertex vertex = new Vertex(posX, posY);
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
-        if (Integer.parseInt(uiController.askHeritage()) == 1){
+        int type = Integer.parseInt(uiController.askHeritage());
+        if (type == 1){
             name = "D";
-        }else{
+        }else if (type == 2){
             name = "S";
-        }
+        } else
+            return;
         elementConstructor.setName(name);
              
         Heritage heritage = new Heritage();
         heritage.setChildren(elementsToRelation);
-        heritage.setLabel(name);
-        
-        for(Element e : elementsToRelation)
-            e.setHighlighted(false);
+        heritage.setLabel(name);  
         
         Element element = elementConstructor.generateHeritage(heritage);
         
         actionC.addToStack(new CreateRelationshipAction(element));
-        
-        elementsToRelation = new ArrayList<>();
         this.addElement(element);
         
         for(Element union: element.getElement().getChildren()){
