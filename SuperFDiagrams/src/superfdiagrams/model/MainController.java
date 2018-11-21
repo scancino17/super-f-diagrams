@@ -93,6 +93,7 @@ public class MainController {
     
     public void setState(State state){
         stateC.setState(state);
+        this.cancelSelection();
     }
     
     public void setMousePos(double x, double y){
@@ -141,16 +142,14 @@ public class MainController {
         for(Element element: elementsToRelation){
             if(element.getElement().getType() == ROLE_WEAK){
                 type = parseRoleType(Integer.parseInt(uiController.askType()));
+                break;
             }
         }
         
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
-        
-        /*if(type == 2)
-        type++;*/
-        
+
         Element element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
         for(Element e : elementsToRelation)
@@ -379,6 +378,11 @@ public class MainController {
         choosed = false;
     }
     
+    public void cancelSelection(){
+        if(currentElement != null)
+            currentElement.setHighlighted(false);
+    }
+    
     public void undo(){
         actionC.undo();
     }
@@ -592,5 +596,6 @@ public class MainController {
 
 
     public void normalizeDraw() {zoomFactor = 1;}
-
+    
+    
 }

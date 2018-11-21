@@ -59,6 +59,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML private TitledPane editElementPane;
     
     private MainController mainC;
+    private NameCounter nameC;
 
     /**
      * Estado inicial del canvas y del controlador
@@ -68,6 +69,7 @@ public class FXMLDocumentController implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         mainC = MainController.getController();
+        nameC = NameCounter.getCounter();
         
         GraphicsContext gc = canvas.getGraphicsContext2D();
         mainC.setContext(gc);
@@ -233,7 +235,7 @@ public class FXMLDocumentController implements Initializable{
     }
     
     public String getElementName(String display){
-        TextInputDialog dialog = new TextInputDialog("Nombre aqui...");
+        TextInputDialog dialog = new TextInputDialog(nameC.generateLabel(display));
         dialog.setTitle("Ingrese nombre de la " + display + ".");
         dialog.setHeaderText("Ingrese nombre: ");
         dialog.setContentText("Nombre:");
@@ -259,6 +261,8 @@ public class FXMLDocumentController implements Initializable{
         if (scroll.getDeltaY() < 0)
             zoom = 2.0 - zoom;
         mainC.setZoomFactor(mainC.getZoomFactor() * zoom);
+        if (mainC.getZoomFactor() < .3) mainC.setZoomFactor(.3);
+        if (mainC.getZoomFactor() < 4) mainC.setZoomFactor(4);
     }
     
     @FXML
@@ -277,7 +281,7 @@ public class FXMLDocumentController implements Initializable{
                                          "3 - Clave",
                                          "4 - Compuesto",
                                          "5 - Multivaluado",
-                                         "6 - Clave Parcial(WIP)"};
+                                         "6 - Clave Parcial"};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
         Optional<String> result = dialog.showAndWait();
         String selected = "0";
