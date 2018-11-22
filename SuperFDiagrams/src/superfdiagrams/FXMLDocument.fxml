@@ -16,26 +16,26 @@
          <items>
             <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="721.0" prefWidth="119.0">
                <children>
-                  <Button fx:id="entityButton" layoutX="14.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusEntity" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: \superfdiagrams\assets\rectangle.png;" />
-                  <Button fx:id="relationButton" layoutX="91.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusRelation" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="eraseButton" layoutX="108.0" layoutY="356.0" mnemonicParsing="false" onAction="#erase" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="btnClose" layoutX="77.0" layoutY="507.0" mnemonicParsing="false" onAction="#close" text="Salir" />
-                  <Button fx:id="btnExport" layoutX="23.0" layoutY="356.0" mnemonicParsing="false" onAction="#Export" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="btnShowVertex" layoutX="40.0" layoutY="457.0" mnemonicParsing="false" onAction="#btnShowVertex" prefHeight="43.0" prefWidth="125.0" text="Mostrar puntos de control" />
-                  <Button fx:id="finishRelationship" layoutX="19.0" layoutY="219.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" />
+                  <Button fx:id="entityButton" layoutX="17.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusEntity" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: \superfdiagrams\assets\rectangle.png;" AnchorPane.topAnchor="17.0" />
+                  <Button fx:id="relationButton" layoutX="96.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusRelation" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="17.0" />
+                  <Button fx:id="eraseButton" layoutX="96.0" layoutY="356.0" mnemonicParsing="false" onAction="#erase" prefHeight="64.0" prefWidth="64.0" AnchorPane.bottomAnchor="117.0" />
+                  <Button fx:id="btnClose" layoutX="121.0" layoutY="479.0" mnemonicParsing="false" onAction="#close" text="Salir" AnchorPane.bottomAnchor="33.0" />
+                  <Button fx:id="btnExport" layoutX="17.0" layoutY="356.0" mnemonicParsing="false" onAction="#Export" prefHeight="64.0" prefWidth="64.0" AnchorPane.bottomAnchor="117.0" />
+                  <Button fx:id="btnShowVertex" layoutX="10.0" layoutY="446.0" mnemonicParsing="false" onAction="#btnShowVertex" prefHeight="25.0" prefWidth="156.0" text="Mostrar puntos de control" AnchorPane.bottomAnchor="66.0" />
+                  <Button fx:id="finishRelationship" layoutX="10.0" layoutY="195.0" mnemonicParsing="false" onAction="#acceptRelation" prefHeight="25.0" prefWidth="155.0" text="Finalizar selección" AnchorPane.topAnchor="195.0" />
                   <Text fx:id="statusText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="156.13671875" />
-                  <Text layoutX="21.0" layoutY="94.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Entidad" />
-                  <Text layoutX="100.0" layoutY="102.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Relación" />
-                  <Text layoutX="28.0" layoutY="440.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Exportar..." />
-                  <Text layoutX="118.0" layoutY="447.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Limpiar" />
-                  <Button fx:id="redoButton" layoutX="20.0" layoutY="256.0" mnemonicParsing="false" onAction="#redo" prefHeight="64.0" prefWidth="64.0" />
-                  <Button fx:id="undoButton" layoutX="109.0" layoutY="256.0" mnemonicParsing="false" onAction="#undo" prefHeight="64.0" prefWidth="64.0" />
-                  <Text layoutX="28.0" layoutY="339.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rehacer" />
-                  <Text layoutX="112.0" layoutY="340.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deshacer" />
-                  <Button fx:id="attributeBtn" layoutX="96.0" layoutY="121.0" mnemonicParsing="false" onAction="#changeStatusAtrribute" prefHeight="64.0" prefWidth="64.0" />
-                  <Text layoutX="101.0" layoutY="204.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Atributo" />
-                  <Button fx:id="heritageBtn" layoutX="14.0" layoutY="121.0" mnemonicParsing="false" onAction="#changeStatusHeritage" prefHeight="64.0" prefWidth="64.0" />
-                  <Text layoutX="23.0" layoutY="205.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" />
+                  <Text layoutX="29.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Entidad" AnchorPane.topAnchor="80.05078125" />
+                  <Text layoutX="106.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Relación" AnchorPane.topAnchor="80.05078125" />
+                  <Text layoutX="27.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Exportar..." AnchorPane.bottomAnchor="101.98828125" />
+                  <Text layoutX="108.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Limpiar" AnchorPane.bottomAnchor="102.02734375" />
+                  <Button fx:id="redoButton" layoutX="17.0" layoutY="256.0" mnemonicParsing="false" onAction="#redo" prefHeight="64.0" prefWidth="64.0" AnchorPane.bottomAnchor="217.0" />
+                  <Button fx:id="undoButton" layoutX="96.0" layoutY="256.0" mnemonicParsing="false" onAction="#undo" prefHeight="64.0" prefWidth="64.0" AnchorPane.bottomAnchor="217.0" />
+                  <Text layoutX="32.0" layoutY="331.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Rehacer" AnchorPane.bottomAnchor="202.98828125" />
+                  <Text layoutX="104.0" layoutY="331.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Deshacer" AnchorPane.bottomAnchor="203.02734375" />
+                  <Button fx:id="attributeBtn" layoutX="96.0" layoutY="104.0" mnemonicParsing="false" onAction="#changeStatusAtrribute" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="104.0" />
+                  <Text layoutX="106.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Atributo" AnchorPane.topAnchor="168.0" />
+                  <Button fx:id="heritageBtn" layoutX="17.0" layoutY="104.0" mnemonicParsing="false" onAction="#changeStatusHeritage" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="104.0" />
+                  <Text layoutX="26.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" AnchorPane.topAnchor="168.0" />
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="721.0" prefWidth="538.0">

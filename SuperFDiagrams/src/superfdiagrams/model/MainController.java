@@ -424,7 +424,8 @@ public class MainController {
         
         if (deleted.getElement() instanceof Entity){
             related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
-        } else if (deleted.getElement() instanceof Relationship){
+        } else if (deleted.getElement() instanceof Relationship
+                || deleted.getElement() instanceof Heritage){
             related = deleted.getElement().getChildren();
         }
         if (related != null){
@@ -559,13 +560,16 @@ public class MainController {
     }
 
     public Element getCurrentElement(){
-        if (currentElement == null || currentElement.getElement() instanceof Heritage)
+        if (currentElement == null)
             return null;
         
         return currentElement;
     }
 
     public void renameCurrentElement(String label){
+        if (currentElement.getElement() instanceof Heritage)
+            return;
+        
         RenameElementAction action = new RenameElementAction(currentElement, label);
         action.execute();
         actionC.addToStack(action);
