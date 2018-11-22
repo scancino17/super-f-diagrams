@@ -53,9 +53,17 @@ public class LineDrawer implements Drawer{
     }
 
     @Override
-    public void doDrawVertex(GraphicsContext gc, List<Vertex> vextexes)
+    public void doDrawVertex(GraphicsContext gc, List<Vertex> vertexes)
     {
-       
+       for (Vertex v : vertexes)
+        {
+            gc.setStroke(Color.RED);
+            gc.setLineWidth(5);
+            gc.strokeLine(v.getxPos() * zoom,
+                    v.getyPos() * zoom,
+                    v.getxPos() * zoom,
+                    v.getyPos() * zoom);
+        }
     }
     
     public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){

@@ -23,6 +23,7 @@ import static superfdiagrams.model.State.VIEW;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.action.CreateRelationshipAction;
+import superfdiagrams.model.action.DeleteAttributeAction;
 import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.action.RenameElementAction;
@@ -92,6 +93,7 @@ public class MainController {
     
     public void setState(State state){
         stateC.setState(state);
+        this.cancelSelection();
     }
     
     public void setMousePos(double x, double y){
@@ -140,16 +142,14 @@ public class MainController {
         for(Element element: elementsToRelation){
             if(element.getElement().getType() == ROLE_WEAK){
                 type = parseRoleType(Integer.parseInt(uiController.askType()));
+                break;
             }
         }
         
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
         elementConstructor.setName(name);
-        
-        /*if(type == 2)
-        type++;*/
-        
+
         Element element = elementConstructor.generateRelationship(elementsToRelation, type);
                 
         for(Element e : elementsToRelation)
@@ -188,6 +188,7 @@ public class MainController {
         currentElement = null;
         stateC.setState(VIEW);
         zoomFactor = 1;
+        NameCounter.restartCounter();
     }
     
     public void finishEntitySelection(){
@@ -285,6 +286,7 @@ public class MainController {
                     } else {
                         for(Element element: elementsToRelation)
                             element.setHighlighted(false);
+                        stateC.setState(VIEW);
                     }
                 }
                 break;
@@ -308,7 +310,7 @@ public class MainController {
                 {
                     createNewHeritage(mouseXPos, mouseYPos);
                     stateC.setState(VIEW);
-                    choosed = false;
+                    cancelEntitySelection();
                 }
                 break;  
             case CHOSING_ENTITY:
@@ -334,6 +336,7 @@ public class MainController {
                     } else {
                         for(Element element: elementsToRelation)
                             element.setHighlighted(false);
+                        stateC.setState(VIEW);
                     }
                 }
                 break;
@@ -377,6 +380,11 @@ public class MainController {
         choosed = false;
     }
     
+    public void cancelSelection(){
+        if(currentElement != null)
+            currentElement.setHighlighted(false);
+    }
+    
     public void undo(){
         actionC.undo();
     }
@@ -407,12 +415,18 @@ public class MainController {
     public void deleteElement(Element deleted){
         List<Element> related = null;
         
+        if (deleted.getElement() instanceof Attribute){
+            DeleteAttributeAction action = new DeleteAttributeAction(deleted);
+            action.execute();
+            actionC.addToStack(action);
+            return;
+        }
+        
         if (deleted.getElement() instanceof Entity){
             related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
-        } else if (deleted.getElement() instanceof Relationship){
+        } else if (deleted.getElement() instanceof Relationship
+                || deleted.getElement() instanceof Heritage){
             related = deleted.getElement().getChildren();
-        } else if (deleted.getElement() instanceof Attribute){
-            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted);
         }
         if (related != null){
             DeleteElementAction deleteAction = new DeleteElementAction(deleted, related);
@@ -449,6 +463,20 @@ public class MainController {
                     contained.size(), 
                     ElementBuilder.getDefaultSize(), 
                     GeometricUtilities.getCenterOfMass(element.getVertexes())));
+            
+            boolean shouldMorph = true;
+            if(element.getElement().getType() == ROLE_WEAK){
+                for (Element u : element.getElement().getChildren()){
+                    if(u.getElement().getType() == ROLE_WEAK){
+                        shouldMorph = false;
+                        break;
+                    }
+                }
+            }
+            
+            if(shouldMorph){
+                element.getDrawer().setType(ROLE_STRONG);
+            }
         }
         
         VertexGenerator.recalculateNearestVertexes(contained);
@@ -503,25 +531,22 @@ public class MainController {
         Vertex vertex = new Vertex(posX, posY);
         ElementBuilder elementConstructor = new ElementBuilder();
         elementConstructor.setCenter(vertex);
-        if (Integer.parseInt(uiController.askHeritage()) == 1){
+        int type = Integer.parseInt(uiController.askHeritage());
+        if (type == 1){
             name = "D";
-        }else{
+        }else if (type == 2){
             name = "S";
-        }
+        } else
+            return;
         elementConstructor.setName(name);
              
         Heritage heritage = new Heritage();
         heritage.setChildren(elementsToRelation);
-        heritage.setLabel(name);
-        
-        for(Element e : elementsToRelation)
-            e.setHighlighted(false);
+        heritage.setLabel(name);  
         
         Element element = elementConstructor.generateHeritage(heritage);
         
         actionC.addToStack(new CreateRelationshipAction(element));
-        
-        elementsToRelation = new ArrayList<>();
         this.addElement(element);
         
         for(Element union: element.getElement().getChildren()){
@@ -535,13 +560,16 @@ public class MainController {
     }
 
     public Element getCurrentElement(){
-        if (currentElement == null || currentElement.getElement() instanceof Heritage)
+        if (currentElement == null)
             return null;
         
         return currentElement;
     }
 
     public void renameCurrentElement(String label){
+        if (currentElement.getElement() instanceof Heritage)
+            return;
+        
         RenameElementAction action = new RenameElementAction(currentElement, label);
         action.execute();
         actionC.addToStack(action);
@@ -585,5 +613,6 @@ public class MainController {
 
 
     public void normalizeDraw() {zoomFactor = 1;}
-
+    
+    
 }
