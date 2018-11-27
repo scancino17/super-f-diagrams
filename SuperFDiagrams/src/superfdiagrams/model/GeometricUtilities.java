@@ -97,4 +97,8 @@ public class GeometricUtilities {
     public static Vertex midPoint(Vertex a, Vertex b){
         return new Vertex((a.getxPos() + b.getxPos()) / 2, (a.getyPos() + b.getyPos()) /2);
     }
+    
+    public static int getSize(String label){
+        return 75;
+    }
 }

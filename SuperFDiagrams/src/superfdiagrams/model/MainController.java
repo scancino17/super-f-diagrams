@@ -9,20 +9,13 @@ import superfdiagrams.model.primitive.Relationship;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Union;
 import superfdiagrams.model.primitive.Attribute;
-import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
-import static superfdiagrams.model.State.ATTRIBUTE;
-import static superfdiagrams.model.State.HERITAGE;
-import static superfdiagrams.model.State.MOVING_ELEMENT;
-import static superfdiagrams.model.State.RELATIONSHIP;
-import static superfdiagrams.model.State.SELECTING_ENTITIES;
-import static superfdiagrams.model.State.VIEW;
+import static superfdiagrams.model.State.*;
 import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
-import superfdiagrams.model.action.CreateRelationshipAction;
 import superfdiagrams.model.action.DeleteAttributeAction;
 import superfdiagrams.model.action.DeleteElementAction;
 import superfdiagrams.model.action.MoveElementAction;
@@ -38,12 +31,13 @@ import static superfdiagrams.model.primitive.Type.*;
  */
 public class MainController {
     private static MainController mc;
-    private StateController stateC;
-    private DrawController drawC;
-    private DiagramController diagramC;
+    private final StateController stateC;
+    private final DrawController drawC;
+    private final DiagramController diagramC;
     private FXMLDocumentController uiController;
-    private ActionController actionC;
-    private List<Element> elementsToRelation;
+    private final ActionController actionC;
+    private final SelectorController selectorC;
+    
     private Element selected;
     private List<Element> selectedRelated;
     
@@ -54,7 +48,6 @@ public class MainController {
     private double zoomFactor;
     private double maxWith;
     private double maxHeight;
-    private boolean choosed;
     
     private Element currentElement;
     
@@ -69,8 +62,8 @@ public class MainController {
         drawC = DrawController.getDrawController();
         diagramC = DiagramController.getController();
         actionC = ActionController.getController();
-        elementsToRelation = new ArrayList<>();
-        this.choosed = false;
+        selectorC = SelectorController.getController();
+        
         currentElement = null;
         this.zoomFactor = 1;
         this.doubleClick = false;
@@ -109,67 +102,113 @@ public class MainController {
         diagramC.newDiagram();
     }
     
-    /**
-     * Funcion que crea una nueva entidad y la guarda en la lista
-     * @param posX
-     * @param posY
-     * @param name
-     */
-    public void createNewEntity(double posX, double posY, String name){
-        Type type = parseRoleType(Integer.parseInt(uiController.askType()));
-        if(type != null)
-        {
-            Vertex vertex = new Vertex(posX, posY);
-            ElementBuilder elementConstructor = new ElementBuilder();
-            elementConstructor.setCenter(vertex);
-            elementConstructor.setName(name);        
-            Element element = elementConstructor.generateEntity(type);
-            actionC.addToStack(new CreateElementAction(element));
-            this.addElement(element);
+    public void createNewEntity(){
+        String label = uiController.getElementName("entidad");
+        
+        if (label == null){
+            stateC.setState(VIEW);
+            return;
         }
+        
+        Type type = parseRoleType(Integer.parseInt(uiController.askType()));
+        
+        if(type == null){
+            stateC.setState(VIEW);
+            return;
+        }
+        
+        CreateElementAction create = new CreateElementAction();
+        create.createEntity(mouseXPos, mouseYPos, label, type);
+        
+        actionC.addToStack(create);
+        stateC.setState(VIEW);
     }
     
-    /**
-     * Funcion que crea una nueva relacion
-     * @param posX
-     * @param posY
-     * @param name 
-     */
-    public void createNewRelation(double posX, double posY, String name){
-        Vertex vertex = new Vertex (posX, posY);
+    public void createNewRelationship(){
+        String label = uiController.getElementName("relación");
+        
+        if (label == null){
+            finishAction();
+            return;
+        }
+        
         Type type = ROLE_STRONG;
         
-        for(Element element: elementsToRelation){
+        List<Element> selectedElements = selectorC.getSelected();
+        for(Element element: selectedElements){
             if(element.getElement().getType() == ROLE_WEAK){
                 type = parseRoleType(Integer.parseInt(uiController.askType()));
                 break;
             }
         }
         
-        ElementBuilder elementConstructor = new ElementBuilder();
-        elementConstructor.setCenter(vertex);
-        elementConstructor.setName(name);
-
-        Element element = elementConstructor.generateRelationship(elementsToRelation, type);
-                
-        for(Element e : elementsToRelation)
-            e.setHighlighted(false);
-        
-        actionC.addToStack(new CreateRelationshipAction(element));
-        
-        elementsToRelation = new ArrayList<>();
-        this.addElement(element);
-        
-        for(Element union: element.getElement().getChildren()){
-            this.addElement(union);
+        if (type == null){
+            finishAction();
+            return;
         }
+        
+        CreateElementAction create = new CreateElementAction();
+        create.createRelationship(mouseXPos, mouseYPos, label, type, selectedElements);
+        
+        actionC.addToStack(create);
+        finishAction();
     }
+    
+    public void createNewAttribute(){
+        String label = uiController.getElementName("atributo");
+        
+        if (label == null){
+            finishAction();
+            return;
+        }
+        
+        int intType = Integer.parseInt(uiController.getType());
+        if (intType == 0){
+            finishAction();
+            return;
+        }
+        
+        Type type = parseAttributeType(intType);
+        
+        List<Element> selectedElements = selectorC.getSelected();
+        CreateElementAction create = new CreateElementAction();
+        create.createAttribute(mouseXPos, mouseYPos, label, type, selectedElements);
+        
+        actionC.addToStack(create);
+        finishAction();
+    }
+    
+    public void createNewHeritage(){
+        String name;
+        int intType = Integer.parseInt(uiController.askHeritage());
+        
+        switch(intType){
+            case 1:
+                name = "D";
+                break;
+            case 2:
+                name = "S";
+                break;
+            default:
+                finishAction();
+                return;
+        }
+        
+        Type type = (intType == 1) ? HERITAGE_D : HERITAGE_S;
+        
+        List<Element> selectedElements = selectorC.getSelected();
+        CreateElementAction create = new CreateElementAction();
+        create.createHeritage(mouseXPos, mouseYPos, name, type, selectedElements);
+        
+        actionC.addToStack(create);
+        finishAction();
+    }  
     
     /**
      * Funcion que dibuja los elementos de la lista.
      * Esta funcion va dibujando constantemente, cuando la lista se encuentra
      * vacia estara limpiando la pantalla.
-     * @param gc
+     * @return true si dibujó algo, false caso contrario.
      */
     public boolean drawElements(){
         if (!drawC.isBufferEmpty()){
@@ -182,8 +221,8 @@ public class MainController {
     public void restart(){
         actionC.restart();
         diagramC.newDiagram();
-        elementsToRelation.clear();
         drawC.eraseBuffer();
+        selectorC.emptySelection();
         selected = null;
         currentElement = null;
         stateC.setState(VIEW);
@@ -192,11 +231,12 @@ public class MainController {
     }
     
     public void finishEntitySelection(){
-        if (elementsToRelation.isEmpty())
+        if (selectorC.isEmpty())
             stateC.setState(VIEW);
         else if(stateC.getState() == State.CHOSING_ENTITY)
             stateC.setState(ATTRIBUTE);
-        else if(stateC.getState() == State.SELECTING_CHILDREN && elementsToRelation.size() != 1)
+        else if(stateC.getState() == State.SELECTING_CHILDREN 
+             && selectorC.selectionSize() != 1)
             stateC.setState(HERITAGE);
         else if (stateC.getState() == State.SELECTING_ENTITIES)
             stateC.setState(RELATIONSHIP);
@@ -207,11 +247,15 @@ public class MainController {
     public void runMainLoop(){
         if(selected != null && stateC.getState() == MOVING_ELEMENT ){
             VertexGenerator.recalculateVertexes(selected.getVertexes(),
-                                    new Vertex(mouseXPos,
-                                               mouseYPos));
+                                                new Vertex(mouseXPos,
+                                                mouseYPos));
             VertexGenerator.recalculateNearestVertexes(selectedRelated);
         }
         
+        this.setStatusText();
+    }
+    
+    public void setStatusText(){
         switch(stateC.getState()){
             case VIEW:
                 uiController.setStatusText("");
@@ -250,139 +294,67 @@ public class MainController {
             currentElement.setHighlighted(false);
         
         currentElement = checkColition(mouseXPos, mouseYPos);
-        switch(stateC.getState()){
-            case ENTITY:
-                if(currentElement == null)
-                {
-                    String name = uiController.getElementName("entidad");
-                    if (name != null) {
-                        createNewEntity(mouseXPos, mouseYPos, name);
-                        stateC.setState(State.VIEW);
-                    }
-                }
-                break;
-            case SELECTING_ENTITIES:   
-                if(currentElement != null)
-                {                   
-                    Element entity = checkColition(mouseXPos, mouseYPos);
-                    if (entity.getElement() instanceof Entity) {
-                        uiController.activateFinishButton();
-                        entity.setHighlighted(true);
-                        if (!elementsToRelation.contains(entity)
-                            &&  elementsToRelation.size() < 6)
-                            this.elementsToRelation.add(entity);
-                        else
-                            entity.setHighlighted(false);
-                    }
-                }
-                break;
-            case RELATIONSHIP:
-                if(currentElement == null)
-                {
-                    String name = uiController.getElementName("relación");
-                    if (name != null){
-                        createNewRelation(mouseXPos, mouseYPos, name);
-                        stateC.setState(VIEW);
-                    } else {
-                        for(Element element: elementsToRelation)
-                            element.setHighlighted(false);
-                        stateC.setState(VIEW);
-                    }
-                }
-                break;
-            case SELECTING_CHILDREN:
-                if(currentElement != null)
-                {                   
-                    Element entity = checkColition(mouseXPos, mouseYPos);
-                    if (entity.getElement() instanceof Entity) {
-                        uiController.activateFinishButton();
-                        entity.setHighlighted(true);
-                        if (!elementsToRelation.contains(entity)
-                            &&  elementsToRelation.size() < 6)
-                            this.elementsToRelation.add(entity);
-                        else
-                            entity.setHighlighted(false);
-                    }
-                }
-                break;
-            case HERITAGE:
-                if(currentElement == null)
-                {
-                    createNewHeritage(mouseXPos, mouseYPos);
-                    stateC.setState(VIEW);
-                    cancelEntitySelection();
-                }
-                break;  
-            case CHOSING_ENTITY:
-                uiController.activateFinishButton();
-                if(currentElement != null){
-                    Element entity = checkColition(mouseXPos, mouseYPos);
-                    if((entity.getElement() instanceof Relationship) ||(entity.getElement() instanceof Entity || ((Attribute)entity.getElement()).getType() == ATTRIBUTE_COMPOSITE) 
-                            && !choosed){
-                        elementsToRelation.add(entity);
-                        entity.setHighlighted(true);
-                        choosed = true;
-                    }
-                }
-                break;
-            case ATTRIBUTE:
-                if(currentElement == null)
-                {
-                    String name = uiController.getElementName("Atributo");
-                    if (name != null){
-                        createNewAttribute(mouseXPos, mouseYPos, name);
-                        stateC.setState(VIEW);
-                        choosed = false;
-                    } else {
-                        for(Element element: elementsToRelation)
-                            element.setHighlighted(false);
-                        stateC.setState(VIEW);
-                    }
-                }
-                break;
-            case MOVING_ELEMENT:
-                if(currentElement != null)
-                {
+        
+        if(currentElement != null){
+            switch(stateC.getState()){
+                case MOVING_ELEMENT:
                     selected.setHighlighted(false);
                     selectedAction.getNewPosition();
                     selected = null;
                     selectedRelated = null;
                     selectedAction = null;
                     stateC.setState(VIEW);
-                }
-                break;
-        }
-        
-        if (currentElement != null){
-            if(doubleClick && stateC.getState() == VIEW)
-            {
-                selected = checkColition(mouseXPos, mouseYPos);
-                selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
-                selectedAction = new MoveElementAction(selected, selectedRelated);
-                actionC.addToStack(selectedAction);
-                
-                if (!(selected.getElement() instanceof Union)){
-                    selected.setHighlighted(true);
-                    stateC.setState(MOVING_ELEMENT);
-                } else {
-                    selected = null;
-                }
+                    break;
+                    
+                case VIEW:
+                    if (!doubleClick)
+                        break;
+                    
+                    selected = currentElement;
+                    selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
+                    selectedAction = new MoveElementAction(selected, selectedRelated);
+                    actionC.addToStack(selectedAction);
+
+                    if (!(selected.getElement() instanceof Union)){
+                        selected.setHighlighted(true);
+                        stateC.setState(MOVING_ELEMENT);
+                    } else selected = null;
+                    
+                    break;
+                default:
+                    selectorC.add(currentElement);
+                    if(!selectorC.isEmpty())
+                        uiController.activateFinishButton();
+                    break;
+            }
+        } else {
+            switch(stateC.getState()){
+                case ENTITY:
+                    createNewEntity();
+                    break;
+                case RELATIONSHIP:
+                    createNewRelationship();
+                    break;
+                case HERITAGE:
+                    createNewHeritage();
+                    break;
+                case ATTRIBUTE:
+                    createNewAttribute();
+                    break;
             }
         }
     }
     
-    public void cancelEntitySelection(){
-        if (elementsToRelation != null && !elementsToRelation.isEmpty())
-            for (Element element: elementsToRelation)
-                element.setHighlighted(false);
-        
-        elementsToRelation = new ArrayList<>();
-        choosed = false;
-    }
-    
     public void cancelSelection(){
+        selectorC.emptySelection();
         if(currentElement != null)
             currentElement.setHighlighted(false);
+        currentElement = null;
+    }
+    
+    public void finishAction(){
+        stateC.setState(VIEW);
+        selectorC.emptySelection();
     }
     
     public void undo(){
@@ -486,83 +458,13 @@ public class MainController {
     public void removeElement(Element element){
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
-    }
-
-    /**
-     * Funcion que crea un nuevo atributo, pide que tipo de atributo sera 
-     * y se une con la entidad que se eligio.
-     * @param posX
-     * @param posY
-     * @param name 
-     */
-    public void createNewAttribute(double posX, double posY, String name){
-        Vertex vertex = new Vertex(posX, posY);
-        
-        ElementBuilder elementCostructor = new ElementBuilder();
-        elementCostructor.setCenter(vertex);
-        elementCostructor.setName(name);
-        
-        for(Element e : elementsToRelation)
-            e.setHighlighted(false);
-        
-        Attribute attribute = new Attribute();
-        attribute.setChildren(elementsToRelation);
-        int type = Integer.parseInt(uiController.getType());
-        if (type != 0){
-            attribute.setType(parseAttributeType(type));
-
-            Element element = elementCostructor.generateAttribute(attribute);
-
-            actionC.addToStack(new CreateRelationshipAction(element));
-
-            elementsToRelation = new ArrayList<>();
-            this.addElement(element);
-
-            for(Element union: element.getElement().getChildren()){
-                this.addElement(union);
-            }
-        } else {
-            cancelEntitySelection();
-        }
-    }
-    
-    public void createNewHeritage(double posX, double posY){
-        String name = null;
-        Vertex vertex = new Vertex(posX, posY);
-        ElementBuilder elementConstructor = new ElementBuilder();
-        elementConstructor.setCenter(vertex);
-        int type = Integer.parseInt(uiController.askHeritage());
-        if (type == 1){
-            name = "D";
-        }else if (type == 2){
-            name = "S";
-        } else
-            return;
-        elementConstructor.setName(name);
-             
-        Heritage heritage = new Heritage();
-        heritage.setChildren(elementsToRelation);
-        heritage.setLabel(name);  
-        
-        Element element = elementConstructor.generateHeritage(heritage);
-        
-        actionC.addToStack(new CreateRelationshipAction(element));
-        this.addElement(element);
-        
-        for(Element union: element.getElement().getChildren()){
-            this.addElement(union);
-        }
-        
-    }
+    } 
 
     public List<Element> fetchElements() {
         return diagramC.fetchElements();
     }
 
     public Element getCurrentElement(){
-        if (currentElement == null)
-            return null;
-        
         return currentElement;
     }
 

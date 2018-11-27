@@ -148,7 +148,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusEntity(){
         mainC.setState(ENTITY);
-        mainC.cancelEntitySelection();
+        mainC.cancelSelection();
     }
     
     /**
