@@ -41,7 +41,7 @@ public class MoveElementAction implements Action{
             mainElement.setVertexes(mainPositionAfter);
             VertexGenerator.recalculateNearestVertexes(elementRelated);
         }else
-            System.out.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
+            System.err.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
     }
 
     @Override
@@ -50,6 +50,6 @@ public class MoveElementAction implements Action{
             mainElement.setVertexes(mainPositionBefore);
             VertexGenerator.recalculateNearestVertexes(elementRelated);
         }else
-            System.out.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
+            System.err.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
     }
 }

@@ -7,6 +7,7 @@ package superfdiagrams.model.drawer;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import superfdiagrams.model.*;
 import superfdiagrams.model.primitive.Type;
@@ -99,8 +100,7 @@ public class PolygonDrawer implements Drawer{
             gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        this.drawText(gc, name, center);
     }
     
     public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
@@ -133,7 +133,12 @@ public class PolygonDrawer implements Drawer{
         gc.setLineWidth(1);
         gc.setStroke(Color.BLACK);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        this.drawText(gc, name, center);
+    }
+    
+    private void drawText(GraphicsContext gc, String label, Vertex center){
+        gc.setFont(new Font(Font.getDefault().getSize() * zoom));
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
     }
 }

@@ -19,6 +19,7 @@ public class Element implements Drawable{
     private Primitive element;
     private Drawer drawer;
     private List<Vertex> vertexes;
+    private Vertex center;
     private boolean highlighted = false;
 
     @Override
@@ -57,5 +58,13 @@ public class Element implements Drawable{
     
     public void setHighlighted(boolean value){
         this.highlighted = value;
+    }
+    
+    public void setCenterVertex(Vertex center){
+        this.center = center;
+    }
+    
+    public Vertex getCenterVertex(){
+        return center;
     }
 }

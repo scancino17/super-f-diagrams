@@ -6,14 +6,13 @@
 package superfdiagrams.model.drawer;
 
 import java.util.List;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
-import superfdiagrams.model.VertexGenerator;
 import superfdiagrams.model.primitive.Type;
 
 /**
@@ -101,8 +100,7 @@ public class ElipseDrawer implements Drawer{
             j++;
         }
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        this.drawText(gc, name, center);
     }
     
     /**
@@ -131,8 +129,7 @@ public class ElipseDrawer implements Drawer{
             gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        this.drawText(gc, name, center);
     }
     
     /**
@@ -162,7 +159,7 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        this.drawText(gc, name, center);
         gc.strokeLine(center.getxPos() * zoom - name.length() * 5, center.getyPos() * zoom + 5,
                 center.getxPos() * zoom + name.length() * 5, center.getyPos() * zoom + 5);
     }
@@ -194,8 +191,7 @@ public class ElipseDrawer implements Drawer{
         
         gc.setStroke(Color.BLACK);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        this.drawText(gc, name, center);
         
     }
     
@@ -218,8 +214,7 @@ public class ElipseDrawer implements Drawer{
             gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        this.drawText(gc, name, center);
         double inicio = center.getxPos() * zoom - name.length() * 5;
         
         for (int i = 0; i < name.length(); i++) {
@@ -228,5 +223,11 @@ public class ElipseDrawer implements Drawer{
                 fin, center.getyPos() * zoom + 5);
             inicio = inicio + 10;
         }
+    }
+    
+    private void drawText(GraphicsContext gc, String label, Vertex center){
+        gc.setFont(new Font(Font.getDefault().getSize() * zoom));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
     }
 }

@@ -27,14 +27,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
 
-import javax.swing.*;
-
-import static superfdiagrams.model.State.CHOSING_ENTITY;
-import static superfdiagrams.model.State.DELETING_ELEMENT;
-
-import static superfdiagrams.model.State.ENTITY;
-import static superfdiagrams.model.State.SELECTING_ENTITIES;
-import static superfdiagrams.model.State.VIEW;
+import static superfdiagrams.model.State.*;
+import static superfdiagrams.model.primitive.Type.*;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
@@ -57,6 +52,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML private TextField currentElementText;
     @FXML private Button applyChanges;
     @FXML private TitledPane editElementPane;
+    @FXML private TextArea errorText;
     
     private MainController mainC;
     private NameCounter nameC;
@@ -98,14 +94,16 @@ public class FXMLDocumentController implements Initializable{
     public void run(GraphicsContext gc)
     {
         //autosize canvas for fit
-        canvas.setHeight(mainC.getMaxHeight());
-        canvas.setWidth(mainC.getMaxWith());
+        canvas.setHeight(Math.max(mainC.getMaxHeight(), canvasContainer.getHeight()));
+        canvas.setWidth(Math.max(mainC.getMaxWith(), canvasContainer.getWidth()));
         //end autosize
 
         mainC.runMainLoop();
         gc.clearRect(0,0, canvas.getWidth(),canvas.getHeight());
         mainC.drawElements();
         checkButtonStatus();
+
+        errorText.setText(mainC.checkSemantics());
 
     }
 
@@ -148,7 +146,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusEntity(){
         mainC.setState(ENTITY);
-        mainC.cancelEntitySelection();
+        mainC.cancelSelection();
     }
     
     /**
@@ -234,7 +232,7 @@ public class FXMLDocumentController implements Initializable{
         //button.setVisible(false);
     }
     
-    public String getElementName(String display){
+    public String getElementLabel(String display){
         TextInputDialog dialog = new TextInputDialog(nameC.generateLabel(display));
         dialog.setTitle("Ingrese nombre de la " + display + ".");
         dialog.setHeaderText("Ingrese nombre: ");
@@ -246,8 +244,6 @@ public class FXMLDocumentController implements Initializable{
         //else 
             //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
         
-        if (newName != null && newName.length() > 10)
-            newName = newName.substring(0, 10);
         return newName;
     }
     
@@ -258,16 +254,17 @@ public class FXMLDocumentController implements Initializable{
     
     @FXML public void canvasZoom(ScrollEvent scroll){
         double zoomFactor = mainC.getZoomFactor();
-        if (zoomFactor >= 0.3 && zoomFactor <= 4){
+        if (zoomFactor >= 0.3 && zoomFactor <= 2.7){
             double zoom = 1.1;
             if (scroll.getDeltaY() < 0)
                 zoom = 2.0 - zoom;
             mainC.setZoomFactor(mainC.getZoomFactor() * zoom);
         } else if (zoomFactor < 0.3){
             mainC.setZoomFactor(0.3);
-        } else if (zoomFactor > 4){
-            mainC.setZoomFactor(4);
+        } else if (zoomFactor > 2.7){
+            mainC.setZoomFactor(2.7);
         }
+        System.out.println(mainC.getZoomFactor());
     }
     
     @FXML
@@ -280,7 +277,7 @@ public class FXMLDocumentController implements Initializable{
         mainC.setState(State.SELECTING_CHILDREN);
 }
     
-    public String getType(){
+    public Type askAttributeType(){
         String[] choices =  new String[]{"1 - Derivado",
                                          "2 - Genérico",
                                          "3 - Clave",
@@ -295,10 +292,26 @@ public class FXMLDocumentController implements Initializable{
             selected = result.get();
             selected = selected.substring(0, 1);
         }
-        return selected;
+        
+        switch(Integer.parseInt(selected)){
+            case 0:
+                return null;
+            case 1:
+                return ATTRIBUTE_DERIVATE;
+            case 3:
+                return ATTRIBUTE_KEY;
+            case 4:
+                return ATTRIBUTE_COMPOSITE;
+            case 5:
+                return ATTRIBUTE_MULTIVALUATED;
+            case 6:
+                return ATTRIBUTE_PARTIAL_KEY;
+            default:
+                return ATTRIBUTE_GENERIC;
+        }
     }
     
-    public String askType(){
+    public Type askRoleType(){
         String[] choices =  new String[]{"1 - Normal",
                                          "2 - Débil",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
@@ -309,10 +322,17 @@ public class FXMLDocumentController implements Initializable{
             selected = result.get();
             selected = selected.substring(0, 1);
         }
-        return selected;
+        switch(Integer.parseInt(selected)){
+            case 0:
+                return null;
+            case 2:
+                return ROLE_WEAK;
+            default:
+                return ROLE_STRONG;
+        }
     }
     
-    public String askHeritage(){
+    public Type askHeritageType(){
         String[] choices =  new String[]{"1 - Disyunción",
                                          "2 - Solapamiento",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
@@ -323,7 +343,15 @@ public class FXMLDocumentController implements Initializable{
             selected = result.get();
             selected = selected.substring(0, 1);
         }
-        return selected;
+        
+        switch(Integer.parseInt(selected)){
+            case 1:
+                return HERITAGE_D;
+            case 2:
+                return HERITAGE_S;
+            default:
+                return null;
+        }
     }
     
     @FXML
@@ -335,10 +363,18 @@ public class FXMLDocumentController implements Initializable{
 
     @FXML private void applyChanges()
     {
-        if(mainC.getCurrentElement() != null)
-        {
-            mainC.renameCurrentElement(currentElementText.getText());
-        }
+        if(mainC.getCurrentElement() == null)
+            return;
+        
+        mainC.renameCurrentElement(currentElementText.getText());
+        
+        WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getElement().hashCode());
+        
+        if (temp == null)
+            return;
+        
+        temp.name = currentElementText.getText();
+        mainC.map.replace(mainC.getCurrentElement().getElement().hashCode(), temp);
     }
     
     public void showElementPane(){

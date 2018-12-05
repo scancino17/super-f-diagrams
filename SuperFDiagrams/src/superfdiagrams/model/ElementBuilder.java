@@ -15,6 +15,7 @@ import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
 import superfdiagrams.model.primitive.Heritage;
+import superfdiagrams.model.primitive.Primitive;
 import superfdiagrams.model.primitive.Type;
 import static superfdiagrams.model.primitive.Type.*;
 
@@ -23,20 +24,21 @@ import static superfdiagrams.model.primitive.Type.*;
  * @author sebca
  */
 public class ElementBuilder {
-    private static final int DEFAULT_SIZE = 75;
+    private static final double DEFAULT_SIZE = 25;
+    private static final double DEF_ATT_SIZE = 25;
     private String name;
     private Vertex center;
-    private int size;
+    private double size;
     
     public ElementBuilder(){
         this.size = DEFAULT_SIZE;
     }
     
-    public static int getDefaultSize(){
+    public static double getDefaultSize(){
         return DEFAULT_SIZE;
     }
     
-    public void setName(String name) {
+    public void setLabel(String name) {
         this.name = name;
     }
 
@@ -50,12 +52,15 @@ public class ElementBuilder {
     
     public Element generateEntity(Type type){
         Element element = new Element();
+        
         Entity entity = new Entity();
         entity.setType(type);
-        element.setElement(entity);
-        element.getElement().setLabel(name);
+        entity.setLabel(name);
         
-        element.setVertexes(VertexGenerator.generateRectangle(size, center));
+        element.setElement(entity);
+        double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
+        element.setVertexes(VertexGenerator.generateRectangle(size * xSizeMultiplier, size, center));
+        element.setCenterVertex(center);
         
         PolygonDrawer drawer = new PolygonDrawer();
         drawer.setType(type);
@@ -64,39 +69,26 @@ public class ElementBuilder {
         return element;
     }
     
-    public Element generateRelationship(int vertexes, List<Element> relations){
-        Element element = new Element();
-        Relationship relation = new Relationship();
-        relation.setLabel(name);
-        relation.setChildren(relations);
-        
-        element.setElement(relation);
-
-  
-        element.setVertexes(VertexGenerator.generateVertexes(vertexes, size, center));
-        
-        element.setDrawer(new PolygonDrawer());
-        return element;
-    }
-    
-    public Element generateRelationship(List<Element> entities, Type type){
+    public Element generateRelationship(List<Element> related, Type type){
         Element element = new Element();
         Relationship relation = new Relationship();
         
-        element.setVertexes(VertexGenerator.generateVertexes(entities.size(), size, center));
+        double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
+        element.setVertexes(VertexGenerator.generateVertexes(related.size(), size * xSizeMultiplier, size, center));
+        element.setCenterVertex(center);
         
         relation.setLabel(name);
         relation.setType(type);
         List<Element> unions = new ArrayList<>();
         
         element.setElement(relation);
-        if(entities.size() > 1){
-            for(Element el: entities){
+        if(related.size() > 1){
+            for(Element el: related){
                 unions.add(generateLine(element, el));
             }
-        } else if (entities.size() == 1){
-            unions.add(generateLine(element, entities.get(0)));
-            unions.add(generateLine(element, entities.get(0)));
+        } else if (related.size() == 1){
+            unions.add(generateLine(element, related.get(0)));
+            unions.add(generateLine(element, related.get(0)));
         }
          
         
@@ -105,40 +97,45 @@ public class ElementBuilder {
         drawer.setType(type);
         drawer.setCenter(center);
         element.setDrawer(drawer);
-        return element;
-        
+        return element;       
     }
     
-    public Element generateAttribute(Attribute attribute){
+    public Element generateAttribute(List<Element> related, Type type){
+        Attribute attribute = new Attribute();
+        attribute.setChildren(related);
+        attribute.setType(type);
+        attribute.setLabel(name);
+        
         Element element = new Element();
         
         element.setElement(attribute);
-        element.getElement().setLabel(name);
-        
-        element.setVertexes(VertexGenerator.generateEllipse(50, 55, center));
+        element.setCenterVertex(center);
+        double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
+        element.setVertexes(VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
         
         List<Element> unions = new ArrayList<>();
         
-        for(Element el: attribute.getChildren()){
-                    unions.add(generateLine(element, el));
-                }
+        for(Element el: attribute.getChildren())
+            unions.add(generateLine(element, el));
         
         attribute.setChildren(unions);
         
         ElipseDrawer drawer = new ElipseDrawer();
         drawer.setCenter(center);
-        drawer.setType(attribute.getType());
+        drawer.setType(type);
         element.setDrawer(drawer);
         return element;
     }
     
-    public Element generateHeritage(Heritage heritage){
+    public Element generateHeritage(List<Element> related, Type type){
+        Heritage heritage = new Heritage();
+        heritage.setChildren(related);
+        heritage.setLabel(name); 
+        
         Element element = new Element();
         
         element.setElement(heritage);
- 
-        element.getElement().setLabel(name);
-        
+        element.setCenterVertex(center);
         element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
         
         List<Element> unions = new ArrayList<>();
@@ -173,7 +170,9 @@ public class ElementBuilder {
         union.setChild(entity);
         LineDrawer drawer = new LineDrawer();
         
-        if (relation.getElement().getType() == ROLE_WEAK && entity.getElement().getType() == ROLE_WEAK){
+        if (relation.getElement().getType() == ROLE_WEAK 
+         && entity.getElement().getType() == ROLE_WEAK)
+        {
             union.setType(ROLE_WEAK);
             drawer.setType(ROLE_WEAK);
         }else{
@@ -217,7 +216,43 @@ public class ElementBuilder {
         clone.getDrawer().setType(union.getDrawer().getType());
         clone.setElement(primitive);
         
-        
         return clone;
+    }
+    
+    /**
+     * Cambia el tamaño de un elemento cuando su label es cambiado. La función genera
+     * un nuevo set de Vertex.
+     * @author Sebastián Cancino
+     * @param element Element a cambiar de forma
+     */
+    public void resize(Element element){
+        Primitive primitive = element.getElement();
+        double multiplier = GeometricUtilities.getSizeMultiplier(primitive.getLabel());
+        Vertex elementCenter = element.getCenterVertex();
+        List<Vertex> newVertexSet = null;
+        
+        if(primitive instanceof Entity){
+            newVertexSet = VertexGenerator.generateRectangle(size * multiplier, size, elementCenter);
+        }
+        
+        if(primitive instanceof Relationship){
+            newVertexSet = VertexGenerator.generateVertexes(primitive.getChildren().size(), size * multiplier, size, elementCenter);
+        } 
+        
+        if(primitive instanceof Attribute){
+            newVertexSet = VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * multiplier, DEF_ATT_SIZE, elementCenter);
+        }
+        
+        if (newVertexSet == null)
+            return;
+        
+        List<Vertex> oldVertex = element.getVertexes();
+        for(int i = 0 ; i < newVertexSet.size() && i < oldVertex.size(); i++){
+            Vertex n = newVertexSet.get(i);
+            Vertex o = oldVertex.get(i);
+            
+            o.setxPos(n.getxPos());
+            o.setyPos(o.getyPos());
+        }
     }
 }
