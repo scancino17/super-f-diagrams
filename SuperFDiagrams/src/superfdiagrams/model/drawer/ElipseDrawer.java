@@ -57,7 +57,7 @@ public class ElipseDrawer implements Drawer{
                 multivaluateDraw(gc, vertexes, name, highlighted);
                 break;
             case ATTRIBUTE_PARTIAL_KEY:
-                keyDraw(gc, vertexes, name, highlighted);
+                partialKeyDraw(gc, vertexes, name, highlighted);
                 break;
             default:
                 genericDraw(gc, vertexes, name, highlighted);
@@ -197,5 +197,36 @@ public class ElipseDrawer implements Drawer{
         gc.setTextAlign(TextAlignment.CENTER);
         gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
         
+    }
+    
+    public void partialKeyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+        if(!highlighted){
+            gc.setStroke(Color.BLACK);
+        } else{
+            gc.setStroke(Color.CORNFLOWERBLUE);
+        }
+
+        gc.setLineWidth(1);
+        
+        int size = vertexes.size();
+        for(int i = 0; i < size; i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
+        }
+        
+        if(highlighted)
+            gc.setStroke(Color.BLACK);
+        
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
+        double inicio = center.getxPos() * zoom - name.length() * 5;
+        
+        for (int i = 0; i < name.length(); i++) {
+            double fin = inicio + 5;
+            gc.strokeLine(inicio, center.getyPos() * zoom + 5,
+                fin, center.getyPos() * zoom + 5);
+            inicio = inicio + 10;
+        }
     }
 }

@@ -44,15 +44,18 @@ public class Finder {
         return isPresent;
     }
     
-    public List<Element> obtainChildren(Element element){
-        List<Element> childrenList = new ArrayList<>();
+    public List<Element> findRelatedParentUnions(List<Element> list, Element element){
+        List<Element> relatedUnions = new ArrayList<>();
         
-        return null;
-    }
-    
-    private void insertChildren(List<Element> list, Element element){
-        if(element.getElement() instanceof Union){
-            ((Union)element.getElement()).getChild();
+        for(Element onList: list){
+            Primitive union = onList.getElement();
+            if (union instanceof Union){
+                Element child = ((Union) union).getChild();
+                if (child == element)
+                    relatedUnions.add(onList);
+            }
         }
+        
+        return relatedUnions;
     }
 }
