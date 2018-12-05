@@ -14,6 +14,9 @@ import java.util.Map;
 
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
+import static superfdiagrams.model.ElementState.HIGHLIGHTED;
+import static superfdiagrams.model.ElementState.INVALID;
+import static superfdiagrams.model.ElementState.NORMAL;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.*;
 import superfdiagrams.model.action.ActionController;
@@ -321,14 +324,14 @@ public class MainController
     public void doClickAction()
     {
         if (currentElement != null && stateC.getState() == VIEW)
-            currentElement.setHighlighted(false);
+            currentElement.setHighlighted(NORMAL);
 
         currentElement = checkColition(mouseXPos, mouseYPos);
         
         if(currentElement != null){
             switch(stateC.getState()){
                 case MOVING_ELEMENT:
-                    selected.setHighlighted(false);
+                    selected.setHighlighted(NORMAL);
                     selectedAction.getNewPosition();
                     selected = null;
                     selectedRelated = null;
@@ -352,7 +355,7 @@ public class MainController
 
                     if (!(selected.getElement() instanceof Union))
                     {
-                        selected.setHighlighted(true);
+                        selected.setHighlighted(HIGHLIGHTED);
                         stateC.setState(MOVING_ELEMENT);
                     }
                     else selected = null;
@@ -389,7 +392,7 @@ public class MainController
     {
         selectorC.emptySelection();
         if (currentElement != null)
-            currentElement.setHighlighted(false);
+            currentElement.setHighlighted(NORMAL);
         currentElement = null;
     }
 
@@ -569,9 +572,13 @@ public class MainController
         List<Element> elements = this.fetchElements();
         for (Element e : elements)
         {
-            if (e.getElement() instanceof Entity 
-            &&  e.getElement().getType() == Type.ROLE_WEAK)
-                map.put(e.getElement().hashCode(), new WeakEntityCheck(e.getElement().getLabel()));
+            if (e.getElement() instanceof Entity) 
+                if (e.getElement().getType() == Type.ROLE_WEAK){
+                    map.put(e.getElement().hashCode(), new WeakEntityCheck(e.getElement().getLabel()));
+                    
+                    boolean isValid = map.get(e.getElement().hashCode()).isValid();
+                    if(!isValid) e.setHighlighted(INVALID);
+                }
             
             Primitive element = e.getElement();
             if (element.getType() == Type.ATTRIBUTE_PARTIAL_KEY)
@@ -622,7 +629,7 @@ public class MainController
         {
             WeakEntityCheck temp = entry.getValue();
             if(temp.strongEntity == false || temp.partialKey == false)
-                message += temp.name + temp.toString();
+                message += temp.name + "\n" + temp.toString();
         }
 
         return message + "\n";

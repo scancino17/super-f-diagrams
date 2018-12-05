@@ -42,22 +42,18 @@ public class PolygonDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted
+     * @param elementState
      */
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState) {
         zoom =  MainController.getController().getZoomFactor();
         switch (type){
             case ROLE_WEAK:
-                weakDraw(gc, vertexes, name, highlighted);
+                weakDraw(gc, vertexes, name, elementState);
                 break;
             default:
-                normalDraw(gc, vertexes, name, highlighted);
-                break;/*
-                case 3:
-                weakRelationDraw(gc, vertexes, name, highlighted);
-                break;*/
-             
+                normalDraw(gc, vertexes, name, elementState);
+                break; 
         }
     }
 
@@ -79,11 +75,17 @@ public class PolygonDrawer implements Drawer{
         }
     }
     
-    public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+    public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
         }
 
         gc.setLineWidth(1);
@@ -96,20 +98,27 @@ public class PolygonDrawer implements Drawer{
                     vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
     
-    public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+    public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        Color color = Color.BLACK;
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
         }
 
+        gc.setStroke(color);
         gc.setLineWidth(3);
         
         int size = vertexes.size();
@@ -128,10 +137,9 @@ public class PolygonDrawer implements Drawer{
                     vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(color);
         gc.setLineWidth(1);
-        gc.setStroke(Color.BLACK);
+        gc.setStroke(color);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }

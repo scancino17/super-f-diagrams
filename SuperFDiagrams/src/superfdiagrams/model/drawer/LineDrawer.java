@@ -9,6 +9,8 @@ import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
+import superfdiagrams.model.ElementState;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
@@ -33,22 +35,22 @@ public class LineDrawer implements Drawer{
     }
     
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState) {
         zoom =  MainController.getController().getZoomFactor();
         switch(type){
             case ROLE_WEAK:
-                weakDraw(gc, vertexes, name, highlighted);
+                weakDraw(gc, vertexes, name, elementState);
                 break;
             case UNION_HERITAGE:
-                heritageDraw(gc, vertexes, name, highlighted);
+                heritageDraw(gc, vertexes, name, elementState);
             default:
-                normalDraw(gc, vertexes, name, highlighted);
+                normalDraw(gc, vertexes, name, elementState);
                 break;
         }
     }
     
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name){
-        this.doDraw(gc, vertexes, name, false);
+        this.doDraw(gc, vertexes, name, NORMAL);
     }
 
     @Override
@@ -65,14 +67,14 @@ public class LineDrawer implements Drawer{
         }
     }
     
-    public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+    public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(1);
         gc.strokeLine(vertexes.get(0).getxPos() * zoom, vertexes.get(0).getyPos() * zoom,
                 vertexes.get(1).getxPos() * zoom,vertexes.get(1).getyPos() * zoom);
     }
     
-    public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+    public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(3);
         gc.strokeLine(vertexes.get(0).getxPos() * zoom, vertexes.get(0).getyPos() * zoom,
@@ -83,8 +85,8 @@ public class LineDrawer implements Drawer{
                 vertexes.get(1).getxPos() * zoom,vertexes.get(1).getyPos() * zoom);
     }
     
-    public void heritageDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        this.normalDraw(gc, vertexes, name, highlighted);
+    public void heritageDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        this.normalDraw(gc, vertexes, name, elementState);
         this.drawSemicircle(gc, vertexes);
     }
     

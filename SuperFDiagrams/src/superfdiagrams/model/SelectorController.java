@@ -7,6 +7,8 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import static superfdiagrams.model.ElementState.HIGHLIGHTED;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Relationship;
@@ -57,7 +59,7 @@ public class SelectorController {
     
     private void addToList(Element element){
         System.out.println(element);
-        element.setHighlighted(true);
+        element.setHighlighted(HIGHLIGHTED);
         selectedElements.add(element);
     }
     
@@ -70,7 +72,7 @@ public class SelectorController {
     private void deselectElements(){
         if(!selectedElements.isEmpty())
             for(Element e: selectedElements)
-                e.setHighlighted(false);
+                e.setHighlighted(NORMAL);
     }
     
     public void emptySelection(){
