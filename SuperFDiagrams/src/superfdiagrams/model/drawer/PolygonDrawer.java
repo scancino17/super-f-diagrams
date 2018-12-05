@@ -99,7 +99,6 @@ public class PolygonDrawer implements Drawer{
             gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        paint(gc, vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
     }
@@ -136,18 +135,5 @@ public class PolygonDrawer implements Drawer{
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.strokeText(name, center.getxPos() * zoom, center.getyPos() * zoom);
-    }
-    
-    private void paint(GraphicsContext gc, List<Vertex> vertexes){
-        gc.setFill(Color.WHITE);
-        gc.beginPath();
-        
-        for(Vertex v: vertexes)
-            gc.lineTo(v.getxPos(), v.getyPos());
-        
-        Vertex v1 = vertexes.get(0);
-        gc.lineTo(v1.getxPos(), v1.getyPos());
-        gc.fill();
-        gc.closePath();
     }
 }
