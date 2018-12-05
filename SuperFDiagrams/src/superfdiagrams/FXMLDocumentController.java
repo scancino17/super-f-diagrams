@@ -27,14 +27,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import superfdiagrams.model.*;
 
-import javax.swing.*;
-
-import static superfdiagrams.model.State.CHOSING_ENTITY;
-import static superfdiagrams.model.State.DELETING_ELEMENT;
-
-import static superfdiagrams.model.State.ENTITY;
-import static superfdiagrams.model.State.SELECTING_ENTITIES;
-import static superfdiagrams.model.State.VIEW;
+import static superfdiagrams.model.State.*;
+import static superfdiagrams.model.primitive.Type.*;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
@@ -280,7 +275,7 @@ public class FXMLDocumentController implements Initializable{
         mainC.setState(State.SELECTING_CHILDREN);
 }
     
-    public String getType(){
+    public Type askAttributeType(){
         String[] choices =  new String[]{"1 - Derivado",
                                          "2 - Genérico",
                                          "3 - Clave",
@@ -295,10 +290,26 @@ public class FXMLDocumentController implements Initializable{
             selected = result.get();
             selected = selected.substring(0, 1);
         }
-        return selected;
+        
+        switch(Integer.parseInt(selected)){
+            case 0:
+                return null;
+            case 1:
+                return ATTRIBUTE_DERIVATE;
+            case 3:
+                return ATTRIBUTE_KEY;
+            case 4:
+                return ATTRIBUTE_COMPOSITE;
+            case 5:
+                return ATTRIBUTE_MULTIVALUATED;
+            case 6:
+                return ATTRIBUTE_PARTIAL_KEY;
+            default:
+                return ATTRIBUTE_GENERIC;
+        }
     }
     
-    public String askType(){
+    public Type askRoleType(){
         String[] choices =  new String[]{"1 - Normal",
                                          "2 - Débil",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
@@ -309,10 +320,17 @@ public class FXMLDocumentController implements Initializable{
             selected = result.get();
             selected = selected.substring(0, 1);
         }
-        return selected;
+        switch(Integer.parseInt(selected)){
+            case 0:
+                return null;
+            case 2:
+                return ROLE_WEAK;
+            default:
+                return ROLE_STRONG;
+        }
     }
     
-    public String askHeritage(){
+    public Type askHeritageType(){
         String[] choices =  new String[]{"1 - Disyunción",
                                          "2 - Solapamiento",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
@@ -323,7 +341,15 @@ public class FXMLDocumentController implements Initializable{
             selected = result.get();
             selected = selected.substring(0, 1);
         }
-        return selected;
+        
+        switch(Integer.parseInt(selected)){
+            case 1:
+                return HERITAGE_D;
+            case 2:
+                return HERITAGE_S;
+            default:
+                return null;
+        }
     }
     
     @FXML

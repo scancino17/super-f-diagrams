@@ -20,7 +20,7 @@ public class SelectorController {
     private static SelectorController sc;
     
     private List<Element> selectedElements;
-    private StateController stateC;
+    private final StateController stateC;
     
     private SelectorController(){
         this.selectedElements = new ArrayList<>();
@@ -37,7 +37,8 @@ public class SelectorController {
         switch(stateC.getState()){
             case SELECTING_ENTITIES:
                 if (!selectedElements.contains(element) 
-                 &&  selectedElements.size() < 6)
+                 &&  selectedElements.size() < 6
+                 && element.getElement() instanceof Entity)
                     this.addToList(element);
                 break;
             case SELECTING_CHILDREN:
@@ -50,7 +51,7 @@ public class SelectorController {
                   || ((Attribute)element.getElement()).getType() == ATTRIBUTE_COMPOSITE) 
                   && this.selectionSize() < 1)
                     this.addToList(element);
-                
+                break;
         }
     }
     

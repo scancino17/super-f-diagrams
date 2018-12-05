@@ -35,15 +35,31 @@ public class VertexGenerator {
      * @return Lista que contiene vertexes para a ser utilizados.
      */
     public static List<Vertex> generateVertexes(int number, int size, Vertex center){
+        return generateVertexes(number, size, size, center);
+    }
+    
+    /**
+     * @author Sebastián Cancino.
+     * @param sides Lados de la figura
+     * @param xSize Tamaño en x
+     * @param ySize Tamaño en Y
+     * @param center Centro de la figura
+     * @return Poligono creado por lista de Vertex
+     */
+    public static List<Vertex> generateVertexes(int sides,
+                                                double xSize,
+                                                double ySize,
+                                                Vertex center)
+    {
         List<Vertex> vertexes = new ArrayList<>();
         
-        if (number < 3)
-            number = 4;
+        if (sides < 3)
+            sides = 4;
         
-        double[] denormalized = denormalize(calculateVertexes(number), number, size);
+        double[] denormalized = denormalize(calculateVertexes(sides), sides, xSize, ySize);
         Vertex vertex;
         
-        for(int i =0; i < number*2; i+=2){
+        for(int i =0; i < sides*2; i+=2){
             vertex = generateVertex(denormalized[i], denormalized[i+1]);
             vertex.displace(center.getCoordinates());
             vertexes.add(vertex);
@@ -52,16 +68,24 @@ public class VertexGenerator {
         return vertexes;
     }
     
-    public static List<Vertex> generateEllipse(int number, int size, Vertex center){
+    public static List<Vertex> generateEllipse(int number, double size, Vertex center){
+        return generateEllipse(number, size, size / 1.75, center);
+    }
+    
+    public static List<Vertex> generateEllipse(int sides,
+                                               double xSize,
+                                               double ySize,
+                                               Vertex center)
+    {
         List<Vertex> vertexes = new ArrayList<>();
         
-        if (number < 3)
-            number = 4;
+        if (sides < 3)
+            sides = 4;
         
-        double[] denormalized = denormalize(calculateEllipseVertexes(number), number, size);
+        double[] denormalized = denormalize(calculateEllipseVertexes(sides), sides, xSize, ySize);
         Vertex vertex;
         
-        for(int i =0; i < number*2; i+=2){
+        for(int i =0; i < sides*2; i+=2){
             vertex = generateVertex(denormalized[i], denormalized[i+1]);
             vertex.displace(center.getCoordinates());
             vertexes.add(vertex);
@@ -69,17 +93,29 @@ public class VertexGenerator {
         
         return vertexes;
     }
+    
     /**
-     * Método utilizado para obtner rectángulos.
+     * Método utilizado para obtener rectángulos.
      * @param size int que representa proporción de tamaño del rectángulo
      * @param center Vertex que representa el centro de la figura.
      * @return 
      */
-    public static List<Vertex> generateRectangle(int size, Vertex center){
+    public static List<Vertex> generateRectangle(double size, Vertex center){
+        return generateRectangle(size, size * 0.5, center);
+    }
+    
+    public static List<Vertex> generateRectangle(double xSize,
+                                                 double ySize,
+                                                 Vertex center)
+    {
         List<Vertex> vertexes = new ArrayList<>();
         
-        double[] normalized = new double[]{-1, -0.5, -1, 0.5, 1, 0.5, 1, -0.5};
-        double[] denormalized = denormalize(normalized, 4, size);
+        double[] normalized = new double[]{-1, -1,
+                                           -1,  1,
+                                            1,  1,
+                                            1, -1};
+        
+        double[] denormalized = denormalize(normalized, 4, xSize, ySize);
         
         Vertex vertex;
         for (int i = 0; i<8; i+=2){
@@ -90,6 +126,7 @@ public class VertexGenerator {
         
         return vertexes;
     }
+    
     /**
      * Método privado utilizado para generar el array primitivo con los valores 
      * a normalizar. El array entregado es de tamaño igual al doble del numero
@@ -118,7 +155,7 @@ public class VertexGenerator {
         
         for(int i = 0, j=0; i<number*2; i+=2, j++){
             points[i]   =   Math.sin(constant*j);
-            points[i+1] = (0- Math.cos(constant*j)/1.75);
+            points[i+1] =   Math.cos(constant*j);
         }
         
         return points;
@@ -133,19 +170,23 @@ public class VertexGenerator {
      * @param size Multiplicador usado para generar los puntos.
      * @return Array que continene valores para generar instancias Vertex.
      */
-    private static double[] denormalize(double[] normalized, int number, int size){
-        double[] denormalized = new double[number * 2];
+    private static double[] denormalize(double[] normalized, int number, double size){
+        return denormalize(normalized, number, size, size);
+    }
+    
+    public static double[] denormalize(double[] normalized, int sides, double xSize, double ySize)
+    {
+        double[] denormalized = new double[sides * 2];
         
-        for(int i = 0; i < number * 2 - 1; i+=2){
-            denormalized[i] = Math.round(normalized[i] * size);
-            denormalized[i+1] = Math.round(normalized[i+1] * size);
+        for(int i = 0; i < sides * 2 - 1; i+=2){
+            denormalized[i] = normalized[i] * xSize;
+            denormalized[i+1] = normalized[i+1] * ySize;
         }
         
         return denormalized;
     }
-    
     /**
-     * Método privado. Dado un par de numeros, la funcion se encarga de instanciar
+     * Dado un par de numeros, la funcion se encarga de instanciar
      * la clase Vertex y retornar el objeto creado.
      * Utilizado por el método generateVertexes().
      * @param xPos Posicion en x del vertice.

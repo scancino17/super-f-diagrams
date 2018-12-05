@@ -110,7 +110,7 @@ public class MainController {
             return;
         }
         
-        Type type = parseRoleType(Integer.parseInt(uiController.askType()));
+        Type type = uiController.askRoleType();
         
         if(type == null){
             stateC.setState(VIEW);
@@ -137,7 +137,7 @@ public class MainController {
         List<Element> selectedElements = selectorC.getSelected();
         for(Element element: selectedElements){
             if(element.getElement().getType() == ROLE_WEAK){
-                type = parseRoleType(Integer.parseInt(uiController.askType()));
+                type = uiController.askRoleType();
                 break;
             }
         }
@@ -162,13 +162,12 @@ public class MainController {
             return;
         }
         
-        int intType = Integer.parseInt(uiController.getType());
-        if (intType == 0){
+        Type type = uiController.askAttributeType();
+        
+        if(type == null){
             finishAction();
             return;
         }
-        
-        Type type = parseAttributeType(intType);
         
         List<Element> selectedElements = selectorC.getSelected();
         CreateElementAction create = new CreateElementAction();
@@ -180,21 +179,24 @@ public class MainController {
     
     public void createNewHeritage(){
         String name;
-        int intType = Integer.parseInt(uiController.askHeritage());
+        Type type = uiController.askHeritageType();
         
-        switch(intType){
-            case 1:
+        if(type == null){
+            finishAction();
+            return;
+        }
+        
+        switch(type){
+            case HERITAGE_D:
                 name = "D";
                 break;
-            case 2:
+            case HERITAGE_S:
                 name = "S";
                 break;
             default:
                 finishAction();
                 return;
         }
-        
-        Type type = (intType == 1) ? HERITAGE_D : HERITAGE_S;
         
         List<Element> selectedElements = selectorC.getSelected();
         CreateElementAction create = new CreateElementAction();
@@ -482,32 +484,6 @@ public class MainController {
     
     public void setDoubleClick(boolean value){
         this.doubleClick = value;
-    }
-    
-    private Type parseAttributeType(int type){
-        switch(type){
-            case 1:
-                return ATTRIBUTE_DERIVATE;
-            case 3:
-                return ATTRIBUTE_KEY;
-            case 4:
-                return ATTRIBUTE_COMPOSITE;
-            case 5:
-                return ATTRIBUTE_MULTIVALUATED;
-            case 6:
-                return ATTRIBUTE_PARTIAL_KEY;
-            default:
-                return ATTRIBUTE_GENERIC;
-        }
-    }
-    
-    private Type parseRoleType(int type){
-        switch(type){
-            case 2:
-                return ROLE_WEAK;
-            default:
-                return ROLE_STRONG;
-        }
     }
 
     public double getMaxWith(){return Math.max((maxWith * zoomFactor)+2,800) ;} //800 minimum with posible

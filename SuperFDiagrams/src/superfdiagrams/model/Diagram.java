@@ -8,6 +8,7 @@ package superfdiagrams.model;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  *
  * @author sebca
@@ -23,8 +24,8 @@ public class Diagram {
         return elements;
     }
     
-    public void setElements(List<Element> elements) {
-        this.elements = elements;
+    public void setElements(List<Element> queue) {
+        this.elements = queue;
     }
     
     public void addElement(Element element){

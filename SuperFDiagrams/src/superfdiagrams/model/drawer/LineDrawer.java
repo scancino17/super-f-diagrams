@@ -5,7 +5,6 @@
  */
 package superfdiagrams.model.drawer;
 
-import static java.util.Collections.list;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

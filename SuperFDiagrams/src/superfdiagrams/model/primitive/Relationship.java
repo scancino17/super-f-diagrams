@@ -5,7 +5,6 @@
  */
 package superfdiagrams.model.primitive;
 
-import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.Element;
 

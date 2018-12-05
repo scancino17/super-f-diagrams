@@ -6,14 +6,12 @@
 package superfdiagrams.model.drawer;
 
 import java.util.List;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
-import superfdiagrams.model.VertexGenerator;
 import superfdiagrams.model.primitive.Type;
 
 /**
