@@ -363,13 +363,18 @@ public class FXMLDocumentController implements Initializable{
 
     @FXML private void applyChanges()
     {
-        if(mainC.getCurrentElement() != null)
-        {
-            mainC.renameCurrentElement(currentElementText.getText());
-            WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getElement().hashCode());
-            temp.name = currentElementText.getText();
-            mainC.map.replace(mainC.getCurrentElement().getElement().hashCode(), temp);
-        }
+        if(mainC.getCurrentElement() == null)
+            return;
+        
+        mainC.renameCurrentElement(currentElementText.getText());
+        
+        WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getElement().hashCode());
+        
+        if (temp == null)
+            return;
+        
+        temp.name = currentElementText.getText();
+        mainC.map.replace(mainC.getCurrentElement().getElement().hashCode(), temp);
     }
     
     public void showElementPane(){
