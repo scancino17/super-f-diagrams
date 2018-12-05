@@ -117,7 +117,7 @@ public class MainController
 
     public void createNewEntity()
     {
-        String label = uiController.getElementName("entidad");
+        String label = uiController.getElementLabel("entidad");
 
         if (label == null)
         {
@@ -142,7 +142,7 @@ public class MainController
 
     public void createNewRelationship()
     {
-        String label = uiController.getElementName("relación");
+        String label = uiController.getElementLabel("relación");
 
         if (label == null)
         {
@@ -174,7 +174,7 @@ public class MainController
     }
     
     public void createNewAttribute(){
-        String label = uiController.getElementName("atributo");
+        String label = uiController.getElementLabel("atributo");
         
         if (label == null){
             finishAction();
@@ -252,6 +252,7 @@ public class MainController
         stateC.setState(VIEW);
         zoomFactor = 1;
         NameCounter.restartCounter();
+        map = new HashMap<Integer, WeakEntityCheck>();
     }
     
     public void finishEntitySelection(){
@@ -428,9 +429,6 @@ public class MainController
         }
         diagramC.addElement(element);
         drawC.addToBuffer(element);
-
-        if (element.getElement() instanceof Entity && element.getElement().getType() == Type.ROLE_WEAK)
-            map.put(element.getElement().hashCode(), new WeakEntityCheck(element.getElement().getLabel()));
     }
 
     public void deleteElement(Element deleted)
@@ -521,6 +519,7 @@ public class MainController
     {
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
+        map.remove(element.getElement().hashCode());
     }
 
     public List<Element> fetchElements()
@@ -559,18 +558,28 @@ public class MainController
     public void normalizeDraw() {zoomFactor = 1;}
 
 
+    /**
+     * Refactorizado por Sebastian Cancino
+     * @author Ignacio Martinez
+     * @return 
+     */
     public String checkSemantics()
     {
         String message = "";
-        List<Element> elements = diagramC.getDiagram().getElements();
+        List<Element> elements = this.fetchElements();
         for (Element e : elements)
         {
+            if (e.getElement() instanceof Entity 
+            &&  e.getElement().getType() == Type.ROLE_WEAK)
+                map.put(e.getElement().hashCode(), new WeakEntityCheck(e.getElement().getLabel()));
+            
             Primitive element = e.getElement();
             if (element.getType() == Type.ATTRIBUTE_PARTIAL_KEY)
             {
-                if (((Union) (element.getChildren().get(0).getElement())).getChild().getElement().getType() == Type.ROLE_WEAK) //verifica tiene una entidad débil
+                Primitive entity = ((Union) (element.getChildren().get(0).getElement())).getChild().getElement();
+                if (entity.getType() == Type.ROLE_WEAK) //verifica tiene una entidad débil
                 {
-                    int key = ((Union) (element.getChildren().get(0).getElement())).getChild().getElement().hashCode();
+                    int key = entity.hashCode();
                     WeakEntityCheck temp = map.get(key);
                     temp.partialKey = true;
                     map.replace(key, temp);
@@ -580,13 +589,17 @@ public class MainController
             {
                 boolean strong = false;
                 int key = 0;
-                for (int i = 0; i < element.getChildren().size(); ++i)
-                {
-                    if (((Union) (element.getChildren().get(i).getElement())).getChild().getElement().getType() == Type.ROLE_WEAK) //verifica tiene una entidad débil
-                        key = ((Union) (element.getChildren().get(i).getElement())).getChild().getElement().hashCode();
-
-                    else if (((Union) (element.getChildren().get(i).getElement())).getChild().getElement().getType() == Type.ROLE_STRONG) //verifica tiene una entidad fuerte
-                        strong = true;
+                
+                List<Element> elementChildren = element.getChildren();
+                
+                for(Element el : elementChildren){
+                    Union u = (Union) el.getElement();
+                    Primitive entity = u.getChild().getElement();
+                    
+                    if(entity.getType() == ROLE_WEAK) //verifica que tiene una entidad debil
+                        key = entity.hashCode();
+                    else
+                        strong = true; //asume que tiene una entidad fuerte, respetando diseño original
                 }
 
                 if(map.containsKey(key))

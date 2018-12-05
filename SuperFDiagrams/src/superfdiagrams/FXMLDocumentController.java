@@ -232,7 +232,7 @@ public class FXMLDocumentController implements Initializable{
         //button.setVisible(false);
     }
     
-    public String getElementName(String display){
+    public String getElementLabel(String display){
         TextInputDialog dialog = new TextInputDialog(nameC.generateLabel(display));
         dialog.setTitle("Ingrese nombre de la " + display + ".");
         dialog.setHeaderText("Ingrese nombre: ");
@@ -244,8 +244,6 @@ public class FXMLDocumentController implements Initializable{
         //else 
             //aqui iria quizas un mensaje de error en pantalla en caso de que le den al cancelar
         
-        if (newName != null && newName.length() > 10)
-            newName = newName.substring(0, 10);
         return newName;
     }
     

@@ -228,6 +228,6 @@ public class ElipseDrawer implements Drawer{
     private void drawText(GraphicsContext gc, String label, Vertex center){
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(label, center.getxPos() * zoom, (center.getyPos() - 4)* zoom);
+        gc.fillText(label, center.getxPos() * zoom, (center.getyPos())* zoom);
     }
 }

@@ -34,7 +34,7 @@ public class VertexGenerator {
      * @param center Centro de la figura.
      * @return Lista que contiene vertexes para a ser utilizados.
      */
-    public static List<Vertex> generateVertexes(int number, int size, Vertex center){
+    public static List<Vertex> generateVertexes(int number, double size, Vertex center){
         return generateVertexes(number, size, size, center);
     }
     

@@ -24,16 +24,17 @@ import static superfdiagrams.model.primitive.Type.*;
  * @author sebca
  */
 public class ElementBuilder {
-    private static final int DEFAULT_SIZE = 75;
+    private static final double DEFAULT_SIZE = 25;
+    private static final double DEF_ATT_SIZE = 25;
     private String name;
     private Vertex center;
-    private int size;
+    private double size;
     
     public ElementBuilder(){
         this.size = DEFAULT_SIZE;
     }
     
-    public static int getDefaultSize(){
+    public static double getDefaultSize(){
         return DEFAULT_SIZE;
     }
     
@@ -110,7 +111,7 @@ public class ElementBuilder {
         element.setElement(attribute);
         element.setCenterVertex(center);
         double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
-        element.setVertexes(VertexGenerator.generateEllipse(50, 55 * xSizeMultiplier, 55, center));
+        element.setVertexes(VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
         
         List<Element> unions = new ArrayList<>();
         
@@ -239,7 +240,7 @@ public class ElementBuilder {
         } 
         
         if(primitive instanceof Attribute){
-            newVertexSet = VertexGenerator.generateEllipse(50, 55 * multiplier, 55, elementCenter);
+            newVertexSet = VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * multiplier, DEF_ATT_SIZE, elementCenter);
         }
         
         if (newVertexSet == null)
