@@ -8,7 +8,6 @@ package superfdiagrams.model.drawer;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
-import superfdiagrams.model.Element;
 
 /**
  *

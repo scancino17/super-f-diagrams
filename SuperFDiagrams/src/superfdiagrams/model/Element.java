@@ -8,6 +8,7 @@ package superfdiagrams.model;
 import superfdiagrams.model.primitive.Primitive;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.drawer.Drawable;
 import superfdiagrams.model.drawer.Drawer;
 
@@ -20,11 +21,11 @@ public class Element implements Drawable{
     private Drawer drawer;
     private List<Vertex> vertexes;
     private Vertex center;
-    private boolean highlighted = false;
+    private ElementState state = NORMAL;
 
     @Override
     public void draw(GraphicsContext gc) {
-        drawer.doDraw(gc,vertexes,element.getLabel(), highlighted);
+        drawer.doDraw(gc,vertexes,element.getLabel(), state);
     }
 
     public void drawVertex(GraphicsContext gc)
@@ -56,10 +57,12 @@ public class Element implements Drawable{
         this.vertexes = vertexes;
     }
     
-    public void setHighlighted(boolean value){
-        this.highlighted = value;
+    public void setHighlighted(ElementState value){
+        this.state = value;
     }
-    
+
+    public ElementState getState(){return this.state;}
+
     public void setCenterVertex(Vertex center){
         this.center = center;
     }

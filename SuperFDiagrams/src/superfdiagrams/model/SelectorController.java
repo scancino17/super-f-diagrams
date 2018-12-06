@@ -7,6 +7,8 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import static superfdiagrams.model.ElementState.HIGHLIGHTED;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Relationship;
@@ -20,7 +22,7 @@ public class SelectorController {
     private static SelectorController sc;
     
     private List<Element> selectedElements;
-    private StateController stateC;
+    private final StateController stateC;
     
     private SelectorController(){
         this.selectedElements = new ArrayList<>();
@@ -37,7 +39,8 @@ public class SelectorController {
         switch(stateC.getState()){
             case SELECTING_ENTITIES:
                 if (!selectedElements.contains(element) 
-                 &&  selectedElements.size() < 6)
+                 &&  selectedElements.size() < 6
+                 && element.getElement() instanceof Entity)
                     this.addToList(element);
                 break;
             case SELECTING_CHILDREN:
@@ -50,13 +53,13 @@ public class SelectorController {
                   || ((Attribute)element.getElement()).getType() == ATTRIBUTE_COMPOSITE) 
                   && this.selectionSize() < 1)
                     this.addToList(element);
-                
+                break;
         }
     }
     
     private void addToList(Element element){
         System.out.println(element);
-        element.setHighlighted(true);
+        element.setHighlighted(HIGHLIGHTED);
         selectedElements.add(element);
     }
     
@@ -69,7 +72,7 @@ public class SelectorController {
     private void deselectElements(){
         if(!selectedElements.isEmpty())
             for(Element e: selectedElements)
-                e.setHighlighted(false);
+                e.setHighlighted(NORMAL);
     }
     
     public void emptySelection(){

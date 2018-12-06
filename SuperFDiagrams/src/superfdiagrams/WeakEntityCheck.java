@@ -23,4 +23,8 @@ public class WeakEntityCheck
             message += "\nDeben estar relacionadas con una entidad fuerte";
         return message;
     }
+
+    public boolean isValid(){
+        return partialKey && strongEntity;
+    }
 }

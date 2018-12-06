@@ -7,7 +7,6 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -98,7 +97,10 @@ public class GeometricUtilities {
         return new Vertex((a.getxPos() + b.getxPos()) / 2, (a.getyPos() + b.getyPos()) /2);
     }
     
-    public static int getSize(String label){
-        return 75;
+    public static double getSizeMultiplier(String label){
+        double ogSize = ElementBuilder.getDefaultSize();
+        double letterSize = 5;
+        
+        return (ogSize + label.length() * letterSize)/ ogSize;
     }
 }
