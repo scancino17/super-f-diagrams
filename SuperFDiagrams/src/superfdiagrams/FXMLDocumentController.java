@@ -78,7 +78,9 @@ public class FXMLDocumentController implements Initializable{
         deactivateButton(undoButton);
         deactivateButton(redoButton);
         hideElementPane();
-        
+
+        errorText.setStyle("-fx-text-fill: RED;");
+
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
         tl.setCycleCount(Timeline.INDEFINITE);
@@ -129,7 +131,7 @@ public class FXMLDocumentController implements Initializable{
         {
             showElementPane();
             currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
-            mainC.getCurrentElement().setHighlighted(true);
+            mainC.getCurrentElement().setHighlighted(ElementState.NORMAL);
         }
         else
         {

@@ -108,13 +108,13 @@ public class PolygonDrawer implements Drawer{
         Color color = Color.BLACK;
         switch(elementState){
             case HIGHLIGHTED:
-                gc.setStroke(Color.CORNFLOWERBLUE);
+                color = (Color.CORNFLOWERBLUE);
                 break;
             case INVALID:
-                gc.setStroke(Color.CRIMSON);
+                color = (Color.CRIMSON);
                 break;
             default:
-                gc.setStroke(Color.BLACK);
+                color = (Color.BLACK);
                 break;
         }
 

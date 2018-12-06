@@ -60,7 +60,9 @@ public class Element implements Drawable{
     public void setHighlighted(ElementState value){
         this.state = value;
     }
-    
+
+    public ElementState getState(){return this.state;}
+
     public void setCenterVertex(Vertex center){
         this.center = center;
     }

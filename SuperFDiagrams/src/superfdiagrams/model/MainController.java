@@ -574,12 +574,10 @@ public class MainController
         {
             if (e.getElement() instanceof Entity) 
                 if (e.getElement().getType() == Type.ROLE_WEAK){
-                    map.put(e.getElement().hashCode(), new WeakEntityCheck(e.getElement().getLabel()));
-                    
-                    boolean isValid = map.get(e.getElement().hashCode()).isValid();
-                    if(!isValid) e.setHighlighted(INVALID);
+                    if(!map.containsKey(e.getElement().hashCode()))
+                        map.put(e.getElement().hashCode(), new WeakEntityCheck(e.getElement().getLabel()));
                 }
-            
+
             Primitive element = e.getElement();
             if (element.getType() == Type.ATTRIBUTE_PARTIAL_KEY)
             {
@@ -621,15 +619,23 @@ public class MainController
                 String fatherName = ((Union)(element.getChildren().get(0).getElement())).getChild().getElement().getLabel();
                 for(int i = 1; i< element.getChildren().size(); ++i)
                     if (((Union) (element.getChildren().get(i).getElement())).getChild().getElement().getLabel().equals(fatherName)) //verifica si entidades hijas (herencia) tiene el mismo nombre que el padre
-                        message += "\n" + fatherName + " Tiene herencia con el mismo nombre";
+                        message += "\n" + fatherName + "\nTiene herencia con el mismo nombre";
             }
+
+            if (e.getElement() instanceof Entity)
+                if (e.getElement().getType() == Type.ROLE_WEAK){
+                    boolean isValid = map.get(e.getElement().hashCode()).isValid();
+                    //System.out.println(isValid);
+                    if(!isValid && e.getState() != HIGHLIGHTED) e.setHighlighted(INVALID);
+                    else if (e.getState() != HIGHLIGHTED) e.setHighlighted(NORMAL);
+                }
         }
 
         for (Map.Entry<Integer, WeakEntityCheck> entry : map.entrySet())
         {
             WeakEntityCheck temp = entry.getValue();
             if(temp.strongEntity == false || temp.partialKey == false)
-                message += temp.name + "\n" + temp.toString();
+                message += "\n" + temp.name + temp.toString();
         }
 
         return message + "\n";
