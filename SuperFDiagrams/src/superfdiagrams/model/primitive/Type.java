@@ -21,6 +21,7 @@ public enum Type {
     ATTRIBUTE_PARTIAL_KEY,
     HERITAGE_D,
     HERITAGE_S,
-    UNION_HERITAGE
+    UNION_HERITAGE,
+    AGREGATION
 }
 

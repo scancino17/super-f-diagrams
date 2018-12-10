@@ -99,6 +99,18 @@ public class CreateElementAction implements Action{
         this.execute();
     }
     
+    public void createAgregation(double x,
+                                 double y,
+                                 String label,
+                                 Type type,
+                                 List<Element> related)
+    {
+        ElementBuilder generator = this.setBuilder(x, y, label);
+        Element agregation = generator.generateAgregation(related, type);
+        this.setAction(agregation);
+        this.execute();
+    }
+    
     private ElementBuilder setBuilder(double x, double y, String label){
         Vertex center = new Vertex(x, y);
         ElementBuilder generator = new ElementBuilder();
@@ -111,7 +123,6 @@ public class CreateElementAction implements Action{
     
     private void setAction(Element contained){
         this.contained = contained;
-        this.related = contained.getElement().getChildren();
-        
+        this.related = contained.getPrimitive().getChildren();  
     }
 }

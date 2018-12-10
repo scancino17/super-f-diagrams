@@ -130,8 +130,8 @@ public class FXMLDocumentController implements Initializable{
         if(mainC.getCurrentElement() != null && mainC.getState() == VIEW)
         {
             showElementPane();
-            currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
-            mainC.getCurrentElement().setHighlighted(ElementState.NORMAL);
+            currentElementText.setText(mainC.getCurrentElement().getPrimitive().getLabel());
+            mainC.getCurrentElement().setElementState(ElementState.NORMAL);
         }
         else
         {
@@ -277,7 +277,12 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusHeritage(){
         mainC.setState(State.SELECTING_CHILDREN);
-}
+    }
+    
+    @FXML
+    public void changeStatusAgregation(){
+        mainC.setState(State.CREATING_AGREGATION);
+    }
     
     public Type askAttributeType(){
         String[] choices =  new String[]{"1 - Derivado",
@@ -370,13 +375,13 @@ public class FXMLDocumentController implements Initializable{
         
         mainC.renameCurrentElement(currentElementText.getText());
         
-        WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getElement().hashCode());
+        WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getPrimitive().hashCode());
         
         if (temp == null)
             return;
         
         temp.name = currentElementText.getText();
-        mainC.map.replace(mainC.getCurrentElement().getElement().hashCode(), temp);
+        mainC.map.replace(mainC.getCurrentElement().getPrimitive().hashCode(), temp);
     }
     
     public void showElementPane(){

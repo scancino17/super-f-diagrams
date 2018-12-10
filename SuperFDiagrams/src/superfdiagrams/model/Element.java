@@ -28,16 +28,17 @@ public class Element implements Drawable{
         drawer.doDraw(gc,vertexes,element.getLabel(), state);
     }
 
+    @Override
     public void drawVertex(GraphicsContext gc)
     {
         drawer.doDrawVertex(gc,vertexes);
     }
 
-    public Primitive getElement() {
+    public Primitive getPrimitive() {
         return element;
     }
 
-    public void setElement(Primitive element) {
+    public void setPrimitive(Primitive element) {
         this.element = element;
     }
 
@@ -57,11 +58,11 @@ public class Element implements Drawable{
         this.vertexes = vertexes;
     }
     
-    public void setHighlighted(ElementState value){
+    public void setElementState(ElementState value){
         this.state = value;
     }
 
-    public ElementState getState(){return this.state;}
+    public ElementState getElementState(){return this.state;}
 
     public void setCenterVertex(Vertex center){
         this.center = center;
