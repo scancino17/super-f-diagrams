@@ -209,15 +209,57 @@ public class VertexGenerator {
         for (int j = 0; j < 4; j++) {
             distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
                     , relation.getVertexes().get(index).getyPos(), 
-                    relation.getElement().getChildren().get(index).getVertexes().get(j).getxPos()
-                    , relation.getElement().getChildren().get(index).getVertexes().get(j).getyPos()));
+                    relation.getPrimitive().getChildren().get(index).getVertexes().get(j).getxPos()
+                    , relation.getPrimitive().getChildren().get(index).getVertexes().get(j).getyPos()));
         }
-        return relation.getElement().getChildren().get(index).getVertexes().get(minorIndex(distances));
+        return relation.getPrimitive().getChildren().get(index).getVertexes().get(minorIndex(distances));
     }
     
     public Vertex determinateVertex(Element relation, int index, boolean xd){
-        return relation.getElement().getChildren().get(index).getVertexes().get(index+2);
+        return relation.getPrimitive().getChildren().get(index).getVertexes().get(index+2);
     }
+    
+    /**
+     * @author Sebastian Cancino
+     * @param related
+     * @return 
+     */
+    public static List<Vertex> getAgregationVertexes(List<Element> related) {
+        Double minX = null,
+               minY = null,
+               maxX = null,
+               maxY = null;
+        
+        for(Element el : related)
+            for(Vertex v : el.getVertexes()){
+                double x = v.getxPos();
+                double y = v.getyPos();
+                
+                if(minX == null || x < minX)
+                    minX = x;
+                if(maxX == null || x > maxX)
+                    maxX = x;
+                
+                if(minY == null || y < minY)
+                    minY = y;
+                if(maxY == null || y > maxY)
+                    maxY = y;
+            }
+        
+        minX -= 10;
+        maxX += 10;
+        minY -= 30;
+        maxY += 10;
+        
+        List<Vertex> vertexes = new ArrayList<>();
+        vertexes.add( new Vertex(minX, minY) );
+        vertexes.add( new Vertex(minX, maxY) );
+        vertexes.add( new Vertex(maxX, maxY) );
+        vertexes.add( new Vertex(maxX, minY) );
+        
+        return vertexes;
+    }
+    
     /**
      * Funcion que solo devuelve la distancia entre 2 puntos
      * @param x1
@@ -226,6 +268,7 @@ public class VertexGenerator {
      * @param y2
      * @return 
      */
+    
     public static double twoPointsDistance(double x1, double y1, double x2,double y2){
         return Math.hypot(x2-x1, y2-y1);
     }
@@ -262,7 +305,7 @@ public class VertexGenerator {
     public static void recalculateNearestVertexes(List<Element> unions){
         Element parent = null;
         for(Element union : unions){
-            Element selected = ((Union)union.getElement()).getParent();
+            Element selected = ((Union)union.getPrimitive()).getParent();
             if (selected != parent){
                 parent = selected;
                 
@@ -270,10 +313,10 @@ public class VertexGenerator {
                     v.setUsed(false);
                 
                 
-                for(Element unionInParent: parent.getElement().getChildren()){
-                    if (unionInParent.getElement() instanceof Union){
+                for(Element unionInParent: parent.getPrimitive().getChildren()){
+                    if (unionInParent.getPrimitive() instanceof Union){
                         unionInParent.setVertexes(GeometricUtilities.nearestVertexes
-                            (parent.getVertexes(), ((Union)unionInParent.getElement()).getChild().getVertexes()));
+                            (parent.getVertexes(), ((Union)unionInParent.getPrimitive()).getChild().getVertexes()));
                     }
                 }
             }
@@ -287,4 +330,5 @@ public class VertexGenerator {
         }
         return newVertexes;
     }
+    
 }

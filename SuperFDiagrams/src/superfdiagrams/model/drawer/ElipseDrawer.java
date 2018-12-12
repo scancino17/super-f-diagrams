@@ -93,16 +93,8 @@ public class ElipseDrawer implements Drawer{
      * @param elementState
      *
      */
-    private void derivateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
-   ){
-        switch(elementState){
-            case HIGHLIGHTED:
-                gc.setStroke(Color.CORNFLOWERBLUE);
-            case INVALID:
-                gc.setStroke(Color.CRIMSON);
-            default:
-                gc.setStroke(Color.BLACK);
-        }
+    private void derivateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        gc.setStroke(setColor(elementState));
         
         int j = 0;
         int size = vertexes.size();
@@ -128,17 +120,7 @@ public class ElipseDrawer implements Drawer{
      *
      */
     private void genericDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
-        switch(elementState){
-            case HIGHLIGHTED:
-                gc.setStroke(Color.CORNFLOWERBLUE);
-                break;
-            case INVALID:
-                gc.setStroke(Color.CRIMSON);
-                break;
-            default:
-                gc.setStroke(Color.BLACK);
-                break;
-        }
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(1);
         
@@ -163,17 +145,7 @@ public class ElipseDrawer implements Drawer{
      *
      */
     private void keyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
-        switch(elementState){
-            case HIGHLIGHTED:
-                gc.setStroke(Color.CORNFLOWERBLUE);
-                break;
-            case INVALID:
-                gc.setStroke(Color.CRIMSON);
-                break;
-            default:
-                gc.setStroke(Color.BLACK);
-                break;
-        }
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(1);
         
@@ -194,17 +166,7 @@ public class ElipseDrawer implements Drawer{
     
     private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
       
-        switch(elementState){
-            case HIGHLIGHTED:
-                gc.setStroke(Color.CORNFLOWERBLUE);
-                break;
-            case INVALID:
-                gc.setStroke(Color.CRIMSON);
-                break;
-            default:
-                gc.setStroke(Color.BLACK);
-                break;
-        }
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(3);
         
@@ -267,5 +229,16 @@ public class ElipseDrawer implements Drawer{
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
+    }
+    
+    private Color setColor(ElementState state){
+        switch(state){
+            case HIGHLIGHTED:
+                return Color.CORNFLOWERBLUE;
+            case INVALID:
+                return Color.CRIMSON;
+            default:
+                return Color.BLACK;
+        }
     }
 }

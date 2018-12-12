@@ -19,7 +19,7 @@ public class Finder {
         List<Element> relatedUnions = new ArrayList<>();
         
         for(Element onList: list){
-            Primitive union = onList.getElement();
+            Primitive union = onList.getPrimitive();
             if(union instanceof Union){
                 Element parent = ((Union) union).getParent();
                 Element child = ((Union) union).getChild();
@@ -34,7 +34,7 @@ public class Finder {
     
     public boolean isParentPresent(List<Element> list, Element element){
         boolean isPresent = false;
-        Primitive union = element.getElement();
+        Primitive union = element.getPrimitive();
         if (!(union instanceof Union))
             return false;
         else
@@ -48,7 +48,7 @@ public class Finder {
         List<Element> relatedUnions = new ArrayList<>();
         
         for(Element onList: list){
-            Primitive union = onList.getElement();
+            Primitive union = onList.getPrimitive();
             if (union instanceof Union){
                 Element child = ((Union) union).getChild();
                 if (child == element)
