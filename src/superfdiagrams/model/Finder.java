@@ -5,6 +5,8 @@
  */
 package superfdiagrams.model;
 
+import superfdiagrams.model.primitive.Union;
+import superfdiagrams.model.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +15,14 @@ import java.util.List;
  * @author sebca
  */
 public class Finder {
-    public List<ElementWrapper> findRelatedUnions(List<ElementWrapper> list, ElementWrapper element){
-        List<ElementWrapper> relatedUnions = new ArrayList<>();
+    public List<Element> findRelatedUnions(List<Element> list, Element element){
+        List<Element> relatedUnions = new ArrayList<>();
         
-        for(ElementWrapper onList: list){
-            Element union = onList.getElement();
+        for(Element onList: list){
+            Primitive union = onList.getElement();
             if(union instanceof Union){
-                ElementWrapper parent = ((Union) union).getParent();
-                ElementWrapper child = ((Union) union).getChild();
+                Element parent = ((Union) union).getParent();
+                Element child = ((Union) union).getChild();
                 
                 if (parent == element || child == element)
                     relatedUnions.add(onList);
@@ -30,9 +32,9 @@ public class Finder {
         return relatedUnions;
     }
     
-    public boolean isParentPresent(List<ElementWrapper> list, ElementWrapper element){
+    public boolean isParentPresent(List<Element> list, Element element){
         boolean isPresent = false;
-        Element union = element.getElement();
+        Primitive union = element.getElement();
         if (!(union instanceof Union))
             return false;
         else
@@ -42,15 +44,18 @@ public class Finder {
         return isPresent;
     }
     
-    public List<ElementWrapper> obtainChildren(ElementWrapper element){
-        List<ElementWrapper> childrenList = new ArrayList<>();
+    public List<Element> findRelatedParentUnions(List<Element> list, Element element){
+        List<Element> relatedUnions = new ArrayList<>();
         
-        return null;
-    }
-    
-    private void insertChildren(List<ElementWrapper> list, ElementWrapper element){
-        if(element.getElement() instanceof Union){
-            ((ConnectsWrappers)element.getElement()).getChild();
+        for(Element onList: list){
+            Primitive union = onList.getElement();
+            if (union instanceof Union){
+                Element child = ((Union) union).getChild();
+                if (child == element)
+                    relatedUnions.add(onList);
+            }
         }
+        
+        return relatedUnions;
     }
 }

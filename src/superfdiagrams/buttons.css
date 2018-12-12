@@ -37,3 +37,8 @@
         -fx-background-image: url("assets/ellipse-outline-shape-variant.png");
     -fx-background-size: stretch;
 }
+#heritageBtn
+{
+        -fx-background-image: url("assets/circle-outline.png");
+    -fx-background-size: stretch;
+}

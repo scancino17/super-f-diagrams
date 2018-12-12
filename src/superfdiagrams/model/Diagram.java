@@ -8,30 +8,31 @@ package superfdiagrams.model;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  *
  * @author sebca
  */
 public class Diagram {
-    private List<ElementWrapper> elements;
+    private List<Element> elements;
     
     public Diagram() {
         this.elements = new ArrayList<>();
     }
     
-    public List<ElementWrapper> getElements() {
+    public List<Element> getElements() {
         return elements;
     }
     
-    public void setElements(List<ElementWrapper> elements) {
-        this.elements = elements;
+    public void setElements(List<Element> queue) {
+        this.elements = queue;
     }
     
-    public void addElement(ElementWrapper element){
+    public void addElement(Element element){
         this.elements.add(element);
     }
     
-    public void removeElement(ElementWrapper element){
+    public void removeElement(Element element){
         if (elements.contains(element))
             elements.remove(element);
     }

@@ -5,7 +5,10 @@
  */
 package superfdiagrams.model.action;
 
-import superfdiagrams.model.ElementWrapper;
+
+import superfdiagrams.model.Element;
+import superfdiagrams.model.ElementBuilder;
+
 
 /**
  *
@@ -14,9 +17,9 @@ import superfdiagrams.model.ElementWrapper;
 public class RenameElementAction implements Action{
     private String oldName;
     private String name;
-    private ElementWrapper contained;
+    private Element contained;
     
-    public RenameElementAction(ElementWrapper contained, String name){
+    public RenameElementAction(Element contained, String name){
         this.contained = contained;
         this.name = name;
         this.oldName = contained.getElement().getLabel();
@@ -30,9 +33,11 @@ public class RenameElementAction implements Action{
     @Override
     public void undo() {
         this.contained.getElement().setLabel(oldName);
+        new ElementBuilder().resize(contained);
     }
     
     public void execute(){
         this.contained.getElement().setLabel(name);
-    } 
+        new ElementBuilder().resize(contained);
+    }
 }
