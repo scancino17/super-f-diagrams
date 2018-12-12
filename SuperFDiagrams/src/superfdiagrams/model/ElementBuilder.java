@@ -14,7 +14,6 @@ import java.util.List;
 import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
-import superfdiagrams.model.primitive.Agregation;
 import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Primitive;
 import superfdiagrams.model.primitive.Type;
@@ -160,7 +159,7 @@ public class ElementBuilder {
     }
 
     public Element generateAgregation(List<Element> related, Type type){
-        Agregation agregation = new Agregation();
+        Entity agregation = new Entity();
         agregation.setChildren(related);
         agregation.setLabel(name);
         

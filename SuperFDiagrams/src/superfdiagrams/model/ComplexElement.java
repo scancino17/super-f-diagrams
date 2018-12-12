@@ -6,7 +6,6 @@
 package superfdiagrams.model;
 
 import java.util.List;
-import javafx.scene.canvas.GraphicsContext;
 
 /**
  *
@@ -21,21 +20,21 @@ public class ComplexElement extends Element{
         this.getPrimitive().setChildren(composite);
     }
 
-    @Override
+    /*@Override
     public void draw(GraphicsContext gc){
-        super.draw(gc);
-        
-        for(Element e : this.getComposite())
-            e.draw(gc);
-    }
+    super.draw(gc);
     
-    @Override
+    for(Element e : this.getComposite())
+    e.draw(gc);
+    }*/
+    
+    /*@Override
     public void drawVertex(GraphicsContext gc){
-        super.drawVertex(gc);
-        
-        for(Element e : this.getComposite())
-            e.drawVertex(gc);
-    }
+    super.drawVertex(gc);
+    
+    for(Element e : this.getComposite())
+    e.drawVertex(gc);
+    }*/
     
     public Element getComposite(int i){
         if (this.getComposite() == null) return null;

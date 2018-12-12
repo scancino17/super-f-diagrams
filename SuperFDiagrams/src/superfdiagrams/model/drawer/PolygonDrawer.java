@@ -128,8 +128,12 @@ public class PolygonDrawer implements Drawer{
     }
     
     private void drawText(GraphicsContext gc, String label, Vertex center){
+        this.drawText(gc, label, center, TextAlignment.CENTER);
+    }
+    
+    private void drawText(GraphicsContext gc, String label, Vertex center, TextAlignment align){
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
-        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextAlign(align);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
     }
     
@@ -155,16 +159,26 @@ public class PolygonDrawer implements Drawer{
                                     vertexes.get((i + 1) % vertexes.size()),
                                     size);
         
-        System.out.println("\n-lados terminados-\n");
         gc.setStroke(Color.BLACK);
         Vertex upL = vertexes.get(0);
         Vertex centerLabel = new Vertex(upL.getxPos() + 10, upL.getyPos() + 30);
-        this.drawText(gc, label, centerLabel);
+        this.drawText(gc, label, centerLabel, TextAlignment.LEFT);
     }
     
     private void drawAgregationLine(GraphicsContext gc, Vertex v1, Vertex v2, double size){
-        double x = (v1.getxPos() - v2.getxPos());
-        double y = (v1.getyPos() - v2.getyPos());
+        Vertex beg;
+        Vertex end;
+
+        if ( v1.getxPos() <= v2.getxPos() && v1.getyPos() <= v2.getyPos()){
+            beg = v1;
+            end = v2;
+        } else {
+            beg = v2;
+            end = v1;
+        }
+        
+        double x = (beg.getxPos() - end.getxPos());
+        double y = (beg.getyPos() - end.getyPos());
         double angle = Math.atan(x / y);
         
         Double x1, y1, x2 = null, y2 = null;
@@ -175,20 +189,20 @@ public class PolygonDrawer implements Drawer{
         System.out.println("size: " + size);
         System.out.println("Angle: " + angle);*/
         
-        for(x1 = v1.getxPos(), y1 = v1.getyPos(); validate(x1, y1, v2.getxPos(), v2.getyPos(),- angle) ; draw = !draw, x1 = x2, y1 = y2){
-            x2 = x1 + size * Math.sin( - angle);
+        for(x1 = beg.getxPos(), y1 = beg.getyPos(); x1 <= end.getxPos() && y1 <= end.getyPos() ; draw = !draw, x1 = x2, y1 = y2){
+            x2 = x1 - size * Math.sin(angle);
             y2 = y1 + size * Math.cos(angle);
             
             /*System.out.println("dibujar? : " + draw);
             System.out.println("x1: " + x1 + " y1: " + y1);
             System.out.println("x2: " + x2 + " y2: " + y2);
-            System.out.pntln();*/
+            System.out.println();*/
             
             if (!draw) continue;
             
             gc.strokeLine(x1, y1, x2, y2);
         }
-        System.out.println("\n-lado finalizado-\n");
+        /*System.out.println("\n-lado finalizado-\n");*/
     }
     
     private double getLineSize(List<Vertex> vertexes, int parts){
@@ -197,19 +211,5 @@ public class PolygonDrawer implements Drawer{
             perimeter += GeometricUtilities.vertexDistance(vertexes.get(i), vertexes.get( (i + 1) % 4 ));
         }
         return perimeter / parts;
-    }
-    
-    private boolean validate(double x1, double y1, double x2, double y2, double angle){
-        double rx1, ry1, rx2, ry2;
-        System.out.println("validando: ");
-        rx1 = x1 * Math.cos(angle) - y1 * Math.sin(angle);
-        ry1 = x1 * Math.sin(angle) + y1 * Math.cos(angle);
-        rx2 = x2 * Math.cos(angle) - y2 * Math.sin(angle);
-        ry2 = x2 * Math.sin(angle) + y2 * Math.cos(angle);
-        
-        System.out.println("rx1: " + rx1 + " ry1: " + ry1);
-        System.out.println("rx2: " + rx2 + " ry2: " + ry2);
-        
-        return rx1 <= rx2 && ry1 <= ry2;
-    }
+    }  
 }
