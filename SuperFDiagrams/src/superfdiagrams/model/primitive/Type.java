@@ -22,6 +22,7 @@ public enum Type {
     HERITAGE_D,
     HERITAGE_S,
     UNION_HERITAGE,
-    AGREGATION
+    AGREGATION,
+    DEPENDENCY
 }
 

@@ -18,6 +18,7 @@ public class Union implements Primitive{
     private Type type;
     private Element child;
     private Element parent;
+    private String cardinality = "n";
     // 0 es hijo
     // 1 es padre
     
@@ -30,6 +31,14 @@ public class Union implements Primitive{
     public void setLabel(String name) {
         this.label = name;
     }   
+    
+    public String getCardinality() {
+        return cardinality;
+    }
+
+    public void setCardinality(String cardinality) {
+        this.cardinality = cardinality;
+    }
     
     public Element getParent() {
        return parent;

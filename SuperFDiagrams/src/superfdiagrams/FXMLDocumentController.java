@@ -28,8 +28,10 @@ import javafx.util.Duration;
 import superfdiagrams.model.*;
 
 import static superfdiagrams.model.State.*;
+import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.*;
 import superfdiagrams.model.primitive.Type;
+import superfdiagrams.model.primitive.Union;
 
 /**
  *
@@ -392,5 +394,48 @@ public class FXMLDocumentController implements Initializable{
     public void hideElementPane(){
         editElementPane.setDisable(true);
         editElementPane.setVisible(false);
+    }
+    
+        public void changeDependency(){
+        int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
+        Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
+        String[] choices =  new String[size];
+        for (int i = 0; i < size; i++) {
+            Union union = (Union)relation.getChildren().get(i).getPrimitive();
+            choices[i] = i+1+" .-"+ union.getChild().getPrimitive().getLabel();
+        }
+
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        
+        if (result.isPresent()){
+            selected = result.get();
+            selected = selected.substring(0, 1);
+            int n = Integer.parseInt(selected.substring(0, 1))-1;
+            Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive();
+            if (union.getType() == ROLE_STRONG){
+                changeType(DEPENDENCY, n);
+            }else if(union.getType() == DEPENDENCY){
+                changeType(ROLE_STRONG, n);
+            }
+        }
+    }
+    
+    public void changeType(Type type, int n){
+        mainC.getCurrentElement().getPrimitive().getChildren().get(n).getDrawer().setType(type);
+        mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive().setType(type);
+    }
+    
+    public static String askCardinality(){
+        String[] choices =  new String[]{"1 - n",
+                                         "2 - 1",};
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        selected = result.get();
+        
+        return Character.toString(selected.charAt(4));
+        
     }
 }

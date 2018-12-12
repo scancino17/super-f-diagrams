@@ -11,6 +11,7 @@ import superfdiagrams.model.primitive.Union;
 import superfdiagrams.model.primitive.Attribute;
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.FXMLDocumentController;
 import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
@@ -84,7 +85,8 @@ public class ElementBuilder {
         element.setPrimitive(relation);
         if(related.size() > 1){
             for(Element el: related){
-                unions.add(generateLine(element, el));
+                String c = FXMLDocumentController.askCardinality();
+                unions.add(generateLine(element, el, c));
             }
         } else if (related.size() == 1){
             unions.add(generateLine(element, related.get(0)));
@@ -177,6 +179,10 @@ public class ElementBuilder {
     }
     
     public Element generateLine(Element relation, Element entity){
+        return this.generateLine(relation, entity, "");
+    }
+    
+    public Element generateLine(Element relation, Element entity, String cardinality){
         Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
@@ -185,7 +191,10 @@ public class ElementBuilder {
         Union union = new Union();
         union.setParent(relation);
         union.setChild(entity);
+        union.setCardinality(cardinality);
+        
         LineDrawer drawer = new LineDrawer();
+        drawer.setCardinality(cardinality);
         
         if (relation.getPrimitive().getType() == ROLE_WEAK 
          && entity.getPrimitive().getType() == ROLE_WEAK)
