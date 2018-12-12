@@ -406,6 +406,7 @@ public class FXMLDocumentController implements Initializable{
         }
 
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+        dialog.setHeaderText("Cambiando dependencia: ");
         Optional<String> result = dialog.showAndWait();
         String selected = "0";
         
@@ -427,10 +428,11 @@ public class FXMLDocumentController implements Initializable{
         mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive().setType(type);
     }
     
-    public static String askCardinality(){
+    public static String askCardinality(String eName){
         String[] choices =  new String[]{"1 - n",
                                          "2 - 1",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+        dialog.setHeaderText("Cardinalidad de " + eName + ": ");
         Optional<String> result = dialog.showAndWait();
         String selected = "0";
         selected = result.get();

@@ -85,7 +85,7 @@ public class ElementBuilder {
         element.setPrimitive(relation);
         if(related.size() > 1){
             for(Element el: related){
-                String c = FXMLDocumentController.askCardinality();
+                String c = FXMLDocumentController.askCardinality(el.getPrimitive().getLabel());
                 unions.add(generateLine(element, el, c));
             }
         } else if (related.size() == 1){

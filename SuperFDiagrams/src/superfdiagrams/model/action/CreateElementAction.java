@@ -107,7 +107,7 @@ public class CreateElementAction implements Action{
     {
         ElementBuilder generator = this.setBuilder(x, y, label);
         Element agregation = generator.generateAgregation(related, type);
-        this.setAction(agregation);
+        this.contained = agregation;
         this.execute();
     }
     
