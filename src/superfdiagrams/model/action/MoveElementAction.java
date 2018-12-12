@@ -7,7 +7,7 @@ package superfdiagrams.model.action;
 
 import java.util.ArrayList;
 import java.util.List;
-import superfdiagrams.model.ElementWrapper;
+import superfdiagrams.model.Element;
 import superfdiagrams.model.Vertex;
 import superfdiagrams.model.VertexGenerator;
 
@@ -18,10 +18,10 @@ import superfdiagrams.model.VertexGenerator;
 public class MoveElementAction implements Action{
     private List<Vertex> mainPositionBefore;
     private List<Vertex> mainPositionAfter;
-    private ElementWrapper mainElement;
-    private List<ElementWrapper> elementRelated;
+    private Element mainElement;
+    private List<Element> elementRelated;
 
-    public MoveElementAction(ElementWrapper element, List<ElementWrapper> related){
+    public MoveElementAction(Element element, List<Element> related){
         this.mainElement = element;
         this.elementRelated = related;
         mainPositionBefore = new ArrayList<>();
@@ -41,7 +41,7 @@ public class MoveElementAction implements Action{
             mainElement.setVertexes(mainPositionAfter);
             VertexGenerator.recalculateNearestVertexes(elementRelated);
         }else
-            System.out.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
+            System.err.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
     }
 
     @Override
@@ -50,6 +50,6 @@ public class MoveElementAction implements Action{
             mainElement.setVertexes(mainPositionBefore);
             VertexGenerator.recalculateNearestVertexes(elementRelated);
         }else
-            System.out.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
+            System.err.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
     }
 }

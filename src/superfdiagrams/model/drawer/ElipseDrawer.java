@@ -6,59 +6,71 @@
 package superfdiagrams.model.drawer;
 
 import java.util.List;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import superfdiagrams.model.ElementState;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.GeometricUtilities;
+import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
-import superfdiagrams.model.VertexGenerator;
+import superfdiagrams.model.primitive.Type;
 
 /**
  *
  * @author Diego
  */
 public class ElipseDrawer implements Drawer{
-    private int type;
+    private Type type;
     private Vertex center;
-
-    public int getType() {
+    private double zoom = 1;
+    
+    @Override
+    public Type getType() {
         return type;
     }
 
-    public void setType(int type) {
+    @Override
+    public void setType(Type type) {
         this.type = type;
     }
     
     public void setCenter(Vertex center){
         this.center = center;
-    }
+    } 
 
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
-        this.doDraw(gc, vertexes, name, highlighted, type);
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
+   ) {
+        zoom = MainController.getController().getZoomFactor();
+        this.doDraw(gc, vertexes, name, elementState
+               , type);
     }
 
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted, int type) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
+           , Type type) {
         switch (type){
-            case 1:
-                derivateDraw(gc, vertexes, name, highlighted);
+            case ATTRIBUTE_DERIVATE:
+                derivateDraw(gc, vertexes, name, elementState
+               );
                 break;
-            case 2:
-                genericDraw(gc, vertexes, name, highlighted);
+            case ATTRIBUTE_KEY:
+                keyDraw(gc, vertexes, name, elementState
+               );
                 break;
-            case 3:
-                keyDraw(gc, vertexes, name, highlighted);
+            case ATTRIBUTE_MULTIVALUATED:
+                multivaluateDraw(gc, vertexes, name, elementState
+               );
                 break;
-            case 4:
-                genericDraw(gc, vertexes, name, highlighted);
+            case ATTRIBUTE_PARTIAL_KEY:
+                partialKeyDraw(gc, vertexes, name, elementState
+               );
                 break;
-            case 5:
-                multivaluateDraw(gc, vertexes, name, highlighted);
+            default:
+                genericDraw(gc, vertexes, name, elementState
+               );
                 break;
-            case 6:
-                keyDraw(gc, vertexes, name, highlighted);
-                break;       
         }
     }
 
@@ -68,7 +80,7 @@ public class ElipseDrawer implements Drawer{
         {
             gc.setStroke(Color.RED);
             gc.setLineWidth(5);
-            gc.strokeLine(v.getxPos(), v.getyPos() , v.getxPos(), v.getyPos());
+            gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
     }
     
@@ -78,19 +90,25 @@ public class ElipseDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted 
+     * @param elementState
+     *
      */
-    private void derivateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+    private void derivateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
+   ){
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+            default:
+                gc.setStroke(Color.BLACK);
         }
+        
         int j = 0;
         int size = vertexes.size();
         for (int i = 0; i < vertexes.size(); i++) {
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
             if (j == 2){
                 i = i+1;
                 j = 0;
@@ -98,8 +116,7 @@ public class ElipseDrawer implements Drawer{
             j++;
         }
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
+        this.drawText(gc, name, center);
     }
     
     /**
@@ -107,29 +124,34 @@ public class ElipseDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted 
+     * @param elementState
+     *
      */
-    private void genericDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+    private void genericDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
         }
 
         gc.setLineWidth(1);
         
         int size = vertexes.size();
         for(int i = 0; i < size; i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
+        this.drawText(gc, name, center);
     }
     
     /**
@@ -137,61 +159,113 @@ public class ElipseDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted 
+     * @param elementState
+     *
      */
-    private void keyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+    private void keyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
         }
 
         gc.setLineWidth(1);
         
         int size = vertexes.size();
         for(int i = 0; i < size; i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
-        gc.strokeLine(center.getxPos()-50, center.getyPos()+5, center.getxPos()+50, center.getyPos()+5);
+        this.drawText(gc, name, center);
+        gc.strokeLine(center.getxPos() * zoom - name.length() * 5, center.getyPos() * zoom + 5,
+                center.getxPos() * zoom + name.length() * 5, center.getyPos() * zoom + 5);
     }
     
-    private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+    private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
       
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
         }
 
         gc.setLineWidth(3);
         
         int size = vertexes.size();
         for(int i = 0; i < size; i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         gc.setLineWidth(1);
         gc.setStroke(Color.WHITE);
         for(int i = 0; i < vertexes.size(); i++){
-            gc.strokeLine(vertexes.get(i % size).getxPos(), vertexes.get(i % size).getyPos(),
-                    vertexes.get((i + 1) % size).getxPos(), vertexes.get(( i +1 )% size).getyPos());
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
+        gc.setStroke(Color.BLACK);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.strokeText(name, center.getxPos(), center.getyPos());
+        this.drawText(gc, name, center);
         
     }
+    
+    public void partialKeyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
+        }
 
+        gc.setLineWidth(1);
+        
+        int size = vertexes.size();
+        for(int i = 0; i < size; i++){
+            gc.strokeLine(vertexes.get(i % size).getxPos() * zoom, vertexes.get(i % size).getyPos() * zoom,
+                    vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
+        }
+        
+        gc.setStroke(Color.BLACK);
+        
+        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        this.drawText(gc, name, center);
+        double inicio = center.getxPos() * zoom - name.length() * 5;
+        
+        for (int i = 0; i < name.length(); i++) {
+            double fin = inicio + 5;
+            gc.strokeLine(inicio, center.getyPos() * zoom + 5,
+                fin, center.getyPos() * zoom + 5);
+            inicio = inicio + 10;
+        }
+    }
+    
+    private void drawText(GraphicsContext gc, String label, Vertex center){
+        gc.setFont(new Font(Font.getDefault().getSize() * zoom));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
+    }
 }

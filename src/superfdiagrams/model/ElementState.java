@@ -7,9 +7,8 @@ package superfdiagrams.model;
 
 /**
  *
- * @author sebca
+ * @author 19807862
  */
-public enum State {
-    VIEW,ENTITY,RELATIONSHIP, SELECTING_ENTITIES, MOVING_ELEMENT, ATTRIBUTE,
-    CHOSING_ENTITY, DELETING_ELEMENT, SELECTING_CHILDREN, HERITAGE
+public enum ElementState {
+    NORMAL, HIGHLIGHTED, INVALID
 }
