@@ -6,12 +6,11 @@
 package superfdiagrams.model;
 
 import java.util.ArrayList;
-import superfdiagrams.WeakEntityCheck;
+import superfdiagrams.EntityCheck;
 import superfdiagrams.model.primitive.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
@@ -24,6 +23,8 @@ import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.action.DeleteAttributeAction;
 import superfdiagrams.model.action.DeleteElementAction;
+import superfdiagrams.model.action.MoveAction;
+import superfdiagrams.model.action.MoveComplexElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.action.RenameElementAction;
 import superfdiagrams.model.drawer.DrawController;
@@ -46,10 +47,18 @@ public class MainController
 
     private Element selected;
     private List<Element> selectedRelated;
-    public HashMap<Integer, WeakEntityCheck> map;
+    private ComplexElement morphingComplex;
 
-    private MoveElementAction selectedAction;
+    //maps para verificaciones semánticas
+    public HashMap<Integer, EntityCheck> weakEntityCheck; //un mapa con un objeto que contiene las verificaciones de entidades débiles
+    public HashMap<String, Entity> entityNanes; //un mapa para verificar que entidades no tengan mismo nombre.
+    //public HashMap<Integer, Boolean> StrongEntityCheck strongEntity;
+
+    private MoveAction selectedAction;
     private boolean doubleClick;
+    private boolean shouldComplexMorph;
+    
+    
     private double mouseXPos;
     private double mouseYPos;
     private double zoomFactor;
@@ -72,13 +81,16 @@ public class MainController
         diagramC = DiagramController.getController();
         actionC = ActionController.getController();
         selectorC = SelectorController.getController();
-        map = new HashMap<Integer, WeakEntityCheck>();
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        entityNanes = new HashMap<String, Entity>();
 
         currentElement = null;
         this.zoomFactor = 1;
         this.doubleClick = false;
         maxWith = 800; //defualt minimum with posible
         maxHeight = 700; //default minimum height posible
+        shouldComplexMorph = false;
+        morphingComplex = null;
 
     }
 
@@ -128,6 +140,12 @@ public class MainController
             stateC.setState(VIEW);
             return;
         }
+        if (entityNanes.containsKey(label)) //si ya se encuentra un elemento con ese mismo nombre...
+        {
+            System.out.println("elemento contenido...   ");
+            //volver a pedir name...
+            return;
+        }
 
         Type type = uiController.askRoleType();
 
@@ -139,7 +157,6 @@ public class MainController
 
         CreateElementAction create = new CreateElementAction();
         create.createEntity(mouseXPos, mouseYPos, label, type);
-
         actionC.addToStack(create);
         stateC.setState(VIEW);
     }
@@ -281,7 +298,10 @@ public class MainController
         stateC.setState(VIEW);
         zoomFactor = 1;
         NameCounter.restartCounter();
-        map = new HashMap<Integer, WeakEntityCheck>();
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<>();
+        this.shouldComplexMorph = false;
+        this.morphingComplex = null;
     }
     
     public void finishEntitySelection(){
@@ -304,13 +324,36 @@ public class MainController
     {
         if (selected != null && stateC.getState() == MOVING_ELEMENT)
         {
-            VertexGenerator.recalculateVertexes(selected.getVertexes(),
-                                                new Vertex(mouseXPos,
-                                                mouseYPos));
-            VertexGenerator.recalculateNearestVertexes(selectedRelated);
+            moveElement();
+            if (shouldComplexMorph)
+                recursiveComplexMorph(morphingComplex);
         }
 
         this.setStatusText();
+    }
+    
+    private ComplexElement recursiveComplexMorph(ComplexElement morph){
+        VertexGenerator.morphComplex(morph);
+        ComplexElement container = Finder.findComplexContained(morph, fetchElements());
+        if (container != null)
+            return recursiveComplexMorph(container);
+        else{
+            return morph;
+        }
+    } 
+    
+    private void moveElement(){
+        if(selected instanceof ComplexElement){
+            VertexGenerator.recalculateComplexElement
+                                      (selected,
+                                      ((ComplexElement)selected).getComposite(),
+                                      mouseXPos,
+                                      mouseYPos);
+        } else {
+            VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
+            if (selectedRelated != null && !selectedRelated.isEmpty())
+                VertexGenerator.recalculateNearestVertexes(selectedRelated);
+        }
     }
 
     public void setStatusText()
@@ -363,9 +406,16 @@ public class MainController
                 case MOVING_ELEMENT:
                     selected.setElementState(NORMAL);
                     selectedAction.getNewPosition();
+                    
+                    if (selected instanceof ComplexElement){
+                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
+                    }
+                    
                     selected = null;
                     selectedRelated = null;
                     selectedAction = null;
+                    this.morphingComplex =  null;
+                    this.shouldComplexMorph = false;
                     stateC.setState(VIEW);
                     for (Vertex v : currentElement.getVertexes())
                     {
@@ -379,10 +429,24 @@ public class MainController
                         break;
 
                     selected = currentElement;
-                    selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
-                    selectedAction = new MoveElementAction(selected, selectedRelated);
+                    morphingComplex = Finder.findComplexContained(selected, fetchElements());
+                    if (morphingComplex != null)
+                        this.shouldComplexMorph = true;
+                    
+                    if (selected instanceof ComplexElement){
+                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
+                        selectedAction = new MoveComplexElementAction((ComplexElement) selected);
+                    } else {
+                        if (!shouldComplexMorph){
+                            selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
+                            selectedAction = new MoveElementAction(selected, selectedRelated);
+                        } else {
+                            selectedAction = new MoveComplexElementAction(recursiveComplexMorph(morphingComplex));
+                        }
+                    }
+                    
                     actionC.addToStack(selectedAction);
-
+                    
                     if (!(selected.getPrimitive() instanceof Union))
                     {
                         selected.setElementState(HIGHLIGHTED);
@@ -552,7 +616,7 @@ public class MainController
     {
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
-        map.remove(element.getPrimitive().hashCode());
+        weakEntityCheck.remove(element.getPrimitive().hashCode());
     }
 
     public List<Element> fetchElements()
@@ -602,46 +666,62 @@ public class MainController
         List<Element> elements = this.fetchElements();
         for (Element e : elements)
         {
-            if (e.getPrimitive() instanceof Entity) 
-                if (e.getPrimitive().getType() == Type.ROLE_WEAK){
-                    if(!map.containsKey(e.getPrimitive().hashCode()))
-                        map.put(e.getPrimitive().hashCode(), new WeakEntityCheck(e.getPrimitive().getLabel()));
-                }
+            if (e.getPrimitive() instanceof Entity)
+            {
+                if (!weakEntityCheck.containsKey(e.getPrimitive().hashCode()))
+                    weakEntityCheck.put(e.getPrimitive().hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType()));
+                else
+                    weakEntityCheck.get(e.getPrimitive().hashCode()).setFalse();
 
+                if(!entityNanes.containsKey(e.getPrimitive().getLabel()))
+                    entityNanes.put(e.getPrimitive().getLabel(), (Entity)e.getPrimitive());
+
+            }
             Primitive element = e.getPrimitive();
-            if (element.getType() == Type.ATTRIBUTE_PARTIAL_KEY)
+            if (element.getType() == ATTRIBUTE_PARTIAL_KEY)  //verifica que una entidad débil tenga atributo parcial
             {
                 Primitive entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild().getPrimitive();
-                if (entity.getType() == Type.ROLE_WEAK) //verifica tiene una entidad débil
+                if (entity.getType() == ROLE_WEAK)
                 {
                     int key = entity.hashCode();
-                    WeakEntityCheck temp = map.get(key);
+                    EntityCheck temp = weakEntityCheck.get(key);
                     temp.partialKey = true;
-                    map.replace(key, temp);
+                    weakEntityCheck.replace(key, temp);
                 }
             }
-            else if(element instanceof Relationship)
+            else if(element.getType() == ATTRIBUTE_KEY)  // verifica que entidad fuerte tenga un atributo clave
+            {
+                Primitive entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild().getPrimitive();
+                if (entity.getType() == ROLE_STRONG)
+                {
+                    int key = entity.hashCode();
+                    EntityCheck temp = weakEntityCheck.get(key);
+                    temp.keyAtribute = true;
+                    weakEntityCheck.replace(key, temp);
+                }
+            }
+            else if(element instanceof Relationship) //verifica que una entidad débil esté relacionada con una fuerte por relación débl
             {
                 boolean strong = false;
                 int key = 0;
                 
                 List<Element> elementChildren = element.getChildren();
                 
-                for(Element el : elementChildren){
+                for(Element el : elementChildren)
+                {
                     Union u = (Union) el.getPrimitive();
                     Primitive entity = u.getChild().getPrimitive();
-                    
-                    if(entity.getType() == ROLE_WEAK) //verifica que tiene una entidad debil
+                    if (entity.getType() == ROLE_WEAK && u.getType() == ROLE_WEAK) //verifica que tiene una entidad debil
                         key = entity.hashCode();
                     else
                         strong = true; //asume que tiene una entidad fuerte, respetando diseño original
                 }
 
-                if(map.containsKey(key))
+                if(weakEntityCheck.containsKey(key))
                 {
-                    WeakEntityCheck temp = map.get(key);
+                    EntityCheck temp = weakEntityCheck.get(key);
                     temp.strongEntity = strong;
-                    map.replace(key, temp);
+                    weakEntityCheck.replace(key, temp);
                 }
             }
             else if(element instanceof Heritage)
@@ -653,18 +733,18 @@ public class MainController
             }
 
             if (e.getPrimitive() instanceof Entity)
-                if (e.getPrimitive().getType() == Type.ROLE_WEAK){
-                    boolean isValid = map.get(e.getPrimitive().hashCode()).isValid();
-                    //System.out.println(isValid);
+                if (e.getPrimitive().getType() == ROLE_WEAK){
+                    boolean isValid = weakEntityCheck.get(e.getPrimitive().hashCode()).isValid();
                     if(!isValid && e.getElementState() != HIGHLIGHTED) e.setElementState(INVALID);
                     else if (e.getElementState() != HIGHLIGHTED) e.setElementState(NORMAL);
                 }
         }
 
-        for (Map.Entry<Integer, WeakEntityCheck> entry : map.entrySet())
+        //recorre los hash obteniendo los mensajes...
+        for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {
-            WeakEntityCheck temp = entry.getValue();
-            if(temp.strongEntity == false || temp.partialKey == false)
+            EntityCheck temp = entry.getValue();
+            if(!temp.isValid())
                 message += "\n" + temp.name + temp.toString();
         }
 

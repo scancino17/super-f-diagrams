@@ -82,6 +82,7 @@ public class ElipseDrawer implements Drawer{
             gc.setLineWidth(5);
             gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
+        gc.setLineWidth(1);
     }
     
     /**

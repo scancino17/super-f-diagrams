@@ -141,7 +141,7 @@ public class FXMLDocumentController implements Initializable{
             hideElementPane();
         }
     }
-    
+
 
     /**
      * Funcion que cambia el estado para dibujar entidades, se activa cuando 
@@ -374,16 +374,18 @@ public class FXMLDocumentController implements Initializable{
     {
         if(mainC.getCurrentElement() == null)
             return;
-        
+
+        String oldName = mainC.getCurrentElement().getPrimitive().getLabel();
         mainC.renameCurrentElement(currentElementText.getText());
         
-        WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getPrimitive().hashCode());
+        EntityCheck temp = mainC.weakEntityCheck.get(mainC.getCurrentElement().getPrimitive().hashCode());
         
         if (temp == null)
             return;
         
         temp.name = currentElementText.getText();
-        mainC.map.replace(mainC.getCurrentElement().getPrimitive().hashCode(), temp);
+        mainC.weakEntityCheck.replace(mainC.getCurrentElement().getPrimitive().hashCode(), temp);
+        mainC.entityNanes.put(currentElementText.getText(), mainC.entityNanes.remove(oldName));
     }
     
     public void showElementPane(){

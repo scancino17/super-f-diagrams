@@ -151,6 +151,7 @@ public class PolygonDrawer implements Drawer{
     private void drawAgregation(GraphicsContext gc, List<Vertex> vertexes, String label, ElementState elementState){
         gc.setStroke(this.setColor(elementState));
         
+        //40: aprox 10 rayas por lado, 4 lados.
         double size = getLineSize(vertexes, vertexes.size() * 40);
         
         for(int i = 0; i < vertexes.size(); i++)
@@ -161,7 +162,7 @@ public class PolygonDrawer implements Drawer{
         
         gc.setStroke(Color.BLACK);
         Vertex upL = vertexes.get(0);
-        Vertex centerLabel = new Vertex(upL.getxPos() + 10, upL.getyPos() + 30);
+        Vertex centerLabel = new Vertex(upL.getxPos() + 5, upL.getyPos() + 10);
         this.drawText(gc, label, centerLabel, TextAlignment.LEFT);
     }
     
@@ -200,7 +201,10 @@ public class PolygonDrawer implements Drawer{
             
             if (!draw) continue;
             
-            gc.strokeLine(x1, y1, x2, y2);
+            gc.strokeLine(x1 * zoom,
+                          y1 * zoom,
+                         ((end.getxPos() < x2) ? end.getxPos() : x2) * zoom,
+                         ((end.getyPos() < y2) ? end.getyPos() : y2) * zoom);
         }
         /*System.out.println("\n-lado finalizado-\n");*/
     }
