@@ -36,15 +36,7 @@ public class LineDrawer implements Drawer{
     public void setType(Type type) {
         this.type = type;
     }
-
-    public double getZoom() {
-        return zoom;
-    }
-
-    public void setZoom(double zoom) {
-        this.zoom = zoom;
-    }
-
+    
     public String getCardinality() {
         return cardinality;
     }
@@ -52,7 +44,6 @@ public class LineDrawer implements Drawer{
     public void setCardinality(String cardinality) {
         this.cardinality = cardinality;
     }
-    
     
     @Override
     public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState) {
@@ -63,7 +54,6 @@ public class LineDrawer implements Drawer{
                 break;
             case UNION_HERITAGE:
                 heritageDraw(gc, vertexes, name, elementState);
-                break;
             case DEPENDENCY:
                 weakDraw(gc, vertexes, name, elementState);
                 break;
@@ -97,7 +87,6 @@ public class LineDrawer implements Drawer{
         gc.strokeLine(vertexes.get(0).getxPos() * zoom, vertexes.get(0).getyPos() * zoom,
                 vertexes.get(1).getxPos() * zoom,vertexes.get(1).getyPos() * zoom);
         drawText(gc, cardinality, GeometricUtilities.midPoint(vertexes.get(0), vertexes.get(1)));
-        
     }
     
     public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){

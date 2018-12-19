@@ -31,7 +31,7 @@ public class Union implements Primitive{
     public void setLabel(String name) {
         this.label = name;
     }   
-
+    
     public String getCardinality() {
         return cardinality;
     }
@@ -39,7 +39,6 @@ public class Union implements Primitive{
     public void setCardinality(String cardinality) {
         this.cardinality = cardinality;
     }
-    
     
     public Element getParent() {
        return parent;

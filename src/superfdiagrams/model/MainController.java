@@ -5,12 +5,12 @@
  */
 package superfdiagrams.model;
 
-import superfdiagrams.WeakEntityCheck;
+import java.util.ArrayList;
+import superfdiagrams.EntityCheck;
 import superfdiagrams.model.primitive.*;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
@@ -45,7 +45,11 @@ public class MainController
 
     private Element selected;
     private List<Element> selectedRelated;
-    public HashMap<Integer, WeakEntityCheck> map;
+
+    //maps para verificaciones semánticas
+    public HashMap<Integer, EntityCheck> weakEntityCheck; //un mapa con un objeto que contiene las verificaciones de entidades débiles
+    public HashMap<String, Entity> entityNanes; //un mapa para verificar que entidades no tengan mismo nombre.
+    //public HashMap<Integer, Boolean> StrongEntityCheck strongEntity;
 
     private MoveElementAction selectedAction;
     private boolean doubleClick;
@@ -71,7 +75,8 @@ public class MainController
         diagramC = DiagramController.getController();
         actionC = ActionController.getController();
         selectorC = SelectorController.getController();
-        map = new HashMap<Integer, WeakEntityCheck>();
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        entityNanes = new HashMap<String, Entity>();
 
         currentElement = null;
         this.zoomFactor = 1;
@@ -127,6 +132,12 @@ public class MainController
             stateC.setState(VIEW);
             return;
         }
+        if (entityNanes.containsKey(label)) //si ya se encuentra un elemento con ese mismo nombre...
+        {
+            System.out.println("elemento contenido...   ");
+            //volver a pedir name...
+            return;
+        }
 
         Type type = uiController.askRoleType();
 
@@ -138,7 +149,6 @@ public class MainController
 
         CreateElementAction create = new CreateElementAction();
         create.createEntity(mouseXPos, mouseYPos, label, type);
-
         actionC.addToStack(create);
         stateC.setState(VIEW);
     }
@@ -157,7 +167,7 @@ public class MainController
         
         List<Element> selectedElements = selectorC.getSelected();
         for(Element element: selectedElements){
-            if(element.getElement().getType() == ROLE_WEAK){
+            if(element.getPrimitive().getType() == ROLE_WEAK){
                 type = uiController.askRoleType();
                 break;
             }
@@ -178,14 +188,32 @@ public class MainController
     
     public void createNewAttribute(){
         String label = uiController.getElementLabel("atributo");
-        
+        Type bla = selectorC.getSelected0().getPrimitive().getType();
+
         if (label == null){
             finishAction();
             return;
         }
+        Type type;
+        boolean error = true;
+
         
-        Type type = uiController.askAttributeType();
+       do {
+            type = uiController.askAttributeType();
+            if((bla == ATTRIBUTE_COMPOSITE)
+                    && type == ATTRIBUTE_GENERIC){
+                error = false;
+            }else if ((bla == ATTRIBUTE_COMPOSITE)
+                    && type != ATTRIBUTE_GENERIC){
+                error = true;
+            
+            }else{
+                error = false;
+            }
+        } while (error);
         
+        
+
         if(type == null){
             finishAction();
             return;
@@ -226,7 +254,32 @@ public class MainController
         
         actionC.addToStack(create);
         finishAction();
-    }  
+    }
+    
+    public void createNewAgregation(){
+        String label = uiController.getElementLabel("Agregación");
+        
+        if(label == null){
+            finishAction();
+            return;
+        }
+        
+        Element temp = selectorC.getSelected().get(0);
+        Vertex center = temp.getCenterVertex();
+        List<Element> selectedElements = new ArrayList<>();
+        
+        selectedElements.add(temp);
+        for(Element el : temp.getPrimitive().getChildren()){
+            selectedElements.add(el);
+            selectedElements.add(((Union) el.getPrimitive()).getChild());
+        }
+        
+        CreateElementAction create = new CreateElementAction();
+        create.createAgregation(center.getxPos(), center.getyPos(), label, AGREGATION, selectedElements);
+        
+        actionC.addToStack(create);
+        finishAction();
+    }
     
     /**
      * Funcion que dibuja los elementos de la lista.
@@ -255,7 +308,7 @@ public class MainController
         stateC.setState(VIEW);
         zoomFactor = 1;
         NameCounter.restartCounter();
-        map = new HashMap<Integer, WeakEntityCheck>();
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
     }
     
     public void finishEntitySelection(){
@@ -268,6 +321,8 @@ public class MainController
             stateC.setState(HERITAGE);
         else if (stateC.getState() == State.SELECTING_ENTITIES)
             stateC.setState(RELATIONSHIP);
+        else if (stateC.getState() == State.CREATING_AGREGATION)
+            createNewAgregation();
         else
             stateC.setState(VIEW);
     }
@@ -318,20 +373,22 @@ public class MainController
             case SELECTING_CHILDREN:
                 uiController.setStatusText("Seleccionando hijos...");
                 break;
+            case CREATING_AGREGATION:
+                uiController.setStatusText("Creando agregación...");
         }
     }
 
     public void doClickAction()
     {
         if (currentElement != null && stateC.getState() == VIEW)
-            currentElement.setHighlighted(NORMAL);
+            currentElement.setElementState(NORMAL);
 
         currentElement = checkColition(mouseXPos, mouseYPos);
         
         if(currentElement != null){
             switch(stateC.getState()){
                 case MOVING_ELEMENT:
-                    selected.setHighlighted(NORMAL);
+                    selected.setElementState(NORMAL);
                     selectedAction.getNewPosition();
                     selected = null;
                     selectedRelated = null;
@@ -353,9 +410,9 @@ public class MainController
                     selectedAction = new MoveElementAction(selected, selectedRelated);
                     actionC.addToStack(selectedAction);
 
-                    if (!(selected.getElement() instanceof Union))
+                    if (!(selected.getPrimitive() instanceof Union))
                     {
-                        selected.setHighlighted(HIGHLIGHTED);
+                        selected.setElementState(HIGHLIGHTED);
                         stateC.setState(MOVING_ELEMENT);
                     }
                     else selected = null;
@@ -392,7 +449,7 @@ public class MainController
     {
         selectorC.emptySelection();
         if (currentElement != null)
-            currentElement.setHighlighted(NORMAL);
+            currentElement.setElementState(NORMAL);
         currentElement = null;
     }
 
@@ -438,23 +495,23 @@ public class MainController
     {
         List<Element> related = null;
         
-        if (deleted.getElement() instanceof Attribute){
+        if (deleted.getPrimitive() instanceof Attribute){
             DeleteAttributeAction action = new DeleteAttributeAction(deleted);
             action.execute();
             actionC.addToStack(action);
             return;
         }
         
-        if (deleted.getElement() instanceof Entity){
+        if (deleted.getPrimitive() instanceof Entity){
             related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
-        } else if (deleted.getElement() instanceof Relationship
-                || deleted.getElement() instanceof Heritage){
-            related = deleted.getElement().getChildren();
+        } else if (deleted.getPrimitive() instanceof Relationship
+                || deleted.getPrimitive() instanceof Heritage){
+            related = deleted.getPrimitive().getChildren();
         }
-        else if (deleted.getElement() instanceof Relationship
-                || deleted.getElement() instanceof Heritage)
+        else if (deleted.getPrimitive() instanceof Relationship
+                || deleted.getPrimitive() instanceof Heritage)
         {
-            related = deleted.getElement().getChildren();
+            related = deleted.getPrimitive().getChildren();
         }
         if (related != null)
         {
@@ -472,7 +529,7 @@ public class MainController
 
     public void morphElement(Element element)
     {
-        List<Element> contained = element.getElement().getChildren();
+        List<Element> contained = element.getPrimitive().getChildren();
 
         if (contained.isEmpty())
         {
@@ -480,7 +537,7 @@ public class MainController
             return;
         }
 
-        if (element.getElement() instanceof Relationship)
+        if (element.getPrimitive() instanceof Relationship)
         {
             if (contained.size() == 1)
             {
@@ -500,9 +557,9 @@ public class MainController
                     GeometricUtilities.getCenterOfMass(element.getVertexes())));
             
             boolean shouldMorph = true;
-            if(element.getElement().getType() == ROLE_WEAK){
-                for (Element u : element.getElement().getChildren()){
-                    if(u.getElement().getType() == ROLE_WEAK){
+            if(element.getPrimitive().getType() == ROLE_WEAK){
+                for (Element u : element.getPrimitive().getChildren()){
+                    if(u.getPrimitive().getType() == ROLE_WEAK){
                         shouldMorph = false;
                         break;
                     }
@@ -522,7 +579,7 @@ public class MainController
     {
         diagramC.removeElement(element);
         drawC.removeFromBuffer(element);
-        map.remove(element.getElement().hashCode());
+        weakEntityCheck.remove(element.getPrimitive().hashCode());
     }
 
     public List<Element> fetchElements()
@@ -536,7 +593,7 @@ public class MainController
     }
 
     public void renameCurrentElement(String label){
-        if (currentElement.getElement() instanceof Heritage)
+        if (currentElement.getPrimitive() instanceof Heritage)
             return;
         
         RenameElementAction action = new RenameElementAction(currentElement, label);
@@ -572,69 +629,85 @@ public class MainController
         List<Element> elements = this.fetchElements();
         for (Element e : elements)
         {
-            if (e.getElement() instanceof Entity) 
-                if (e.getElement().getType() == Type.ROLE_WEAK){
-                    if(!map.containsKey(e.getElement().hashCode()))
-                        map.put(e.getElement().hashCode(), new WeakEntityCheck(e.getElement().getLabel()));
-                }
-
-            Primitive element = e.getElement();
-            if (element.getType() == Type.ATTRIBUTE_PARTIAL_KEY)
+            if (e.getPrimitive() instanceof Entity)
             {
-                Primitive entity = ((Union) (element.getChildren().get(0).getElement())).getChild().getElement();
-                if (entity.getType() == Type.ROLE_WEAK) //verifica tiene una entidad débil
+                if (!weakEntityCheck.containsKey(e.getPrimitive().hashCode()))
+                    weakEntityCheck.put(e.getPrimitive().hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType()));
+                else
+                    weakEntityCheck.get(e.getPrimitive().hashCode()).setFalse();
+
+                if(!entityNanes.containsKey(e.getPrimitive().getLabel()))
+                    entityNanes.put(e.getPrimitive().getLabel(), (Entity)e.getPrimitive());
+
+            }
+            Primitive element = e.getPrimitive();
+            if (element.getType() == ATTRIBUTE_PARTIAL_KEY)  //verifica que una entidad débil tenga atributo parcial
+            {
+                Primitive entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild().getPrimitive();
+                if (entity.getType() == ROLE_WEAK)
                 {
                     int key = entity.hashCode();
-                    WeakEntityCheck temp = map.get(key);
+                    EntityCheck temp = weakEntityCheck.get(key);
                     temp.partialKey = true;
-                    map.replace(key, temp);
+                    weakEntityCheck.replace(key, temp);
                 }
             }
-            else if(element instanceof Relationship)
+            else if(element.getType() == ATTRIBUTE_KEY)  // verifica que entidad fuerte tenga un atributo clave
+            {
+                Primitive entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild().getPrimitive();
+                if (entity.getType() == ROLE_STRONG)
+                {
+                    int key = entity.hashCode();
+                    EntityCheck temp = weakEntityCheck.get(key);
+                    temp.keyAtribute = true;
+                    weakEntityCheck.replace(key, temp);
+                }
+            }
+            else if(element instanceof Relationship) //verifica que una entidad débil esté relacionada con una fuerte por relación débl
             {
                 boolean strong = false;
                 int key = 0;
                 
                 List<Element> elementChildren = element.getChildren();
                 
-                for(Element el : elementChildren){
-                    Union u = (Union) el.getElement();
-                    Primitive entity = u.getChild().getElement();
-                    
-                    if(entity.getType() == ROLE_WEAK) //verifica que tiene una entidad debil
+                for(Element el : elementChildren)
+                {
+                    Union u = (Union) el.getPrimitive();
+                    Primitive entity = u.getChild().getPrimitive();
+                    if (entity.getType() == ROLE_WEAK && u.getType() == ROLE_WEAK) //verifica que tiene una entidad debil
                         key = entity.hashCode();
                     else
                         strong = true; //asume que tiene una entidad fuerte, respetando diseño original
                 }
 
-                if(map.containsKey(key))
+                if(weakEntityCheck.containsKey(key))
                 {
-                    WeakEntityCheck temp = map.get(key);
+                    EntityCheck temp = weakEntityCheck.get(key);
                     temp.strongEntity = strong;
-                    map.replace(key, temp);
+                    weakEntityCheck.replace(key, temp);
                 }
             }
             else if(element instanceof Heritage)
             {
-                String fatherName = ((Union)(element.getChildren().get(0).getElement())).getChild().getElement().getLabel();
+                String fatherName = ((Union)(element.getChildren().get(0).getPrimitive())).getChild().getPrimitive().getLabel();
                 for(int i = 1; i< element.getChildren().size(); ++i)
-                    if (((Union) (element.getChildren().get(i).getElement())).getChild().getElement().getLabel().equals(fatherName)) //verifica si entidades hijas (herencia) tiene el mismo nombre que el padre
+                    if (((Union) (element.getChildren().get(i).getPrimitive())).getChild().getPrimitive().getLabel().equals(fatherName)) //verifica si entidades hijas (herencia) tiene el mismo nombre que el padre
                         message += "\n" + fatherName + "\nTiene herencia con el mismo nombre";
             }
 
-            if (e.getElement() instanceof Entity)
-                if (e.getElement().getType() == Type.ROLE_WEAK){
-                    boolean isValid = map.get(e.getElement().hashCode()).isValid();
-                    //System.out.println(isValid);
-                    if(!isValid && e.getState() != HIGHLIGHTED) e.setHighlighted(INVALID);
-                    else if (e.getState() != HIGHLIGHTED) e.setHighlighted(NORMAL);
+            if (e.getPrimitive() instanceof Entity)
+                if (e.getPrimitive().getType() == ROLE_WEAK){
+                    boolean isValid = weakEntityCheck.get(e.getPrimitive().hashCode()).isValid();
+                    if(!isValid && e.getElementState() != HIGHLIGHTED) e.setElementState(INVALID);
+                    else if (e.getElementState() != HIGHLIGHTED) e.setElementState(NORMAL);
                 }
         }
 
-        for (Map.Entry<Integer, WeakEntityCheck> entry : map.entrySet())
+        //recorre los hash obteniendo los mensajes...
+        for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {
-            WeakEntityCheck temp = entry.getValue();
-            if(temp.strongEntity == false || temp.partialKey == false)
+            EntityCheck temp = entry.getValue();
+            if(!temp.isValid())
                 message += "\n" + temp.name + temp.toString();
         }
 

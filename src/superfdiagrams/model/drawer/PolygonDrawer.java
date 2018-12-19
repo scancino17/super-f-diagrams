@@ -51,6 +51,9 @@ public class PolygonDrawer implements Drawer{
             case ROLE_WEAK:
                 weakDraw(gc, vertexes, name, elementState);
                 break;
+            case AGREGATION:
+                this.drawAgregation(gc, vertexes, name, elementState);
+                break;
             default:
                 normalDraw(gc, vertexes, name, elementState);
                 break; 
@@ -73,20 +76,11 @@ public class PolygonDrawer implements Drawer{
                     v.getxPos() * zoom,
                     v.getyPos() * zoom);
         }
+        gc.setLineWidth(1);
     }
     
     public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
-        switch(elementState){
-            case HIGHLIGHTED:
-                gc.setStroke(Color.CORNFLOWERBLUE);
-                break;
-            case INVALID:
-                gc.setStroke(Color.CRIMSON);
-                break;
-            default:
-                gc.setStroke(Color.BLACK);
-                break;
-        }
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(1);
         
@@ -105,18 +99,7 @@ public class PolygonDrawer implements Drawer{
     }
     
     public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
-        Color color = Color.BLACK;
-        switch(elementState){
-            case HIGHLIGHTED:
-                color = (Color.CORNFLOWERBLUE);
-                break;
-            case INVALID:
-                color = (Color.CRIMSON);
-                break;
-            default:
-                color = (Color.BLACK);
-                break;
-        }
+        Color color = setColor(elementState);
 
         gc.setStroke(color);
         gc.setLineWidth(3);
@@ -145,8 +128,88 @@ public class PolygonDrawer implements Drawer{
     }
     
     private void drawText(GraphicsContext gc, String label, Vertex center){
+        this.drawText(gc, label, center, TextAlignment.CENTER);
+    }
+    
+    private void drawText(GraphicsContext gc, String label, Vertex center, TextAlignment align){
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
-        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextAlign(align);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
     }
+    
+    private Color setColor(ElementState state){
+        switch(state){
+            case HIGHLIGHTED:
+                return Color.CORNFLOWERBLUE;
+            case INVALID:
+                return Color.CRIMSON;
+            default:
+                return Color.BLACK;
+        }
+    }
+    
+    private void drawAgregation(GraphicsContext gc, List<Vertex> vertexes, String label, ElementState elementState){
+        gc.setStroke(this.setColor(elementState));
+        
+        double size = getLineSize(vertexes, vertexes.size() * 40);
+        
+        for(int i = 0; i < vertexes.size(); i++)
+            this.drawAgregationLine(gc,
+                                    vertexes.get(i),
+                                    vertexes.get((i + 1) % vertexes.size()),
+                                    size);
+        
+        gc.setStroke(Color.BLACK);
+        Vertex upL = vertexes.get(0);
+        Vertex centerLabel = new Vertex(upL.getxPos() + 10, upL.getyPos() + 30);
+        this.drawText(gc, label, centerLabel, TextAlignment.LEFT);
+    }
+    
+    private void drawAgregationLine(GraphicsContext gc, Vertex v1, Vertex v2, double size){
+        Vertex beg;
+        Vertex end;
+
+        if ( v1.getxPos() <= v2.getxPos() && v1.getyPos() <= v2.getyPos()){
+            beg = v1;
+            end = v2;
+        } else {
+            beg = v2;
+            end = v1;
+        }
+        
+        double x = (beg.getxPos() - end.getxPos());
+        double y = (beg.getyPos() - end.getyPos());
+        double angle = Math.atan(x / y);
+        
+        Double x1, y1, x2 = null, y2 = null;
+        boolean draw = true;
+        
+        /*System.out.println("v1x: " + v1.getxPos() + " v1y: " + v1.getyPos());
+        System.out.println("v2x: " + v2.getxPos() + " v2y: " + v2.getyPos());
+        System.out.println("size: " + size);
+        System.out.println("Angle: " + angle);*/
+        
+        for(x1 = beg.getxPos(), y1 = beg.getyPos(); x1 <= end.getxPos() && y1 <= end.getyPos() ; draw = !draw, x1 = x2, y1 = y2){
+            x2 = x1 - size * Math.sin(angle);
+            y2 = y1 + size * Math.cos(angle);
+            
+            /*System.out.println("dibujar? : " + draw);
+            System.out.println("x1: " + x1 + " y1: " + y1);
+            System.out.println("x2: " + x2 + " y2: " + y2);
+            System.out.println();*/
+            
+            if (!draw) continue;
+            
+            gc.strokeLine(x1, y1, x2, y2);
+        }
+        /*System.out.println("\n-lado finalizado-\n");*/
+    }
+    
+    private double getLineSize(List<Vertex> vertexes, int parts){
+        double perimeter = 0;
+        for (int i = 0; i < vertexes.size(); i++){
+            perimeter += GeometricUtilities.vertexDistance(vertexes.get(i), vertexes.get( (i + 1) % 4 ));
+        }
+        return perimeter / parts;
+    }  
 }
