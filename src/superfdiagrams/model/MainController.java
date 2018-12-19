@@ -23,6 +23,8 @@ import superfdiagrams.model.action.ActionController;
 import superfdiagrams.model.action.CreateElementAction;
 import superfdiagrams.model.action.DeleteAttributeAction;
 import superfdiagrams.model.action.DeleteElementAction;
+import superfdiagrams.model.action.MoveAction;
+import superfdiagrams.model.action.MoveComplexElementAction;
 import superfdiagrams.model.action.MoveElementAction;
 import superfdiagrams.model.action.RenameElementAction;
 import superfdiagrams.model.drawer.DrawController;
@@ -45,14 +47,18 @@ public class MainController
 
     private Element selected;
     private List<Element> selectedRelated;
+    private ComplexElement morphingComplex;
 
     //maps para verificaciones semánticas
     public HashMap<Integer, EntityCheck> weakEntityCheck; //un mapa con un objeto que contiene las verificaciones de entidades débiles
     public HashMap<String, Entity> entityNanes; //un mapa para verificar que entidades no tengan mismo nombre.
     //public HashMap<Integer, Boolean> StrongEntityCheck strongEntity;
 
-    private MoveElementAction selectedAction;
+    private MoveAction selectedAction;
     private boolean doubleClick;
+    private boolean shouldComplexMorph;
+    
+    
     private double mouseXPos;
     private double mouseYPos;
     private double zoomFactor;
@@ -83,6 +89,8 @@ public class MainController
         this.doubleClick = false;
         maxWith = 800; //defualt minimum with posible
         maxHeight = 700; //default minimum height posible
+        shouldComplexMorph = false;
+        morphingComplex = null;
 
     }
 
@@ -190,7 +198,7 @@ public class MainController
         String label = uiController.getElementLabel("atributo");
         Type bla = selectorC.getSelected0().getPrimitive().getType();
 
-        if (label == null){
+       if (label == null){
             finishAction();
             return;
         }
@@ -209,6 +217,10 @@ public class MainController
             
             }else{
                 error = false;
+            }
+            if (type == null){
+                finishAction();
+                return;
             }
         } while (error);
         
@@ -309,6 +321,9 @@ public class MainController
         zoomFactor = 1;
         NameCounter.restartCounter();
         weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<>();
+        this.shouldComplexMorph = false;
+        this.morphingComplex = null;
     }
     
     public void finishEntitySelection(){
@@ -331,13 +346,36 @@ public class MainController
     {
         if (selected != null && stateC.getState() == MOVING_ELEMENT)
         {
-            VertexGenerator.recalculateVertexes(selected.getVertexes(),
-                                                new Vertex(mouseXPos,
-                                                mouseYPos));
-            VertexGenerator.recalculateNearestVertexes(selectedRelated);
+            moveElement();
+            if (shouldComplexMorph)
+                recursiveComplexMorph(morphingComplex);
         }
 
         this.setStatusText();
+    }
+    
+    private ComplexElement recursiveComplexMorph(ComplexElement morph){
+        VertexGenerator.morphComplex(morph);
+        ComplexElement container = Finder.findComplexContained(morph, fetchElements());
+        if (container != null)
+            return recursiveComplexMorph(container);
+        else{
+            return morph;
+        }
+    } 
+    
+    private void moveElement(){
+        if(selected instanceof ComplexElement){
+            VertexGenerator.recalculateComplexElement
+                                      (selected,
+                                      ((ComplexElement)selected).getComposite(),
+                                      mouseXPos,
+                                      mouseYPos);
+        } else {
+            VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
+            if (selectedRelated != null && !selectedRelated.isEmpty())
+                VertexGenerator.recalculateNearestVertexes(selectedRelated);
+        }
     }
 
     public void setStatusText()
@@ -390,9 +428,16 @@ public class MainController
                 case MOVING_ELEMENT:
                     selected.setElementState(NORMAL);
                     selectedAction.getNewPosition();
+                    
+                    if (selected instanceof ComplexElement){
+                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
+                    }
+                    
                     selected = null;
                     selectedRelated = null;
                     selectedAction = null;
+                    this.morphingComplex =  null;
+                    this.shouldComplexMorph = false;
                     stateC.setState(VIEW);
                     for (Vertex v : currentElement.getVertexes())
                     {
@@ -406,10 +451,24 @@ public class MainController
                         break;
 
                     selected = currentElement;
-                    selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
-                    selectedAction = new MoveElementAction(selected, selectedRelated);
+                    morphingComplex = Finder.findComplexContained(selected, fetchElements());
+                    if (morphingComplex != null)
+                        this.shouldComplexMorph = true;
+                    
+                    if (selected instanceof ComplexElement){
+                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
+                        selectedAction = new MoveComplexElementAction((ComplexElement) selected);
+                    } else {
+                        if (!shouldComplexMorph){
+                            selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
+                            selectedAction = new MoveElementAction(selected, selectedRelated);
+                        } else {
+                            selectedAction = new MoveComplexElementAction(recursiveComplexMorph(morphingComplex));
+                        }
+                    }
+                    
                     actionC.addToStack(selectedAction);
-
+                    
                     if (!(selected.getPrimitive() instanceof Union))
                     {
                         selected.setElementState(HIGHLIGHTED);
@@ -629,7 +688,7 @@ public class MainController
         List<Element> elements = this.fetchElements();
         for (Element e : elements)
         {
-            if (e.getPrimitive() instanceof Entity)
+            if (e.getPrimitive() instanceof Entity && ! (e instanceof ComplexElement))
             {
                 if (!weakEntityCheck.containsKey(e.getPrimitive().hashCode()))
                     weakEntityCheck.put(e.getPrimitive().hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType()));

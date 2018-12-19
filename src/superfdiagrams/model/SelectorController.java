@@ -53,7 +53,6 @@ public class SelectorController {
                   || ((Attribute)element.getPrimitive()).getType() == ATTRIBUTE_COMPOSITE) 
                   && this.selectionSize() < 1)
                     this.addToList(element);
-                
                 break;
             case CREATING_AGREGATION:
                 if (  !selectedElements.contains(element)

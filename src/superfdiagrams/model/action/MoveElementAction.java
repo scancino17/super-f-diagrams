@@ -15,7 +15,7 @@ import superfdiagrams.model.VertexGenerator;
  *
  * @author sebca
  */
-public class MoveElementAction implements Action{
+public class MoveElementAction implements MoveAction{
     private List<Vertex> mainPositionBefore;
     private List<Vertex> mainPositionAfter;
     private Element mainElement;
@@ -29,6 +29,7 @@ public class MoveElementAction implements Action{
             mainPositionBefore.add(v.obtainCopy());
     }
     
+    @Override
     public void getNewPosition(){
         mainPositionAfter = new ArrayList<>();
         for(Vertex v: mainElement.getVertexes())

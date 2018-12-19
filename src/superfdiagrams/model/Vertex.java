@@ -84,4 +84,13 @@ public class Vertex {
         if (this.xPos != x) return false;
         return this.yPos == y;
     }
+    
+    public void moveTo(double x, double y){
+        this.xPos = x;
+        this.yPos = y;
+    }
+    
+    public void moveTo(Vertex v){
+        this.moveTo(v.xPos, v.yPos);
+    }
 }
