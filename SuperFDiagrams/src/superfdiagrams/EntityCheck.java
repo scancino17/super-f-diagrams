@@ -9,6 +9,7 @@ public class EntityCheck
     public boolean partialKey;
     public boolean strongEntity;
     public boolean keyAtribute;
+    public boolean heritageName;
     public Element e;
     Type type;
     public EntityCheck(String _name, Type _type, Element _e)
@@ -19,6 +20,7 @@ public class EntityCheck
         keyAtribute = false;
         type = _type;
         e  = _e;
+        heritageName = true;
     }
 
     public void  setFalse()
@@ -44,10 +46,12 @@ public class EntityCheck
         else if(type == Type.ROLE_STRONG)
             if(!keyAtribute)
                 message += "\nDebe tener atributo clave";
+        else if(!heritageName)
+                message += "\nAtributos con mismo nombre que en Entidad padre";
         return message;
     }
 
     public boolean isValid(){
-        return  type == Type.ROLE_WEAK ? partialKey && strongEntity : keyAtribute;
+        return  (type == Type.ROLE_WEAK ? partialKey && strongEntity : keyAtribute) && heritageName;
     }
 }

@@ -710,7 +710,7 @@ public class MainController
      * @author Ignacio Martinez
      * @return
      */
-    //We ultra fea que mejor no tocar...
+    //Magia negra??, brujería pura y asquerosidad que es mejor no tocar...
     public String checkSemantics()
     {
         String message = "";
@@ -782,17 +782,49 @@ public class MainController
             }
             else if(element instanceof Heritage)  // si hay herencia...
             {
+                //en pocas palabras,
+                //en una herencia, agarra el padre, del padre obtiene sus hijos.
+                // y para todos los elementos de la herencia, agarra los hijos
+                // compara todos los nombres de los hijos con todos los nombres los hijos de los elementos que pertenecen a la herencia..
+                // si ya me quede sin ideas y me fui al todos contra todos...
                 Element father = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
+                List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father);
                 for (int i = 1; i < element.getChildren().size(); ++i)
                 {
                     Element temp = ((Union) (element.getChildren().get(i).getPrimitive())).getChild();
-                    //hhmmm habría que comparar todos los nombres de los hijos del padre con los nombres de los hijos de temp...
-                    //si alguno es igual bueno error :)
+                    List<Element> tempChilds = Finder.findRelatedUnions(this.fetchElements(), temp);
+                    boolean find = true;
+                    for(Element ch : childs)
+                    {
+                        if(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Heritage)
+                            break;
+
+                        String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        for (Element _ch : tempChilds)
+                        {
+                            if (_ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof  Heritage)
+                                break;
+
+                            String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                            if (_name.equals(_chName))
+                            {
+                                find = false;
+                                break; // ya tiene como mínimo uno suficiente para ponerlo en carmesí... (para qué seguir...)
+                            }
+                        }
+                    }
+
+                    if(weakEntityCheck.containsKey(temp.hashCode()))
+                    {
+                        EntityCheck entytemp = weakEntityCheck.get(temp.hashCode());
+                        entytemp.heritageName = find;
+                        weakEntityCheck.replace(temp.hashCode(), entytemp);
+                    }
                 }
             }
         }
 
-        //recorre los hash obteniendo los mensajes...
+        //recorre los hash obteniendo los mensajes y poniendo colores kawaii ;)
         List<Element> e = this.fetchElements();
         for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {

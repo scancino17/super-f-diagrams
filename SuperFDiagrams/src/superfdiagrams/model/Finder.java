@@ -15,7 +15,7 @@ import java.util.List;
  * @author sebca
  */
 public class Finder {
-    public List<Element> findRelatedUnions(List<Element> list, Element element){
+    public static List<Element> findRelatedUnions(List<Element> list, Element element){
         List<Element> relatedUnions = new ArrayList<>();
         
         for(Element onList: list){
