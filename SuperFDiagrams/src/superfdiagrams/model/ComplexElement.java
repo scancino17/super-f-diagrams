@@ -45,4 +45,8 @@ public class ComplexElement extends Element{
         if (getComposite() != null) 
             this.getComposite().add(element);
     }
+    
+    public boolean contains(Element element){
+        return this.getComposite().contains(element);
+    }
 }

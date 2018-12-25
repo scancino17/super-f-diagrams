@@ -291,7 +291,16 @@ public class VertexGenerator {
         return j;
     }
     
-    public static void recalculateVertexes(List<Vertex> vertexes, 
+    public static void recalculateVertexes(Element element, double x, double y){
+        recalculateVertexes(element.getVertexes(), new Vertex(x, y));
+        element.setCenterVertex(GeometricUtilities.getCenterOfMass(element.getVertexes()));
+    }
+    
+    public static void recalculateVertexes(Element element, Vertex newCenter){
+        recalculateVertexes(element, newCenter.getxPos(), newCenter.getyPos());
+    }
+    
+    private static void recalculateVertexes(List<Vertex> vertexes, 
                                     Vertex newCenter)
     {
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
@@ -299,7 +308,6 @@ public class VertexGenerator {
             v.setxPos(v.getxPos() - center.getxPos() + newCenter.getxPos());
             v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
         }
-        
     }
     
     public static void recalculateNearestVertexes(List<Element> unions){
@@ -331,4 +339,61 @@ public class VertexGenerator {
         return newVertexes;
     }
     
+    public static List<Vertex> gatherCenterDif(Element central, List<Element> related){
+        List<Vertex> centers = new ArrayList<>();
+        
+        double cx = central.getCenterVertex().getxPos();
+        double cy = central.getCenterVertex().getyPos();
+        double rx, ry; 
+        
+        for(Element r: related){ 
+            rx = r.getCenterVertex().getxPos();
+            ry = r.getCenterVertex().getyPos();
+            
+            centers.add(new Vertex(cx - rx, cy - ry));
+        }
+        
+        return centers;
+    }
+    
+    public static void recalculateComplexElement(Element complex, List<Element> related, double x, double y){    
+        List<Vertex> centers = gatherCenterDif(complex, related);
+        double cx, cy;
+        Vertex rCenter;
+        
+        for(int i = 0; i < centers.size(); i++){
+            Element e = related.get(i);
+            if (e.getPrimitive() instanceof Union)
+                continue;
+            
+            rCenter = centers.get(i);
+            cx = rCenter.getxPos();
+            cy = rCenter.getyPos();
+            
+            if(related.get(i) instanceof ComplexElement)
+                recalculateComplexElement(e, ((ComplexElement) e).getComposite(), x - cx, y - cy);
+            else
+                recalculateVertexes(related.get(i), x - cx, y - cy);
+        }
+        
+        recalculateVertexes(complex, x, y);
+    }
+    
+    public static void morphComplex(ComplexElement element){
+        List<Vertex> newVertex = getAgregationVertexes(element.getComposite());
+        List<Vertex> cmpVertex = element.getVertexes();
+        
+        for(int i = 0 ; i < cmpVertex.size() ; i++){
+            Vertex v0 = cmpVertex.get(i);
+            Vertex v1 = newVertex.get(i);
+            v0.moveTo(v1);
+        }
+    }
+    
+    public static void morphContainedComplex(ComplexElement element){
+        morphComplex(element);
+        for(Element e : element.getComposite())
+            if(e instanceof ComplexElement)
+                morphContainedComplex((ComplexElement) e);
+    }
 }

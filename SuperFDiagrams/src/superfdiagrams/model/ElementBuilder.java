@@ -207,6 +207,7 @@ public class ElementBuilder {
         }
         
         line.setVertexes(vertexes);
+        line.setCenterVertex(GeometricUtilities.getCenterOfMass(vertexes));
         line.setDrawer(drawer);
         line.setPrimitive(union);
         return line;

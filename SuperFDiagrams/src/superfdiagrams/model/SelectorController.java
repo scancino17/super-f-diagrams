@@ -77,6 +77,10 @@ public class SelectorController {
         return toReturn;
     }
     
+    public Element getSelected0(){
+        return selectedElements.get(0);
+    }
+    
     private void deselectElements(){
         if(!selectedElements.isEmpty())
             for(Element e: selectedElements)

@@ -42,3 +42,8 @@
         -fx-background-image: url("assets/circle-outline.png");
     -fx-background-size: stretch;
 }
+#agregationBtn
+{
+        -fx-background-image: url("assets/rectangular-shape-outline.png");
+    -fx-background-size: stretch;
+}

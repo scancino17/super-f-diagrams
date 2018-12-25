@@ -54,6 +54,7 @@ public class LineDrawer implements Drawer{
                 break;
             case UNION_HERITAGE:
                 heritageDraw(gc, vertexes, name, elementState);
+                break;
             case DEPENDENCY:
                 weakDraw(gc, vertexes, name, elementState);
                 break;
@@ -79,6 +80,7 @@ public class LineDrawer implements Drawer{
                     v.getxPos() * zoom,
                     v.getyPos() * zoom);
         }
+       gc.setLineWidth(1);
     }
     
     public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){

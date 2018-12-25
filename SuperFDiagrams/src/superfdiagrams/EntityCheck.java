@@ -1,5 +1,6 @@
 package superfdiagrams;
 
+import superfdiagrams.model.Element;
 import superfdiagrams.model.primitive.Type;
 
 public class EntityCheck
@@ -8,14 +9,16 @@ public class EntityCheck
     public boolean partialKey;
     public boolean strongEntity;
     public boolean keyAtribute;
+    public Element e;
     Type type;
-    public EntityCheck(String _name, Type _type)
+    public EntityCheck(String _name, Type _type, Element _e)
     {
         name = _name;
         partialKey = false;
         strongEntity = false;
         keyAtribute = false;
         type = _type;
+        e  = _e;
     }
 
     public void  setFalse()

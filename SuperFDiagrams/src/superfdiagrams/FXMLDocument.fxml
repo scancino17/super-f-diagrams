@@ -37,7 +37,7 @@
                   <Text layoutX="106.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Atributo" AnchorPane.topAnchor="168.0" />
                   <Button fx:id="heritageBtn" layoutX="17.0" layoutY="104.0" mnemonicParsing="false" onAction="#changeStatusHeritage" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="104.0" />
                   <Text layoutX="26.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" AnchorPane.topAnchor="168.0" />
-                  <Button layoutX="17.0" layoutY="185.0" mnemonicParsing="false" onAction="#changeStatusAgregation" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="185.0" />
+                  <Button fx:id="agregationBtn" layoutX="17.0" layoutY="185.0" mnemonicParsing="false" onAction="#changeStatusAgregation" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="185.0" />
                   <Text layoutX="18.0" layoutY="262.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Agregación" AnchorPane.topAnchor="249.0" />
                </children>
             </AnchorPane>

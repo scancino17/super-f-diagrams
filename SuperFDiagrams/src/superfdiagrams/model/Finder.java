@@ -58,4 +58,22 @@ public class Finder {
         
         return relatedUnions;
     }
+    
+    /**
+     * @Author Sebastian Cancino
+     * @param element Elemento a ver si pertenece a algun CompexElement.
+     * @param elements Lista que contiene los elementos entre los que buscar.
+     * @return ComplexElement que contiene el Element entregado como argumento,
+     * de encontrase uno.
+     */
+    public static ComplexElement findComplexContained(Element element, List<Element> elements){     
+        for(Element e : elements){
+            if (e instanceof ComplexElement)
+                if (((ComplexElement) e).contains(element))
+                    return (ComplexElement) e;
+        }
+        
+        
+        return null;
+    }
 }
