@@ -58,7 +58,6 @@ public class MainController
     private boolean doubleClick;
     private boolean shouldComplexMorph;
     
-    
     private double mouseXPos;
     private double mouseYPos;
     private double zoomFactor;
