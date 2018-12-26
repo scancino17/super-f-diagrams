@@ -54,6 +54,7 @@ public class LineDrawer implements Drawer{
                 break;
             case UNION_HERITAGE:
                 heritageDraw(gc, vertexes, name, elementState);
+                break;
             case DEPENDENCY:
                 weakDraw(gc, vertexes, name, elementState);
                 break;
