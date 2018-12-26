@@ -16,8 +16,8 @@ import superfdiagrams.model.drawer.Drawer;
  *
  * @author sebca
  */
-public class Element implements Drawable{
-    private Primitive element;
+public class Element implements Drawable, Comparable<Element>{
+    private Primitive primitive;
     private Drawer drawer;
     private List<Vertex> vertexes;
     private Vertex center;
@@ -25,7 +25,7 @@ public class Element implements Drawable{
 
     @Override
     public void draw(GraphicsContext gc) {
-        drawer.doDraw(gc,vertexes,element.getLabel(), state);
+        drawer.doDraw(gc,vertexes,primitive.getLabel(), state);
     }
 
     @Override
@@ -35,11 +35,11 @@ public class Element implements Drawable{
     }
 
     public Primitive getPrimitive() {
-        return element;
+        return primitive;
     }
 
     public void setPrimitive(Primitive element) {
-        this.element = element;
+        this.primitive = element;
     }
 
     public Drawer getDrawer() {
@@ -70,5 +70,15 @@ public class Element implements Drawable{
     
     public Vertex getCenterVertex(){
         return center;
+    }
+
+    @Override
+    public int compareTo(Element that) {
+        return this.primitive.getPriority() - that.primitive.getPriority();
+    }
+    
+    @Override
+    public String toString(){
+        return this.primitive.getLabel() + " " + this.primitive.getPriority();
     }
 }

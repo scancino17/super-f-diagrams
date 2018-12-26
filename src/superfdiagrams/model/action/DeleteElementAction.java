@@ -7,7 +7,9 @@ package superfdiagrams.model.action;
 
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.model.ComplexElement;
 import superfdiagrams.model.Element;
+import superfdiagrams.model.Finder;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.primitive.Attribute;
@@ -24,6 +26,7 @@ import superfdiagrams.model.primitive.Union;
  * @author sebca
  */
 public class DeleteElementAction implements Action{
+    private List<ComplexElement> aggregations;
     private Element deleted;
     private List<Element> related;
     private MainController mainC;
@@ -35,6 +38,7 @@ public class DeleteElementAction implements Action{
         this.deleted = deleted;
         this.related = related;
         this.mainC = MainController.getController();
+        this.aggregations = new ArrayList<>();
     }
     
     @Override
@@ -63,13 +67,23 @@ public class DeleteElementAction implements Action{
         if (attributes != null)
             for(DeleteAttributeAction attribute: attributes)
                attribute.undo();
+        
+        if(!aggregations.isEmpty()){
+            for(ComplexElement aggregation : aggregations)
+                mainC.addElement(aggregation);
+                
+            aggregations = new ArrayList<>();
+        }
     }
      
     public void execute(){
         for (Element r : related) {
             if(deleted.getPrimitive() instanceof Entity)
                 removeUnion(r);
-            else
+            else if (deleted.getPrimitive() instanceof Relationship){
+                checkAggregation(r);
+                mainC.removeElement(r);
+            }else
                 mainC.removeElement(r);
         }
             mainC.removeElement(deleted);
@@ -124,8 +138,10 @@ public class DeleteElementAction implements Action{
             mainC.removeElement(union);
         }
         
-        if(parentContained.isEmpty())
+        if(parentContained.isEmpty()){
+            checkAggregation(parent);
             mainC.removeElement(parent);
+        }
         else if(parent.getPrimitive() instanceof Attribute)
             for (Element u: parentContained)
                 removeUnion(u);
@@ -221,5 +237,16 @@ public class DeleteElementAction implements Action{
         if (this.heritageRelated == null)
             heritageRelated = new ArrayList<>();
         heritageRelated.add(element);
+    }
+
+    private void checkAggregation(Element r) {
+        List<ComplexElement> aggregationContained = Finder.findParentAggregation(r);
+        
+        if (aggregationContained == null)
+            return;
+        
+        this.aggregations.addAll(aggregationContained);
+        for(ComplexElement aggregation : aggregations)
+            mainC.removeElement(aggregation);
     }
 }

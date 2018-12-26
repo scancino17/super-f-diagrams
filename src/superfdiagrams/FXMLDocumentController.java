@@ -374,18 +374,7 @@ public class FXMLDocumentController implements Initializable{
     {
         if(mainC.getCurrentElement() == null)
             return;
-
-        String oldName = mainC.getCurrentElement().getPrimitive().getLabel();
         mainC.renameCurrentElement(currentElementText.getText());
-        
-        EntityCheck temp = mainC.weakEntityCheck.get(mainC.getCurrentElement().getPrimitive().hashCode());
-        
-        if (temp == null)
-            return;
-        
-        temp.name = currentElementText.getText();
-        mainC.weakEntityCheck.replace(mainC.getCurrentElement().getPrimitive().hashCode(), temp);
-        mainC.entityNanes.put(currentElementText.getText(), mainC.entityNanes.remove(oldName));
     }
     
     public void showElementPane(){
@@ -398,7 +387,8 @@ public class FXMLDocumentController implements Initializable{
         editElementPane.setVisible(false);
     }
     
-        public void changeDependency(){
+    public void changeDependency()
+    {
         int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
         Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
         String[] choices =  new String[size];
@@ -431,15 +421,15 @@ public class FXMLDocumentController implements Initializable{
     }
     
     public static String askCardinality(String eName){
-        String[] choices =  new String[]{"1 - n",
-                                         "2 - 1",};
+        String[] choices =  new String[]{"N",
+                                         "1",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
         dialog.setHeaderText("Cardinalidad de " + eName + ": ");
         Optional<String> result = dialog.showAndWait();
         String selected = "0";
         selected = result.get();
         
-        return Character.toString(selected.charAt(4));
+        return Character.toString(selected.charAt(0));
         
     }
 }
