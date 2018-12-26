@@ -259,9 +259,12 @@ public class MainController
         List<Element> selectedElements = new ArrayList<>();
         
         selectedElements.add(temp);
+        selectedElements.addAll(Finder.findRelatedAttributes(temp));
         for(Element el : temp.getPrimitive().getChildren()){
             selectedElements.add(el);
-            selectedElements.add(((Union) el.getPrimitive()).getChild());
+            Element child = ((Union) el.getPrimitive()).getChild();
+            selectedElements.add(child);
+            selectedElements.addAll(Finder.findRelatedAttributes(child));
         }
         
         CreateElementAction create = new CreateElementAction();
@@ -349,6 +352,7 @@ public class MainController
                                       ((ComplexElement)selected).getComposite(),
                                       mouseXPos,
                                       mouseYPos);
+            recursiveComplexMorph((ComplexElement) selected);
         } else {
             VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
             if (selectedRelated != null && !selectedRelated.isEmpty())

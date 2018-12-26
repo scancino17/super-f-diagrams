@@ -9,6 +9,7 @@ import superfdiagrams.model.primitive.Union;
 import superfdiagrams.model.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.model.primitive.Attribute;
 
 /**
  *
@@ -89,5 +90,23 @@ public class Finder {
         }
         
         return aggregations;
+    }
+    
+    public static List<Element> findRelatedAttributes(Element e){
+        List<Element> allElements = DiagramController.getController().fetchElements();
+        List<Element> parents = findRelatedParentUnions(allElements, e);
+        List<Element> related = new ArrayList<>();
+        
+        for(Element union : parents){
+            Union primitive =  (Union) union.getPrimitive();
+            Element parent = primitive.getParent();
+            if(parent.getPrimitive() instanceof Attribute){
+                related.add(union);
+                related.add(parent);
+                related.addAll(findRelatedAttributes(parent));
+            }
+        }
+        
+        return related;
     }
 }

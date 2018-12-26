@@ -189,19 +189,9 @@ public class PolygonDrawer implements Drawer{
         Double x1, y1, x2 = null, y2 = null;
         boolean draw = true;
         
-        /*System.out.println("v1x: " + v1.getxPos() + " v1y: " + v1.getyPos());
-        System.out.println("v2x: " + v2.getxPos() + " v2y: " + v2.getyPos());
-        System.out.println("size: " + size);
-        System.out.println("Angle: " + angle);*/
-        
         for(x1 = beg.getxPos(), y1 = beg.getyPos(); x1 <= end.getxPos() && y1 <= end.getyPos() ; draw = !draw, x1 = x2, y1 = y2){
             x2 = x1 - size * Math.sin(angle);
             y2 = y1 + size * Math.cos(angle);
-            
-            /*System.out.println("dibujar? : " + draw);
-            System.out.println("x1: " + x1 + " y1: " + y1);
-            System.out.println("x2: " + x2 + " y2: " + y2);
-            System.out.println();*/
             
             if (!draw) continue;
             
