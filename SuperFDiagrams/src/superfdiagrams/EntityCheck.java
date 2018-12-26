@@ -1,5 +1,6 @@
 package superfdiagrams;
 
+import superfdiagrams.model.Element;
 import superfdiagrams.model.primitive.Type;
 
 public class EntityCheck
@@ -8,14 +9,18 @@ public class EntityCheck
     public boolean partialKey;
     public boolean strongEntity;
     public boolean keyAtribute;
+    public boolean heritageName;
+    public Element e;
     Type type;
-    public EntityCheck(String _name, Type _type)
+    public EntityCheck(String _name, Type _type, Element _e)
     {
         name = _name;
         partialKey = false;
         strongEntity = false;
         keyAtribute = false;
         type = _type;
+        e  = _e;
+        heritageName = true;
     }
 
     public void  setFalse()
@@ -38,13 +43,15 @@ public class EntityCheck
                 message += "\nDebe estar relacionadas con una entidad fuerte";
             return message;
         }
-        else if(type == Type.ROLE_STRONG)
-            if(!keyAtribute)
+        else if(!keyAtribute)
                 message += "\nDebe tener atributo clave";
+        if(!heritageName)
+                message += "\nAtributos con mismo nombre que en Entidad padre";
         return message;
     }
 
-    public boolean isValid(){
-        return  type == Type.ROLE_WEAK ? partialKey && strongEntity : keyAtribute;
+    public boolean isValid()
+    {
+        return (type == Type.ROLE_WEAK ? partialKey && strongEntity : keyAtribute) && heritageName;
     }
 }

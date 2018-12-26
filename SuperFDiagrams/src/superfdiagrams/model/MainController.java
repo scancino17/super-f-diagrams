@@ -5,7 +5,10 @@
  */
 package superfdiagrams.model;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
+
+import sun.misc.Unsafe;
 import superfdiagrams.EntityCheck;
 import superfdiagrams.model.primitive.*;
 
@@ -195,14 +198,36 @@ public class MainController
     
     public void createNewAttribute(){
         String label = uiController.getElementLabel("atributo");
-        
-        if (label == null){
+        Type bla = selectorC.getSelected0().getPrimitive().getType();
+
+       if (label == null){
             finishAction();
             return;
         }
+        Type type;
+        boolean error = true;
+
         
-        Type type = uiController.askAttributeType();
+       do {
+            type = uiController.askAttributeType();
+            if((bla == ATTRIBUTE_COMPOSITE)
+                    && type == ATTRIBUTE_GENERIC){
+                error = false;
+            }else if ((bla == ATTRIBUTE_COMPOSITE)
+                    && type != ATTRIBUTE_GENERIC){
+                error = true;
+            
+            }else{
+                error = false;
+            }
+            if (type == null){
+                finishAction();
+                return;
+            }
+        } while (error);
         
+        
+
         if(type == null){
             finishAction();
             return;
@@ -301,7 +326,7 @@ public class MainController
         zoomFactor = 1;
         NameCounter.restartCounter();
         weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<>();
+        this.entityNanes = new HashMap<String, Entity>();
         this.shouldComplexMorph = false;
         this.morphingComplex = null;
     }
@@ -501,11 +526,15 @@ public class MainController
 
     public void undo()
     {
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
         actionC.undo();
     }
 
     public void redo()
     {
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
         actionC.redo();
     }
 
@@ -559,6 +588,14 @@ public class MainController
             deleteAction.execute();
             actionC.addToStack(deleteAction);
         }
+
+        //para ahorrar trabajo limpio los mapas
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
+        //para los mapas...
+        //weakEntityCheck.remove(deleted.hashCode());
+        //entityNanes.remove(deleted.getPrimitive().getLabel());
+
     }
 
     public void morphElement(List<Element> elementList)
@@ -619,7 +656,9 @@ public class MainController
     {
         diagramC.removeElement(element);
         /*drawC.removeFromBuffer(element);*/
-        weakEntityCheck.remove(element.getPrimitive().hashCode());
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
+
     }
 
     public List<Element> fetchElements()
@@ -633,12 +672,25 @@ public class MainController
     }
 
     public void renameCurrentElement(String label){
-        if (currentElement.getPrimitive() instanceof Heritage)
+        if (currentElement.getPrimitive() instanceof Heritage || entityNanes.containsKey(label))
             return;
-        
         RenameElementAction action = new RenameElementAction(currentElement, label);
         action.execute();
         actionC.addToStack(action);
+
+        //para ahorrame trabajo solo limpio los mapas...
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
+
+        //para actualizar los mapas cuando hay cambio de nombres...
+        /*String oldName = currentElement.getPrimitive().getLabel();
+        if(weakEntityCheck.containsKey(weakEntityCheck))
+        {
+            EntityCheck temp = weakEntityCheck.get(getCurrentElement().hashCode());
+            temp.name = label;
+            weakEntityCheck.replace(currentElement.hashCode(), temp);
+            entityNanes.put(label, entityNanes.remove(oldName));
+        }*/
     }
 
     public double getZoomFactor() { return zoomFactor;}
@@ -661,30 +713,35 @@ public class MainController
     /**
      * Refactorizado por Sebastian Cancino
      * @author Ignacio Martinez
-     * @return 
+     * @return
      */
+    //Magia negra??, brujería pura y asquerosidad que es mejor no tocar...
     public String checkSemantics()
     {
         String message = "";
         List<Element> elements = this.fetchElements();
-        for (Element e : elements)
+        for (Element e : elements) // for para todos los elementos...
         {
-            if (e.getPrimitive() instanceof Entity)
+            //aquí agrega los elementos al hashmap en caso de no estar en él..
+            if (e.getPrimitive() instanceof Entity && ! (e instanceof ComplexElement))
             {
-                if (!weakEntityCheck.containsKey(e.getPrimitive().hashCode()))
-                    weakEntityCheck.put(e.getPrimitive().hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType()));
+                if (!weakEntityCheck.containsKey(e.hashCode()))
+                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e));
                 else
-                    weakEntityCheck.get(e.getPrimitive().hashCode()).setFalse();
+                    weakEntityCheck.get(e.hashCode()).setFalse();
 
                 if(!entityNanes.containsKey(e.getPrimitive().getLabel()))
                     entityNanes.put(e.getPrimitive().getLabel(), (Entity)e.getPrimitive());
 
             }
+
             Primitive element = e.getPrimitive();
             if (element.getType() == ATTRIBUTE_PARTIAL_KEY)  //verifica que una entidad débil tenga atributo parcial
             {
-                Primitive entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild().getPrimitive();
-                if (entity.getType() == ROLE_WEAK)
+                // en palabras simples,
+                //si el elemento es un atributo parcial... mira el padre  y si el padre es un elemento débil se cumple
+                Element entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
+                if (entity.getPrimitive().getType() == ROLE_WEAK)
                 {
                     int key = entity.hashCode();
                     EntityCheck temp = weakEntityCheck.get(key);
@@ -694,8 +751,9 @@ public class MainController
             }
             else if(element.getType() == ATTRIBUTE_KEY)  // verifica que entidad fuerte tenga un atributo clave
             {
-                Primitive entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild().getPrimitive();
-                if (entity.getType() == ROLE_STRONG)
+                //mismo principio que el anterior..
+                Element entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
+                if (entity.getPrimitive().getType() == ROLE_STRONG)
                 {
                     int key = entity.hashCode();
                     EntityCheck temp = weakEntityCheck.get(key);
@@ -707,19 +765,19 @@ public class MainController
             {
                 boolean strong = false;
                 int key = 0;
-                
                 List<Element> elementChildren = element.getChildren();
-                
                 for(Element el : elementChildren)
                 {
+                    //para verificar lo que hace es ver todos los elementos con los que une la relación
                     Union u = (Union) el.getPrimitive();
                     Primitive entity = u.getChild().getPrimitive();
-                    if (entity.getType() == ROLE_WEAK && u.getType() == ROLE_WEAK) //verifica que tiene una entidad debil
-                        key = entity.hashCode();
+                    if (entity.getType() == ROLE_WEAK && u.getType() == ROLE_WEAK) //si el hijo es débil y están unidos por una relación debil significa que está bien
+                        key = u.getChild().hashCode();
+                        //key = entity.hashCode();
                     else
-                        strong = true; //asume que tiene una entidad fuerte, respetando diseño original
+                        strong = true; //asume que tiene una entidad fuerte, (ya que con algo debe estar unido si no es una débil...)
                 }
-
+                //después de ver todos los hijos, preguta si la key existe, de existir significa que hay almenos una entidad débil relacionada con algo por unión débil
                 if(weakEntityCheck.containsKey(key))
                 {
                     EntityCheck temp = weakEntityCheck.get(key);
@@ -727,28 +785,78 @@ public class MainController
                     weakEntityCheck.replace(key, temp);
                 }
             }
-            else if(element instanceof Heritage)
+            else if(element instanceof Heritage)  // si hay herencia...
             {
-                String fatherName = ((Union)(element.getChildren().get(0).getPrimitive())).getChild().getPrimitive().getLabel();
-                for(int i = 1; i< element.getChildren().size(); ++i)
-                    if (((Union) (element.getChildren().get(i).getPrimitive())).getChild().getPrimitive().getLabel().equals(fatherName)) //verifica si entidades hijas (herencia) tiene el mismo nombre que el padre
-                        message += "\n" + fatherName + "\nTiene herencia con el mismo nombre";
-            }
 
-            if (e.getPrimitive() instanceof Entity)
-                if (e.getPrimitive().getType() == ROLE_WEAK){
-                    boolean isValid = weakEntityCheck.get(e.getPrimitive().hashCode()).isValid();
-                    if(!isValid && e.getElementState() != HIGHLIGHTED) e.setElementState(INVALID);
-                    else if (e.getElementState() != HIGHLIGHTED) e.setElementState(NORMAL);
+                //Obtiene los hijos del padre
+                Element father = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
+                List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
+
+                //crea un mapa con los nombres
+                HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
+                boolean fhatherHeritage = true;
+                //recorre los hijos del padre;
+                for (Element ch : childs)
+                {
+                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                    {
+                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                    }
                 }
+                //ahora para cada elemento de la herencia... (sin incluir el padre)
+                for (int i = 1; i < element.getChildren().size(); ++i)
+                {
+                    Element temp = ((Union) (element.getChildren().get(i).getPrimitive())).getChild();
+                    List<Element> tempChilds = Finder.findRelatedUnions(this.fetchElements(), temp);
+                    HashMap<String, Boolean> tempsNames = new HashMap<String, Boolean>();
+                    //hace lo mismo que hice con el padre...
+                    boolean temprHeritage = true;
+                    for (Element _ch : tempChilds)
+                    {
+                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
+                        {
+                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
+                            else tempsNames.put(_chName, true);
+                            if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
+                        }
+                    }
+
+                    //actualiza los mapas que contienen los errores
+                    if (weakEntityCheck.containsKey(temp.hashCode()))
+                    {
+                        EntityCheck entytemp = weakEntityCheck.get(temp.hashCode());
+                        entytemp.heritageName = temprHeritage;
+                        weakEntityCheck.replace(temp.hashCode(), entytemp);
+                    }
+                }
+                //actualiza los mapas que contienen los errores
+                if (weakEntityCheck.containsKey(father.hashCode()))
+                {
+                    EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
+                    entytemp.heritageName = fhatherHeritage;
+                    weakEntityCheck.replace(father.hashCode(), entytemp);
+                }
+            }
         }
 
-        //recorre los hash obteniendo los mensajes...
+        //recorre los hash obteniendo los mensajes y poniendo colores kawaii ;)
+        List<Element> e = this.fetchElements();
         for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {
             EntityCheck temp = entry.getValue();
+            boolean valid = temp.isValid();
             if(!temp.isValid())
                 message += "\n" + temp.name + temp.toString();
+
+            if(!temp.isValid() && temp.e.getElementState() != HIGHLIGHTED)
+                temp.e.setElementState(INVALID);
+            else if(temp.e.getElementState() == HIGHLIGHTED)
+                temp.e.setElementState(HIGHLIGHTED);
+            else
+                temp.e.setElementState(NORMAL);
         }
 
         return message + "\n";
