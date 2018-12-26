@@ -91,4 +91,8 @@ public class Union implements Primitive{
         this.parent = children.get(1);      
     }
     
+    @Override
+    public int getPriority(){
+        return 1;
+    }
 }

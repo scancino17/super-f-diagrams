@@ -9,6 +9,7 @@ import superfdiagrams.model.primitive.Union;
 import superfdiagrams.model.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.model.primitive.Attribute;
 
 /**
  *
@@ -32,7 +33,7 @@ public class Finder {
         return relatedUnions;
     }
     
-    public boolean isParentPresent(List<Element> list, Element element){
+    public static boolean isParentPresent(List<Element> list, Element element){
         boolean isPresent = false;
         Primitive union = element.getPrimitive();
         if (!(union instanceof Union))
@@ -44,7 +45,7 @@ public class Finder {
         return isPresent;
     }
     
-    public List<Element> findRelatedParentUnions(List<Element> list, Element element){
+    public static List<Element> findRelatedParentUnions(List<Element> list, Element element){
         List<Element> relatedUnions = new ArrayList<>();
         
         for(Element onList: list){
@@ -75,5 +76,37 @@ public class Finder {
         
         
         return null;
+    }
+    
+    public static List<ComplexElement> findParentAggregation(Element child){
+        List<Element> elements = MainController.getController().fetchElements();
+        List<ComplexElement> aggregations = new ArrayList<>();
+        
+        for(Element e : elements){
+            if (e instanceof ComplexElement){
+                if (((ComplexElement) e).getComposite().contains(child))
+                    aggregations.add((ComplexElement) e);
+            }
+        }
+        
+        return aggregations;
+    }
+    
+    public static List<Element> findRelatedAttributes(Element e){
+        List<Element> allElements = DiagramController.getController().fetchElements();
+        List<Element> parents = findRelatedParentUnions(allElements, e);
+        List<Element> related = new ArrayList<>();
+        
+        for(Element union : parents){
+            Union primitive =  (Union) union.getPrimitive();
+            Element parent = primitive.getParent();
+            if(parent.getPrimitive() instanceof Attribute){
+                related.add(union);
+                related.add(parent);
+                related.addAll(findRelatedAttributes(parent));
+            }
+        }
+        
+        return related;
     }
 }

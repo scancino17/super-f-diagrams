@@ -61,7 +61,6 @@ public class MainController
     private boolean doubleClick;
     private boolean shouldComplexMorph;
     
-    
     private double mouseXPos;
     private double mouseYPos;
     private double zoomFactor;
@@ -284,9 +283,12 @@ public class MainController
         List<Element> selectedElements = new ArrayList<>();
         
         selectedElements.add(temp);
+        selectedElements.addAll(Finder.findRelatedAttributes(temp));
         for(Element el : temp.getPrimitive().getChildren()){
             selectedElements.add(el);
-            selectedElements.add(((Union) el.getPrimitive()).getChild());
+            Element child = ((Union) el.getPrimitive()).getChild();
+            selectedElements.add(child);
+            selectedElements.addAll(Finder.findRelatedAttributes(child));
         }
         
         CreateElementAction create = new CreateElementAction();
@@ -304,9 +306,9 @@ public class MainController
      */
     public boolean drawElements()
     {
-        if (!drawC.isBufferEmpty())
+        if (/*!drawC.isBufferEmpty()*/!diagramC.fetchElements().isEmpty())
         {
-            drawC.doDrawLoop();
+            drawC.doDrawLoop(fetchElements());
             return true;
         }
         return false;
@@ -316,7 +318,7 @@ public class MainController
     {
         actionC.restart();
         diagramC.newDiagram();
-        drawC.eraseBuffer();
+        /*drawC.eraseBuffer();*/
         selectorC.emptySelection();
         selected = null;
         currentElement = null;
@@ -374,6 +376,7 @@ public class MainController
                                       ((ComplexElement)selected).getComposite(),
                                       mouseXPos,
                                       mouseYPos);
+            recursiveComplexMorph((ComplexElement) selected);
         } else {
             VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
             if (selectedRelated != null && !selectedRelated.isEmpty())
@@ -399,6 +402,7 @@ public class MainController
                 break;
             case ENTITY:
                 uiController.setStatusText("Creando entidad...");
+                break;
             case CHOSING_ENTITY:
                 uiController.setStatusText("Escogiendo Entidad...");
                 break;
@@ -416,6 +420,7 @@ public class MainController
                 break;
             case CREATING_AGREGATION:
                 uiController.setStatusText("Creando agregación...");
+                break;
         }
     }
 
@@ -463,7 +468,7 @@ public class MainController
                         selectedAction = new MoveComplexElementAction((ComplexElement) selected);
                     } else {
                         if (!shouldComplexMorph){
-                            selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
+                            selectedRelated = Finder.findRelatedUnions(diagramC.fetchElements(), selected);
                             selectedAction = new MoveElementAction(selected, selectedRelated);
                         } else {
                             selectedAction = new MoveComplexElementAction(recursiveComplexMorph(morphingComplex));
@@ -554,7 +559,7 @@ public class MainController
             maxHeight = Math.max(maxHeight, v.getyPos());
         }
         diagramC.addElement(element);
-        drawC.addToBuffer(element);
+        /*drawC.addToBuffer(element);*/
     }
 
     public void deleteElement(Element deleted)
@@ -569,7 +574,7 @@ public class MainController
         }
         
         if (deleted.getPrimitive() instanceof Entity){
-            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
+            related = Finder.findRelatedUnions(diagramC.fetchElements(), deleted); 
         } else if (deleted.getPrimitive() instanceof Relationship
                 || deleted.getPrimitive() instanceof Heritage){
             related = deleted.getPrimitive().getChildren();
@@ -652,8 +657,10 @@ public class MainController
     public void removeElement(Element element)
     {
         diagramC.removeElement(element);
-        drawC.removeFromBuffer(element);
-        //weakEntityCheck.remove(element.hashCode());
+        /*drawC.removeFromBuffer(element);*/
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
+
     }
 
     public List<Element> fetchElements()
@@ -793,11 +800,14 @@ public class MainController
                 //recorre los hijos del padre;
                 for (Element ch : childs)
                 {
-                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                    if (!(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
                     {
-                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
-                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                        String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                        {
+                            if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                            else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                        }
                     }
                 }
                 //ahora para cada elemento de la herencia... (sin incluir el padre)
@@ -810,12 +820,15 @@ public class MainController
                     boolean temprHeritage = true;
                     for (Element _ch : tempChilds)
                     {
-                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                        if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
+                        if(!(_ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
                         {
-                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
-                            else tempsNames.put(_chName, true);
-                            if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
+                            String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                            if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
+                            {
+                                if (tempsNames.containsKey(_chName)) temprHeritage = false;
+                                else tempsNames.put(_chName, true);
+                                if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
+                            }
                         }
                     }
 

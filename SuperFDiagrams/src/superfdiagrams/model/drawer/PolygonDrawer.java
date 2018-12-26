@@ -94,6 +94,7 @@ public class PolygonDrawer implements Drawer{
         
         gc.setStroke(Color.BLACK);
         
+        //this.paint(gc, vertexes);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
@@ -123,6 +124,7 @@ public class PolygonDrawer implements Drawer{
         gc.setStroke(color);
         gc.setLineWidth(1);
         gc.setStroke(color);
+        //this.paint(gc, vertexes);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
@@ -132,6 +134,7 @@ public class PolygonDrawer implements Drawer{
     }
     
     private void drawText(GraphicsContext gc, String label, Vertex center, TextAlignment align){
+        gc.setFill(Color.BLACK);
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
         gc.setTextAlign(align);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
@@ -161,6 +164,7 @@ public class PolygonDrawer implements Drawer{
                                     size);
         
         gc.setStroke(Color.BLACK);
+        //this.paint(gc, vertexes);
         Vertex upL = vertexes.get(0);
         Vertex centerLabel = new Vertex(upL.getxPos() + 5, upL.getyPos() + 10);
         this.drawText(gc, label, centerLabel, TextAlignment.LEFT);
@@ -185,19 +189,9 @@ public class PolygonDrawer implements Drawer{
         Double x1, y1, x2 = null, y2 = null;
         boolean draw = true;
         
-        /*System.out.println("v1x: " + v1.getxPos() + " v1y: " + v1.getyPos());
-        System.out.println("v2x: " + v2.getxPos() + " v2y: " + v2.getyPos());
-        System.out.println("size: " + size);
-        System.out.println("Angle: " + angle);*/
-        
         for(x1 = beg.getxPos(), y1 = beg.getyPos(); x1 <= end.getxPos() && y1 <= end.getyPos() ; draw = !draw, x1 = x2, y1 = y2){
             x2 = x1 - size * Math.sin(angle);
             y2 = y1 + size * Math.cos(angle);
-            
-            /*System.out.println("dibujar? : " + draw);
-            System.out.println("x1: " + x1 + " y1: " + y1);
-            System.out.println("x2: " + x2 + " y2: " + y2);
-            System.out.println();*/
             
             if (!draw) continue;
             
@@ -215,5 +209,15 @@ public class PolygonDrawer implements Drawer{
             perimeter += GeometricUtilities.vertexDistance(vertexes.get(i), vertexes.get( (i + 1) % 4 ));
         }
         return perimeter / parts;
-    }  
+    }
+    
+    //Esta funcion pintar es ilegal, usado para realizar pruebas.
+    /*private void paint(GraphicsContext gc, List<Vertex> vertexes){
+    gc.setFill(Color.WHITE);
+    gc.beginPath();
+    for(Vertex v: vertexes)
+    gc.lineTo(v.getxPos() * zoom, v.getyPos() * zoom);
+    gc.fill();
+    gc.closePath();
+    }*/
 }

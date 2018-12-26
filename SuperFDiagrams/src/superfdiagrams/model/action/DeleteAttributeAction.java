@@ -48,7 +48,7 @@ public class DeleteAttributeAction implements Action{
         
         mainC.removeElement(deleted);
         
-        List<Element> parents = new Finder().findRelatedParentUnions(mainC.fetchElements(), deleted);
+        List<Element> parents = Finder.findRelatedParentUnions(mainC.fetchElements(), deleted);
         
         if (parents.isEmpty())
             return;

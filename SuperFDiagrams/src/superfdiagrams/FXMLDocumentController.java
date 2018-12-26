@@ -28,6 +28,7 @@ import javafx.util.Duration;
 import superfdiagrams.model.*;
 
 import static superfdiagrams.model.State.*;
+import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.*;
 import superfdiagrams.model.primitive.Type;
@@ -389,28 +390,30 @@ public class FXMLDocumentController implements Initializable{
     
     public void changeDependency()
     {
-        int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
-        Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
-        String[] choices =  new String[size];
-        for (int i = 0; i < size; i++) {
-            Union union = (Union)relation.getChildren().get(i).getPrimitive();
-            choices[i] = i+1+" .-"+ union.getChild().getPrimitive().getLabel();
-        }
+        if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
+            int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
+            Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
+            String[] choices =  new String[size];
+            for (int i = 0; i < size; i++) {
+                Union union = (Union)relation.getChildren().get(i).getPrimitive();
+                choices[i] = i+1+" .-"+ union.getChild().getPrimitive().getLabel();
+            }
 
-        ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
-        dialog.setHeaderText("Cambiando dependencia: ");
-        Optional<String> result = dialog.showAndWait();
-        String selected = "0";
-        
-        if (result.isPresent()){
-            selected = result.get();
-            selected = selected.substring(0, 1);
-            int n = Integer.parseInt(selected.substring(0, 1))-1;
-            Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive();
-            if (union.getType() == ROLE_STRONG){
-                changeType(DEPENDENCY, n);
-            }else if(union.getType() == DEPENDENCY){
-                changeType(ROLE_STRONG, n);
+            ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+            dialog.setHeaderText("Cambiando dependencia: ");
+            Optional<String> result = dialog.showAndWait();
+            String selected = "0";
+
+            if (result.isPresent()){
+                selected = result.get();
+                selected = selected.substring(0, 1);
+                int n = Integer.parseInt(selected.substring(0, 1))-1;
+                Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive();
+                if (union.getType() == ROLE_STRONG){
+                    changeType(DEPENDENCY, n);
+                }else if(union.getType() == DEPENDENCY){
+                    changeType(ROLE_STRONG, n);
+                }
             }
         }
     }

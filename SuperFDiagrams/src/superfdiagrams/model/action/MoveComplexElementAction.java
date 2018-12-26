@@ -21,18 +21,17 @@ public class MoveComplexElementAction implements MoveAction{
     private final List<MoveAction> moveActions;
 
     public MoveComplexElementAction(ComplexElement cmpElement){
-        Finder f = new Finder();
         List<Element> fetch = MainController.getController().fetchElements();
         
         this.moveActions = new ArrayList<>();
-        moveActions.add(new MoveElementAction(cmpElement, f.findRelatedUnions(fetch, cmpElement)));
+        moveActions.add(new MoveElementAction(cmpElement, Finder.findRelatedUnions(fetch, cmpElement)));
         for(Element e : cmpElement.getComposite()){
             if (e.getPrimitive() instanceof Union)
                 continue;
             if (e instanceof ComplexElement)
                 moveActions.add(new MoveComplexElementAction((ComplexElement) e));
             else
-                moveActions.add(new MoveElementAction(e, f.findRelatedUnions(fetch, e)));
+                moveActions.add(new MoveElementAction(e, Finder.findRelatedUnions(fetch, e)));
         }
     }
     
