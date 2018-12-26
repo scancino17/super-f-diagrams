@@ -57,7 +57,8 @@ public class SelectorController {
             case CREATING_AGREGATION:
                 if (  !selectedElements.contains(element)
                   && (element.getPrimitive() instanceof Relationship) 
-                  && (element.getPrimitive().getChildren().size() == 2 )){
+                  && (element.getPrimitive().getChildren().size() == 2 )
+                  && (Finder.findParentAggregation(element).isEmpty())){
                     
                     if(!selectedElements.isEmpty())
                         this.emptySelection();

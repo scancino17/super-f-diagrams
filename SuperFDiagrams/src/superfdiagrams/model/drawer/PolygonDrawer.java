@@ -94,6 +94,7 @@ public class PolygonDrawer implements Drawer{
         
         gc.setStroke(Color.BLACK);
         
+        //this.paint(gc, vertexes);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
@@ -123,6 +124,7 @@ public class PolygonDrawer implements Drawer{
         gc.setStroke(color);
         gc.setLineWidth(1);
         gc.setStroke(color);
+        //this.paint(gc, vertexes);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
@@ -132,6 +134,7 @@ public class PolygonDrawer implements Drawer{
     }
     
     private void drawText(GraphicsContext gc, String label, Vertex center, TextAlignment align){
+        gc.setFill(Color.BLACK);
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
         gc.setTextAlign(align);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
@@ -161,6 +164,7 @@ public class PolygonDrawer implements Drawer{
                                     size);
         
         gc.setStroke(Color.BLACK);
+        //this.paint(gc, vertexes);
         Vertex upL = vertexes.get(0);
         Vertex centerLabel = new Vertex(upL.getxPos() + 5, upL.getyPos() + 10);
         this.drawText(gc, label, centerLabel, TextAlignment.LEFT);
@@ -215,5 +219,15 @@ public class PolygonDrawer implements Drawer{
             perimeter += GeometricUtilities.vertexDistance(vertexes.get(i), vertexes.get( (i + 1) % 4 ));
         }
         return perimeter / parts;
-    }  
+    }
+    
+    //Esta funcion pintar es ilegal, usado para realizar pruebas.
+    /*private void paint(GraphicsContext gc, List<Vertex> vertexes){
+    gc.setFill(Color.WHITE);
+    gc.beginPath();
+    for(Vertex v: vertexes)
+    gc.lineTo(v.getxPos() * zoom, v.getyPos() * zoom);
+    gc.fill();
+    gc.closePath();
+    }*/
 }

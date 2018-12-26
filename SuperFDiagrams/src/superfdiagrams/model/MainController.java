@@ -279,9 +279,9 @@ public class MainController
      */
     public boolean drawElements()
     {
-        if (!drawC.isBufferEmpty())
+        if (/*!drawC.isBufferEmpty()*/!diagramC.fetchElements().isEmpty())
         {
-            drawC.doDrawLoop();
+            drawC.doDrawLoop(fetchElements());
             return true;
         }
         return false;
@@ -291,7 +291,7 @@ public class MainController
     {
         actionC.restart();
         diagramC.newDiagram();
-        drawC.eraseBuffer();
+        /*drawC.eraseBuffer();*/
         selectorC.emptySelection();
         selected = null;
         currentElement = null;
@@ -438,7 +438,7 @@ public class MainController
                         selectedAction = new MoveComplexElementAction((ComplexElement) selected);
                     } else {
                         if (!shouldComplexMorph){
-                            selectedRelated = new Finder().findRelatedUnions(diagramC.fetchElements(), selected);
+                            selectedRelated = Finder.findRelatedUnions(diagramC.fetchElements(), selected);
                             selectedAction = new MoveElementAction(selected, selectedRelated);
                         } else {
                             selectedAction = new MoveComplexElementAction(recursiveComplexMorph(morphingComplex));
@@ -525,7 +525,7 @@ public class MainController
             maxHeight = Math.max(maxHeight, v.getyPos());
         }
         diagramC.addElement(element);
-        drawC.addToBuffer(element);
+        /*drawC.addToBuffer(element);*/
     }
 
     public void deleteElement(Element deleted)
@@ -540,7 +540,7 @@ public class MainController
         }
         
         if (deleted.getPrimitive() instanceof Entity){
-            related = new Finder().findRelatedUnions(diagramC.fetchElements(), deleted); 
+            related = Finder.findRelatedUnions(diagramC.fetchElements(), deleted); 
         } else if (deleted.getPrimitive() instanceof Relationship
                 || deleted.getPrimitive() instanceof Heritage){
             related = deleted.getPrimitive().getChildren();
@@ -615,7 +615,7 @@ public class MainController
     public void removeElement(Element element)
     {
         diagramC.removeElement(element);
-        drawC.removeFromBuffer(element);
+        /*drawC.removeFromBuffer(element);*/
         weakEntityCheck.remove(element.getPrimitive().hashCode());
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
  * @author sebca
  */
 public class Finder {
-    public List<Element> findRelatedUnions(List<Element> list, Element element){
+    public static List<Element> findRelatedUnions(List<Element> list, Element element){
         List<Element> relatedUnions = new ArrayList<>();
         
         for(Element onList: list){
@@ -32,7 +32,7 @@ public class Finder {
         return relatedUnions;
     }
     
-    public boolean isParentPresent(List<Element> list, Element element){
+    public static boolean isParentPresent(List<Element> list, Element element){
         boolean isPresent = false;
         Primitive union = element.getPrimitive();
         if (!(union instanceof Union))
@@ -44,7 +44,7 @@ public class Finder {
         return isPresent;
     }
     
-    public List<Element> findRelatedParentUnions(List<Element> list, Element element){
+    public static List<Element> findRelatedParentUnions(List<Element> list, Element element){
         List<Element> relatedUnions = new ArrayList<>();
         
         for(Element onList: list){
@@ -75,5 +75,19 @@ public class Finder {
         
         
         return null;
+    }
+    
+    public static List<ComplexElement> findParentAggregation(Element child){
+        List<Element> elements = MainController.getController().fetchElements();
+        List<ComplexElement> aggregations = new ArrayList<>();
+        
+        for(Element e : elements){
+            if (e instanceof ComplexElement){
+                if (((ComplexElement) e).getComposite().contains(child))
+                    aggregations.add((ComplexElement) e);
+            }
+        }
+        
+        return aggregations;
     }
 }
