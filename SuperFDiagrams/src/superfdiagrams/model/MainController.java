@@ -782,44 +782,57 @@ public class MainController
             }
             else if(element instanceof Heritage)  // si hay herencia...
             {
-                //en pocas palabras,
-                //en una herencia, agarra el padre, del padre obtiene sus hijos.
-                // y para todos los elementos de la herencia, agarra los hijos
-                // compara todos los nombres de los hijos con todos los nombres los hijos de los elementos que pertenecen a la herencia..
-                // si ya me quede sin ideas y me fui al todos contra todos...
+
+                //Obtiene los hijos del padre
                 Element father = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
-                List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father);
+                List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
+
+                //crea un mapa con los nombres
+                HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
+                boolean fhatherHeritage = true;
+                //recorre los hijos del padre;
+                for (Element ch : childs)
+                {
+                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                    {
+                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                    }
+                }
+                //ahora para cada elemento de la herencia... (sin incluir el padre)
                 for (int i = 1; i < element.getChildren().size(); ++i)
                 {
                     Element temp = ((Union) (element.getChildren().get(i).getPrimitive())).getChild();
                     List<Element> tempChilds = Finder.findRelatedUnions(this.fetchElements(), temp);
-                    boolean find = true;
-                    for(Element ch : childs)
+                    HashMap<String, Boolean> tempsNames = new HashMap<String, Boolean>();
+                    //hace lo mismo que hice con el padre...
+                    boolean temprHeritage = true;
+                    for (Element _ch : tempChilds)
                     {
-                        if(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Heritage)
-                            break;
-
-                        String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                        for (Element _ch : tempChilds)
+                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
                         {
-                            if (_ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof  Heritage)
-                                break;
-
-                            String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                            if (_name.equals(_chName))
-                            {
-                                find = false;
-                                break; // ya tiene como mínimo uno suficiente para ponerlo en carmesí... (para qué seguir...)
-                            }
+                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
+                            else tempsNames.put(_chName, true);
+                            if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
                         }
                     }
 
-                    if(weakEntityCheck.containsKey(temp.hashCode()))
+                    //actualiza los mapas que contienen los errores
+                    if (weakEntityCheck.containsKey(temp.hashCode()))
                     {
                         EntityCheck entytemp = weakEntityCheck.get(temp.hashCode());
-                        entytemp.heritageName = find;
+                        entytemp.heritageName = temprHeritage;
                         weakEntityCheck.replace(temp.hashCode(), entytemp);
                     }
+                }
+                //actualiza los mapas que contienen los errores
+                if (weakEntityCheck.containsKey(father.hashCode()))
+                {
+                    EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
+                    entytemp.heritageName = fhatherHeritage;
+                    weakEntityCheck.replace(father.hashCode(), entytemp);
                 }
             }
         }
@@ -829,6 +842,7 @@ public class MainController
         for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {
             EntityCheck temp = entry.getValue();
+            boolean valid = temp.isValid();
             if(!temp.isValid())
                 message += "\n" + temp.name + temp.toString();
 

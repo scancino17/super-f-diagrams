@@ -387,7 +387,8 @@ public class FXMLDocumentController implements Initializable{
         editElementPane.setVisible(false);
     }
     
-        public void changeDependency(){
+    public void changeDependency()
+    {
         int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
         Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
         String[] choices =  new String[size];

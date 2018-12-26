@@ -43,15 +43,15 @@ public class EntityCheck
                 message += "\nDebe estar relacionadas con una entidad fuerte";
             return message;
         }
-        else if(type == Type.ROLE_STRONG)
-            if(!keyAtribute)
+        else if(!keyAtribute)
                 message += "\nDebe tener atributo clave";
-        else if(!heritageName)
+        if(!heritageName)
                 message += "\nAtributos con mismo nombre que en Entidad padre";
         return message;
     }
 
-    public boolean isValid(){
-        return  (type == Type.ROLE_WEAK ? partialKey && strongEntity : keyAtribute) && heritageName;
+    public boolean isValid()
+    {
+        return (type == Type.ROLE_WEAK ? partialKey && strongEntity : keyAtribute) && heritageName;
     }
 }
