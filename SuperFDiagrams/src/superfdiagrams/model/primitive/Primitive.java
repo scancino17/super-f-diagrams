@@ -19,4 +19,11 @@ public interface Primitive {
     public Type getType();
     public List<Element> getChildren();
     public void setChildren(List<Element> children);
+    /**
+     * Prioridad:
+     * 0 - Agregacion
+     * 1 - Union
+     * 2 - Todo lo demas
+     */
+    public int getPriority();
 }

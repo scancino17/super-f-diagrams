@@ -22,7 +22,7 @@ public class RenameElementAction implements Action{
     public RenameElementAction(Element contained, String name){
         this.contained = contained;
         this.name = name;
-        this.oldName = contained.getElement().getLabel();
+        this.oldName = contained.getPrimitive().getLabel();
     }
     
     @Override
@@ -32,12 +32,12 @@ public class RenameElementAction implements Action{
 
     @Override
     public void undo() {
-        this.contained.getElement().setLabel(oldName);
+        this.contained.getPrimitive().setLabel(oldName);
         new ElementBuilder().resize(contained);
     }
     
     public void execute(){
-        this.contained.getElement().setLabel(name);
+        this.contained.getPrimitive().setLabel(name);
         new ElementBuilder().resize(contained);
     }
 }

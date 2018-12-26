@@ -75,4 +75,22 @@ public class Vertex {
         v.used = this.used;
         return v;
     }
+    
+    public boolean equals(Vertex that){
+        return equals(that.xPos, that.yPos);
+    }
+    
+    public boolean equals(double x, double y){
+        if (this.xPos != x) return false;
+        return this.yPos == y;
+    }
+    
+    public void moveTo(double x, double y){
+        this.xPos = x;
+        this.yPos = y;
+    }
+    
+    public void moveTo(Vertex v){
+        this.moveTo(v.xPos, v.yPos);
+    }
 }

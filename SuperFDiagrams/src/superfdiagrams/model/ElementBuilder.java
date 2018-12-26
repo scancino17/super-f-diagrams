@@ -11,6 +11,7 @@ import superfdiagrams.model.primitive.Union;
 import superfdiagrams.model.primitive.Attribute;
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.FXMLDocumentController;
 import superfdiagrams.model.drawer.ElipseDrawer;
 import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.drawer.PolygonDrawer;
@@ -57,7 +58,7 @@ public class ElementBuilder {
         entity.setType(type);
         entity.setLabel(name);
         
-        element.setElement(entity);
+        element.setPrimitive(entity);
         double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
         element.setVertexes(VertexGenerator.generateRectangle(size * xSizeMultiplier, size, center));
         element.setCenterVertex(center);
@@ -81,10 +82,11 @@ public class ElementBuilder {
         relation.setType(type);
         List<Element> unions = new ArrayList<>();
         
-        element.setElement(relation);
+        element.setPrimitive(relation);
         if(related.size() > 1){
             for(Element el: related){
-                unions.add(generateLine(element, el));
+                String c = FXMLDocumentController.askCardinality(el.getPrimitive().getLabel());
+                unions.add(generateLine(element, el, c));
             }
         } else if (related.size() == 1){
             unions.add(generateLine(element, related.get(0)));
@@ -108,7 +110,7 @@ public class ElementBuilder {
         
         Element element = new Element();
         
-        element.setElement(attribute);
+        element.setPrimitive(attribute);
         element.setCenterVertex(center);
         double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
         element.setVertexes(VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
@@ -134,7 +136,7 @@ public class ElementBuilder {
         
         Element element = new Element();
         
-        element.setElement(heritage);
+        element.setPrimitive(heritage);
         element.setCenterVertex(center);
         element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
         
@@ -143,11 +145,11 @@ public class ElementBuilder {
         for(Element el: heritage.getChildren()){
                     Element line = generateLine(element, el);
                     ((LineDrawer)line.getDrawer()).setType(UNION_HERITAGE);
-                    line.getElement().setType(UNION_HERITAGE);
+                    line.getPrimitive().setType(UNION_HERITAGE);
                     unions.add(line);
                 }
         ((LineDrawer)unions.get(0).getDrawer()).setType(ROLE_STRONG);
-        unions.get(0).getElement().setType(ROLE_STRONG);
+        unions.get(0).getPrimitive().setType(ROLE_STRONG);
         heritage.setChildren(unions);
         
         PolygonDrawer drawer = new PolygonDrawer();
@@ -158,8 +160,29 @@ public class ElementBuilder {
         
     }
 
+    public Element generateAgregation(List<Element> related, Type type){
+        Entity agregation = new Entity();
+        agregation.setChildren(related);
+        agregation.setLabel(name);
+        
+        Element element = new ComplexElement();
+        
+        element.setPrimitive(agregation);
+        element.setCenterVertex(center);
+        element.setVertexes(VertexGenerator.getAgregationVertexes(related));
+        
+        PolygonDrawer drawer = new PolygonDrawer();
+        drawer.setCenter(center);
+        drawer.setType(type);
+        element.setDrawer(drawer);
+        return element;
+    }
     
     public Element generateLine(Element relation, Element entity){
+        return this.generateLine(relation, entity, "");
+    }
+    
+    public Element generateLine(Element relation, Element entity, String cardinality){
         Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
@@ -168,10 +191,13 @@ public class ElementBuilder {
         Union union = new Union();
         union.setParent(relation);
         union.setChild(entity);
-        LineDrawer drawer = new LineDrawer();
+        union.setCardinality(cardinality);
         
-        if (relation.getElement().getType() == ROLE_WEAK 
-         && entity.getElement().getType() == ROLE_WEAK)
+        LineDrawer drawer = new LineDrawer();
+        drawer.setCardinality(cardinality);
+        
+        if (relation.getPrimitive().getType() == ROLE_WEAK 
+         && entity.getPrimitive().getType() == ROLE_WEAK)
         {
             union.setType(ROLE_WEAK);
             drawer.setType(ROLE_WEAK);
@@ -181,8 +207,9 @@ public class ElementBuilder {
         }
         
         line.setVertexes(vertexes);
+        line.setCenterVertex(GeometricUtilities.getCenterOfMass(vertexes));
         line.setDrawer(drawer);
-        line.setElement(union);
+        line.setPrimitive(union);
         return line;
     }
     
@@ -192,7 +219,7 @@ public class ElementBuilder {
         List<Vertex> vertexes = VertexGenerator.cloneVertex(element.getVertexes());
         
         clone.setVertexes(vertexes);
-        clone.setElement(element.getElement());
+        clone.setPrimitive(element.getPrimitive());
         clone.setDrawer(element.getDrawer());
         
         return clone;
@@ -201,20 +228,20 @@ public class ElementBuilder {
     public Element cloneUnion(Element union){
         Element clone = new Element();
         
-        Element parent = ((Union) union.getElement()).getParent();
-        Element child = ((Union) union.getElement()).getChild();
+        Element parent = ((Union) union.getPrimitive()).getParent();
+        Element child = ((Union) union.getPrimitive()).getChild();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(parent.getVertexes(), child.getVertexes());
         
         Union primitive = new Union();
         primitive.setParent(parent);
         primitive.setChild(child);
-        primitive.setType(union.getElement().getType());
+        primitive.setType(union.getPrimitive().getType());
         
         clone.setVertexes(vertexes);
         clone.setDrawer(new LineDrawer());
         clone.getDrawer().setType(union.getDrawer().getType());
-        clone.setElement(primitive);
+        clone.setPrimitive(primitive);
         
         return clone;
     }
@@ -226,7 +253,7 @@ public class ElementBuilder {
      * @param element Element a cambiar de forma
      */
     public void resize(Element element){
-        Primitive primitive = element.getElement();
+        Primitive primitive = element.getPrimitive();
         double multiplier = GeometricUtilities.getSizeMultiplier(primitive.getLabel());
         Vertex elementCenter = element.getCenterVertex();
         List<Vertex> newVertexSet = null;

@@ -8,6 +8,7 @@ package superfdiagrams.model;
 import superfdiagrams.model.primitive.Primitive;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.drawer.Drawable;
 import superfdiagrams.model.drawer.Drawer;
 
@@ -15,29 +16,30 @@ import superfdiagrams.model.drawer.Drawer;
  *
  * @author sebca
  */
-public class Element implements Drawable{
-    private Primitive element;
+public class Element implements Drawable, Comparable<Element>{
+    private Primitive primitive;
     private Drawer drawer;
     private List<Vertex> vertexes;
     private Vertex center;
-    private boolean highlighted = false;
+    private ElementState state = NORMAL;
 
     @Override
     public void draw(GraphicsContext gc) {
-        drawer.doDraw(gc,vertexes,element.getLabel(), highlighted);
+        drawer.doDraw(gc,vertexes,primitive.getLabel(), state);
     }
 
+    @Override
     public void drawVertex(GraphicsContext gc)
     {
         drawer.doDrawVertex(gc,vertexes);
     }
 
-    public Primitive getElement() {
-        return element;
+    public Primitive getPrimitive() {
+        return primitive;
     }
 
-    public void setElement(Primitive element) {
-        this.element = element;
+    public void setPrimitive(Primitive element) {
+        this.primitive = element;
     }
 
     public Drawer getDrawer() {
@@ -56,15 +58,27 @@ public class Element implements Drawable{
         this.vertexes = vertexes;
     }
     
-    public void setHighlighted(boolean value){
-        this.highlighted = value;
+    public void setElementState(ElementState value){
+        this.state = value;
     }
-    
+
+    public ElementState getElementState(){return this.state;}
+
     public void setCenterVertex(Vertex center){
         this.center = center;
     }
     
     public Vertex getCenterVertex(){
         return center;
+    }
+
+    @Override
+    public int compareTo(Element that) {
+        return this.primitive.getPriority() - that.primitive.getPriority();
+    }
+    
+    @Override
+    public String toString(){
+        return this.primitive.getLabel() + " " + this.primitive.getPriority();
     }
 }

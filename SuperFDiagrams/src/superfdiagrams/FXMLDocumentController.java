@@ -28,8 +28,10 @@ import javafx.util.Duration;
 import superfdiagrams.model.*;
 
 import static superfdiagrams.model.State.*;
+import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.*;
 import superfdiagrams.model.primitive.Type;
+import superfdiagrams.model.primitive.Union;
 
 /**
  *
@@ -78,7 +80,9 @@ public class FXMLDocumentController implements Initializable{
         deactivateButton(undoButton);
         deactivateButton(redoButton);
         hideElementPane();
-        
+
+        errorText.setStyle("-fx-text-fill: RED;");
+
         Timeline tl = new Timeline(
                 new KeyFrame(Duration.millis(30), e -> run(gc)));
         tl.setCycleCount(Timeline.INDEFINITE);
@@ -128,8 +132,8 @@ public class FXMLDocumentController implements Initializable{
         if(mainC.getCurrentElement() != null && mainC.getState() == VIEW)
         {
             showElementPane();
-            currentElementText.setText(mainC.getCurrentElement().getElement().getLabel());
-            mainC.getCurrentElement().setHighlighted(true);
+            currentElementText.setText(mainC.getCurrentElement().getPrimitive().getLabel());
+            mainC.getCurrentElement().setElementState(ElementState.NORMAL);
         }
         else
         {
@@ -137,7 +141,7 @@ public class FXMLDocumentController implements Initializable{
             hideElementPane();
         }
     }
-    
+
 
     /**
      * Funcion que cambia el estado para dibujar entidades, se activa cuando 
@@ -275,7 +279,12 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     public void changeStatusHeritage(){
         mainC.setState(State.SELECTING_CHILDREN);
-}
+    }
+    
+    @FXML
+    public void changeStatusAgregation(){
+        mainC.setState(State.CREATING_AGREGATION);
+    }
     
     public Type askAttributeType(){
         String[] choices =  new String[]{"1 - Derivado",
@@ -365,16 +374,18 @@ public class FXMLDocumentController implements Initializable{
     {
         if(mainC.getCurrentElement() == null)
             return;
-        
+
+        String oldName = mainC.getCurrentElement().getPrimitive().getLabel();
         mainC.renameCurrentElement(currentElementText.getText());
         
-        WeakEntityCheck temp = mainC.map.get(mainC.getCurrentElement().getElement().hashCode());
+        EntityCheck temp = mainC.weakEntityCheck.get(mainC.getCurrentElement().getPrimitive().hashCode());
         
         if (temp == null)
             return;
         
         temp.name = currentElementText.getText();
-        mainC.map.replace(mainC.getCurrentElement().getElement().hashCode(), temp);
+        mainC.weakEntityCheck.replace(mainC.getCurrentElement().getPrimitive().hashCode(), temp);
+        mainC.entityNanes.put(currentElementText.getText(), mainC.entityNanes.remove(oldName));
     }
     
     public void showElementPane(){
@@ -385,5 +396,50 @@ public class FXMLDocumentController implements Initializable{
     public void hideElementPane(){
         editElementPane.setDisable(true);
         editElementPane.setVisible(false);
+    }
+    
+        public void changeDependency(){
+        int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
+        Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
+        String[] choices =  new String[size];
+        for (int i = 0; i < size; i++) {
+            Union union = (Union)relation.getChildren().get(i).getPrimitive();
+            choices[i] = i+1+" .-"+ union.getChild().getPrimitive().getLabel();
+        }
+
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+        dialog.setHeaderText("Cambiando dependencia: ");
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        
+        if (result.isPresent()){
+            selected = result.get();
+            selected = selected.substring(0, 1);
+            int n = Integer.parseInt(selected.substring(0, 1))-1;
+            Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive();
+            if (union.getType() == ROLE_STRONG){
+                changeType(DEPENDENCY, n);
+            }else if(union.getType() == DEPENDENCY){
+                changeType(ROLE_STRONG, n);
+            }
+        }
+    }
+    
+    public void changeType(Type type, int n){
+        mainC.getCurrentElement().getPrimitive().getChildren().get(n).getDrawer().setType(type);
+        mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive().setType(type);
+    }
+    
+    public static String askCardinality(String eName){
+        String[] choices =  new String[]{"1 - n",
+                                         "2 - 1",};
+        ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+        dialog.setHeaderText("Cardinalidad de " + eName + ": ");
+        Optional<String> result = dialog.showAndWait();
+        String selected = "0";
+        selected = result.get();
+        
+        return Character.toString(selected.charAt(4));
+        
     }
 }

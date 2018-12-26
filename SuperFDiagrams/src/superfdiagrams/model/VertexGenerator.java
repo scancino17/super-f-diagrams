@@ -209,15 +209,57 @@ public class VertexGenerator {
         for (int j = 0; j < 4; j++) {
             distances.add(twoPointsDistance(relation.getVertexes().get(index).getxPos()
                     , relation.getVertexes().get(index).getyPos(), 
-                    relation.getElement().getChildren().get(index).getVertexes().get(j).getxPos()
-                    , relation.getElement().getChildren().get(index).getVertexes().get(j).getyPos()));
+                    relation.getPrimitive().getChildren().get(index).getVertexes().get(j).getxPos()
+                    , relation.getPrimitive().getChildren().get(index).getVertexes().get(j).getyPos()));
         }
-        return relation.getElement().getChildren().get(index).getVertexes().get(minorIndex(distances));
+        return relation.getPrimitive().getChildren().get(index).getVertexes().get(minorIndex(distances));
     }
     
     public Vertex determinateVertex(Element relation, int index, boolean xd){
-        return relation.getElement().getChildren().get(index).getVertexes().get(index+2);
+        return relation.getPrimitive().getChildren().get(index).getVertexes().get(index+2);
     }
+    
+    /**
+     * @author Sebastian Cancino
+     * @param related
+     * @return 
+     */
+    public static List<Vertex> getAgregationVertexes(List<Element> related) {
+        Double minX = null,
+               minY = null,
+               maxX = null,
+               maxY = null;
+        
+        for(Element el : related)
+            for(Vertex v : el.getVertexes()){
+                double x = v.getxPos();
+                double y = v.getyPos();
+                
+                if(minX == null || x < minX)
+                    minX = x;
+                if(maxX == null || x > maxX)
+                    maxX = x;
+                
+                if(minY == null || y < minY)
+                    minY = y;
+                if(maxY == null || y > maxY)
+                    maxY = y;
+            }
+        
+        minX -= 10;
+        maxX += 10;
+        minY -= 30;
+        maxY += 10;
+        
+        List<Vertex> vertexes = new ArrayList<>();
+        vertexes.add( new Vertex(minX, minY) );
+        vertexes.add( new Vertex(minX, maxY) );
+        vertexes.add( new Vertex(maxX, maxY) );
+        vertexes.add( new Vertex(maxX, minY) );
+        
+        return vertexes;
+    }
+    
     /**
      * Funcion que solo devuelve la distancia entre 2 puntos
      * @param x1
@@ -226,6 +268,7 @@ public class VertexGenerator {
      * @param y2
      * @return 
      */
+    
     public static double twoPointsDistance(double x1, double y1, double x2,double y2){
         return Math.hypot(x2-x1, y2-y1);
     }
@@ -248,7 +291,16 @@ public class VertexGenerator {
         return j;
     }
     
-    public static void recalculateVertexes(List<Vertex> vertexes, 
+    public static void recalculateVertexes(Element element, double x, double y){
+        recalculateVertexes(element.getVertexes(), new Vertex(x, y));
+        element.setCenterVertex(GeometricUtilities.getCenterOfMass(element.getVertexes()));
+    }
+    
+    public static void recalculateVertexes(Element element, Vertex newCenter){
+        recalculateVertexes(element, newCenter.getxPos(), newCenter.getyPos());
+    }
+    
+    private static void recalculateVertexes(List<Vertex> vertexes, 
                                     Vertex newCenter)
     {
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
@@ -256,13 +308,12 @@ public class VertexGenerator {
             v.setxPos(v.getxPos() - center.getxPos() + newCenter.getxPos());
             v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
         }
-        
     }
     
     public static void recalculateNearestVertexes(List<Element> unions){
         Element parent = null;
         for(Element union : unions){
-            Element selected = ((Union)union.getElement()).getParent();
+            Element selected = ((Union)union.getPrimitive()).getParent();
             if (selected != parent){
                 parent = selected;
                 
@@ -270,10 +321,10 @@ public class VertexGenerator {
                     v.setUsed(false);
                 
                 
-                for(Element unionInParent: parent.getElement().getChildren()){
-                    if (unionInParent.getElement() instanceof Union){
+                for(Element unionInParent: parent.getPrimitive().getChildren()){
+                    if (unionInParent.getPrimitive() instanceof Union){
                         unionInParent.setVertexes(GeometricUtilities.nearestVertexes
-                            (parent.getVertexes(), ((Union)unionInParent.getElement()).getChild().getVertexes()));
+                            (parent.getVertexes(), ((Union)unionInParent.getPrimitive()).getChild().getVertexes()));
                     }
                 }
             }
@@ -286,5 +337,63 @@ public class VertexGenerator {
             newVertexes.add(new Vertex(original.getCoordinates()));
         }
         return newVertexes;
+    }
+    
+    public static List<Vertex> gatherCenterDif(Element central, List<Element> related){
+        List<Vertex> centers = new ArrayList<>();
+        
+        double cx = central.getCenterVertex().getxPos();
+        double cy = central.getCenterVertex().getyPos();
+        double rx, ry; 
+        
+        for(Element r: related){ 
+            rx = r.getCenterVertex().getxPos();
+            ry = r.getCenterVertex().getyPos();
+            
+            centers.add(new Vertex(cx - rx, cy - ry));
+        }
+        
+        return centers;
+    }
+    
+    public static void recalculateComplexElement(Element complex, List<Element> related, double x, double y){    
+        List<Vertex> centers = gatherCenterDif(complex, related);
+        double cx, cy;
+        Vertex rCenter;
+        
+        for(int i = 0; i < centers.size(); i++){
+            Element e = related.get(i);
+            if (e.getPrimitive() instanceof Union)
+                continue;
+            
+            rCenter = centers.get(i);
+            cx = rCenter.getxPos();
+            cy = rCenter.getyPos();
+            
+            if(related.get(i) instanceof ComplexElement)
+                recalculateComplexElement(e, ((ComplexElement) e).getComposite(), x - cx, y - cy);
+            else
+                recalculateVertexes(related.get(i), x - cx, y - cy);
+        }
+        
+        recalculateVertexes(complex, x, y);
+    }
+    
+    public static void morphComplex(ComplexElement element){
+        List<Vertex> newVertex = getAgregationVertexes(element.getComposite());
+        List<Vertex> cmpVertex = element.getVertexes();
+        
+        for(int i = 0 ; i < cmpVertex.size() ; i++){
+            Vertex v0 = cmpVertex.get(i);
+            Vertex v1 = newVertex.get(i);
+            v0.moveTo(v1);
+        }
+    }
+    
+    public static void morphContainedComplex(ComplexElement element){
+        morphComplex(element);
+        for(Element e : element.getComposite())
+            if(e instanceof ComplexElement)
+                morphContainedComplex((ComplexElement) e);
     }
 }

@@ -10,6 +10,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import superfdiagrams.model.ElementState;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
@@ -39,27 +41,35 @@ public class ElipseDrawer implements Drawer{
     } 
 
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
+   ) {
         zoom = MainController.getController().getZoomFactor();
-        this.doDraw(gc, vertexes, name, highlighted, type);
+        this.doDraw(gc, vertexes, name, elementState
+               , type);
     }
 
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted, Type type) {
+    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
+           , Type type) {
         switch (type){
             case ATTRIBUTE_DERIVATE:
-                derivateDraw(gc, vertexes, name, highlighted);
+                derivateDraw(gc, vertexes, name, elementState
+               );
                 break;
             case ATTRIBUTE_KEY:
-                keyDraw(gc, vertexes, name, highlighted);
+                keyDraw(gc, vertexes, name, elementState
+               );
                 break;
             case ATTRIBUTE_MULTIVALUATED:
-                multivaluateDraw(gc, vertexes, name, highlighted);
+                multivaluateDraw(gc, vertexes, name, elementState
+               );
                 break;
             case ATTRIBUTE_PARTIAL_KEY:
-                partialKeyDraw(gc, vertexes, name, highlighted);
+                partialKeyDraw(gc, vertexes, name, elementState
+               );
                 break;
             default:
-                genericDraw(gc, vertexes, name, highlighted);
+                genericDraw(gc, vertexes, name, elementState
+               );
                 break;
         }
     }
@@ -72,6 +82,7 @@ public class ElipseDrawer implements Drawer{
             gc.setLineWidth(5);
             gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
+        gc.setLineWidth(1);
     }
     
     /**
@@ -80,14 +91,12 @@ public class ElipseDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted 
+     * @param elementState
+     *
      */
-    private void derivateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
-        }
+    private void derivateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        gc.setStroke(setColor(elementState));
+        
         int j = 0;
         int size = vertexes.size();
         for (int i = 0; i < vertexes.size(); i++) {
@@ -108,14 +117,11 @@ public class ElipseDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted 
+     * @param elementState
+     *
      */
-    private void genericDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
-        }
+    private void genericDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(1);
         
@@ -125,8 +131,7 @@ public class ElipseDrawer implements Drawer{
                     vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
@@ -137,14 +142,11 @@ public class ElipseDrawer implements Drawer{
      * @param gc
      * @param vertexes
      * @param name
-     * @param highlighted 
+     * @param elementState
+     *
      */
-    private void keyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
-        }
+    private void keyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(1);
         
@@ -154,8 +156,7 @@ public class ElipseDrawer implements Drawer{
                     vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
@@ -164,13 +165,9 @@ public class ElipseDrawer implements Drawer{
                 center.getxPos() * zoom + name.length() * 5, center.getyPos() * zoom + 5);
     }
     
-    private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
+    private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
       
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
-        }
+        gc.setStroke(setColor(elementState));
 
         gc.setLineWidth(3);
         
@@ -186,8 +183,7 @@ public class ElipseDrawer implements Drawer{
                     vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         gc.setStroke(Color.BLACK);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
@@ -195,11 +191,17 @@ public class ElipseDrawer implements Drawer{
         
     }
     
-    public void partialKeyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, boolean highlighted){
-        if(!highlighted){
-            gc.setStroke(Color.BLACK);
-        } else{
-            gc.setStroke(Color.CORNFLOWERBLUE);
+    public void partialKeyDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        switch(elementState){
+            case HIGHLIGHTED:
+                gc.setStroke(Color.CORNFLOWERBLUE);
+                break;
+            case INVALID:
+                gc.setStroke(Color.CRIMSON);
+                break;
+            default:
+                gc.setStroke(Color.BLACK);
+                break;
         }
 
         gc.setLineWidth(1);
@@ -210,8 +212,7 @@ public class ElipseDrawer implements Drawer{
                     vertexes.get((i + 1) % size).getxPos() * zoom, vertexes.get(( i +1 )% size).getyPos() * zoom);
         }
         
-        if(highlighted)
-            gc.setStroke(Color.BLACK);
+        gc.setStroke(Color.BLACK);
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
@@ -229,5 +230,16 @@ public class ElipseDrawer implements Drawer{
         gc.setFont(new Font(Font.getDefault().getSize() * zoom));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
+    }
+    
+    private Color setColor(ElementState state){
+        switch(state){
+            case HIGHLIGHTED:
+                return Color.CORNFLOWERBLUE;
+            case INVALID:
+                return Color.CRIMSON;
+            default:
+                return Color.BLACK;
+        }
     }
 }

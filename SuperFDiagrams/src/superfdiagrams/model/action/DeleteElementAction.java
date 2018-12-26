@@ -7,7 +7,9 @@ package superfdiagrams.model.action;
 
 import java.util.ArrayList;
 import java.util.List;
+import superfdiagrams.model.ComplexElement;
 import superfdiagrams.model.Element;
+import superfdiagrams.model.Finder;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.primitive.Attribute;
@@ -24,6 +26,7 @@ import superfdiagrams.model.primitive.Union;
  * @author sebca
  */
 public class DeleteElementAction implements Action{
+    private List<ComplexElement> aggregations;
     private Element deleted;
     private List<Element> related;
     private MainController mainC;
@@ -35,6 +38,7 @@ public class DeleteElementAction implements Action{
         this.deleted = deleted;
         this.related = related;
         this.mainC = MainController.getController();
+        this.aggregations = new ArrayList<>();
     }
     
     @Override
@@ -53,7 +57,7 @@ public class DeleteElementAction implements Action{
     @Override
     public void undo() {
         for(Element r : related){
-            if(deleted.getElement() instanceof Entity){
+            if(deleted.getPrimitive() instanceof Entity){
                 addUnion(r);
             } else mainC.addElement(r);
         }
@@ -63,32 +67,42 @@ public class DeleteElementAction implements Action{
         if (attributes != null)
             for(DeleteAttributeAction attribute: attributes)
                attribute.undo();
+        
+        if(!aggregations.isEmpty()){
+            for(ComplexElement aggregation : aggregations)
+                mainC.addElement(aggregation);
+                
+            aggregations = new ArrayList<>();
+        }
     }
      
     public void execute(){
         for (Element r : related) {
-            if(deleted.getElement() instanceof Entity)
+            if(deleted.getPrimitive() instanceof Entity)
                 removeUnion(r);
-            else
+            else if (deleted.getPrimitive() instanceof Relationship){
+                checkAggregation(r);
+                mainC.removeElement(r);
+            }else
                 mainC.removeElement(r);
         }
             mainC.removeElement(deleted);
     }
     
     private void removeUnion(Element union){
-        Element parent = ((Union)union.getElement()).getParent();
+        Element parent = ((Union)union.getPrimitive()).getParent();
         
-        if (parent.getElement() instanceof Attribute){       
+        if (parent.getPrimitive() instanceof Attribute){       
             removeAttribute(parent);
             return;
         }
         
-        if (parent.getElement() instanceof Heritage){
+        if (parent.getPrimitive() instanceof Heritage){
             mainC.removeElement(union);
-            parent.getElement().getChildren().remove(union);
+            parent.getPrimitive().getChildren().remove(union);
             
             List<Element> heritageChildren = new ArrayList<>();
-            for(Element un: parent.getElement().getChildren()){
+            for(Element un: parent.getPrimitive().getChildren()){
                 heritageChildren.add(un);
             }
             
@@ -96,7 +110,7 @@ public class DeleteElementAction implements Action{
                 for(Element un : heritageChildren){
                     addToHeritageRelated(un);
                     mainC.removeElement(un);
-                    parent.getElement().getChildren().remove(un);
+                    parent.getPrimitive().getChildren().remove(un);
                 }
                 mainC.removeElement(parent);
             }
@@ -104,11 +118,11 @@ public class DeleteElementAction implements Action{
             return;
         }
         
-        List<Element> parentContained = parent.getElement().getChildren();
+        List<Element> parentContained = parent.getPrimitive().getChildren();
         
-        if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
-            Element child1 = ((Union)parentContained.get(0).getElement()).getChild();
-            Element child2 = ((Union)parentContained.get(1).getElement()).getChild();
+        if(parent.getPrimitive() instanceof Relationship && parentContained.size() == 2){
+            Element child1 = ((Union)parentContained.get(0).getPrimitive()).getChild();
+            Element child2 = ((Union)parentContained.get(1).getPrimitive()).getChild();
             
             if (child1 == child2){
                 mainC.removeElement(parentContained.get(0));
@@ -124,9 +138,11 @@ public class DeleteElementAction implements Action{
             mainC.removeElement(union);
         }
         
-        if(parentContained.isEmpty())
+        if(parentContained.isEmpty()){
+            checkAggregation(parent);
             mainC.removeElement(parent);
-        else if(parent.getElement() instanceof Attribute)
+        }
+        else if(parent.getPrimitive() instanceof Attribute)
             for (Element u: parentContained)
                 removeUnion(u);
         
@@ -135,27 +151,27 @@ public class DeleteElementAction implements Action{
     }
     
     private void addUnion(Element union){
-        Element parent = ((Union)union.getElement()).getParent();
+        Element parent = ((Union)union.getPrimitive()).getParent();
         
-        if(parent.getElement() instanceof Attribute)
+        if(parent.getPrimitive() instanceof Attribute)
             return;
         
         if(heritageRelated != null && !heritageRelated.isEmpty()){
             for (Element u: heritageRelated){
-                Element heritageParent = ((Union)u.getElement()).getParent();
+                Element heritageParent = ((Union)u.getPrimitive()).getParent();
                 
-                if (!heritageParent.getElement().getChildren().contains(u)){
-                    heritageParent.getElement().getChildren().add(u);
+                if (!heritageParent.getPrimitive().getChildren().contains(u)){
+                    heritageParent.getPrimitive().getChildren().add(u);
                     mainC.addElement(u);
                 }
             }
         }
         
-        List<Element> parentContained = parent.getElement().getChildren();
+        List<Element> parentContained = parent.getPrimitive().getChildren();
         
-        if(parent.getElement() instanceof Relationship && parentContained.size() == 2){
-            Element child1 = ((Union)parentContained.get(0).getElement()).getChild();
-            Element child2 = ((Union)parentContained.get(1).getElement()).getChild();
+        if(parent.getPrimitive() instanceof Relationship && parentContained.size() == 2){
+            Element child1 = ((Union)parentContained.get(0).getPrimitive()).getChild();
+            Element child2 = ((Union)parentContained.get(1).getPrimitive()).getChild();
             
             if (child1 == child2){
                 mainC.removeElement(parentContained.get(0));
@@ -164,7 +180,7 @@ public class DeleteElementAction implements Action{
         }  
         
         
-        parent.getElement().getChildren().add(union);
+        parent.getPrimitive().getChildren().add(union);
         
         if(!mainC.fetchElements().contains(parent)){
             mainC.addElement(parent);
@@ -176,9 +192,9 @@ public class DeleteElementAction implements Action{
         
         mainC.morphElement(parent);
         
-        for (Element u : parent.getElement().getChildren()){
-            if (u.getElement().getType() == ROLE_WEAK){
-                parent.getDrawer().setType(parent.getElement().getType());
+        for (Element u : parent.getPrimitive().getChildren()){
+            if (u.getPrimitive().getType() == ROLE_WEAK){
+                parent.getDrawer().setType(parent.getPrimitive().getType());
                 break;
             }
         }
@@ -194,19 +210,19 @@ public class DeleteElementAction implements Action{
     }
     
     private boolean shouldRemoveHeritage(Element heritage){
-        if (!(heritage.getElement() instanceof Heritage))
+        if (!(heritage.getPrimitive() instanceof Heritage))
             return false;
         
         boolean hasChild = false;
         boolean hasParent = false;
         
-        List<Element> unions = heritage.getElement().getChildren();
+        List<Element> unions = heritage.getPrimitive().getChildren();
         for (Element union: unions){
-            if (union.getElement().getType() == ROLE_STRONG){
+            if (union.getPrimitive().getType() == ROLE_STRONG){
                 hasParent = true;
             }
             
-            if (union.getElement().getType() == UNION_HERITAGE){
+            if (union.getPrimitive().getType() == UNION_HERITAGE){
                 hasChild = true;
             }
             
@@ -221,5 +237,16 @@ public class DeleteElementAction implements Action{
         if (this.heritageRelated == null)
             heritageRelated = new ArrayList<>();
         heritageRelated.add(element);
+    }
+
+    private void checkAggregation(Element r) {
+        List<ComplexElement> aggregationContained = Finder.findParentAggregation(r);
+        
+        if (aggregationContained == null)
+            return;
+        
+        this.aggregations.addAll(aggregationContained);
+        for(ComplexElement aggregation : aggregations)
+            mainC.removeElement(aggregation);
     }
 }

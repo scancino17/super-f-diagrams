@@ -5,22 +5,22 @@
  */
 package superfdiagrams.model.drawer;
 
-import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
+import superfdiagrams.model.Element;
 
 /**
  *
  * @author sebca
  */
 public class DrawController {
-    private static DrawController dc;
-    private List<Drawable> buffer;
+    private static DrawController dc;/*
+    private List<Drawable> buffer;*/
     private GraphicsContext gc;
     private boolean shouldDrawVertex;
     
-    private DrawController(){
-        this.buffer = new ArrayList<>();
+    private DrawController(){/*
+        this.buffer = new ArrayList<>();*/
         this.shouldDrawVertex = false;
     }
     
@@ -38,29 +38,48 @@ public class DrawController {
         this.shouldDrawVertex = !shouldDrawVertex;
     }  
     
-    public void addToBuffer(Drawable toDraw){
-        buffer.add(toDraw);
+    /*public void addToBuffer(Drawable toDraw){
+    buffer.add(toDraw);
     }
     
     public void removeFromBuffer(Drawable toRemove){
-        buffer.remove(toRemove);
+    buffer.remove(toRemove);
     }
     
     public boolean isBufferEmpty(){
-        return this.buffer.isEmpty();
+    return this.buffer.isEmpty();
     }
     
     public void eraseBuffer(){
-        this.buffer = new ArrayList<>();
+    this.buffer = new ArrayList<>();
+    }*/
+    
+    /*public void doDrawLoop(){
+    if (gc == null){
+    System.err.println("Error. GraphicsContext no entregado.");
+    return;
     }
     
-    public void doDrawLoop(){
-        if (gc == null){
+    for (Drawable toDraw: buffer){
+    try {
+    toDraw.draw(gc);
+    if(shouldDrawVertex)
+    toDraw.drawVertex(gc);
+    } catch (Exception e) {
+    System.err.println("Error en la rutina de dibujo. Entregando error: ");
+    System.err.println(e.toString());
+    e.printStackTrace();
+    }
+    }
+    }*/
+    
+    public void doDrawLoop(List<Element> elements){
+        if(gc == null){
             System.err.println("Error. GraphicsContext no entregado.");
             return;
-        }
+        }    
         
-        for (Drawable toDraw: buffer){
+        for (Element toDraw: elements){
             try {
                 toDraw.draw(gc);
                 if(shouldDrawVertex) 

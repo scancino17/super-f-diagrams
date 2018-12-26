@@ -35,17 +35,17 @@ public class GeometricUtilities {
     }
     
     // solo para probar... recorre todos los elementos y ve si el Vertex p está pertenece a alguno
-    public static ElementWrapper checkColition(Vertex p)
+    public static Element checkColition(Vertex p)
     {
-        for(ElementWrapper element: DiagramController.getController().fetchElements())
+        for(Element element: DiagramController.getController().fetchElements())
             if(PointInPolygon(element.getVertexes(), p))
                 return element;
 
         return null;
     }
     
-    public static ElementWrapper checkColition(double x, double y){
-        return checkColition(VertexGenerator.generateVertex(x, y));
+    public static Element checkColition(double x, double y){
+        return checkColition(VertexGenerator.generateVertex(x  , y ));
     }
     
     public static Vertex getCenterOfMass(List<Vertex> polygon){
@@ -91,5 +91,16 @@ public class GeometricUtilities {
                 v.setUsed(true);
         
         return nearestVertexes;
+    }
+    
+    public static Vertex midPoint(Vertex a, Vertex b){
+        return new Vertex((a.getxPos() + b.getxPos()) / 2, (a.getyPos() + b.getyPos()) /2);
+    }
+    
+    public static double getSizeMultiplier(String label){
+        double ogSize = ElementBuilder.getDefaultSize();
+        double letterSize = 5;
+        
+        return (ogSize + label.length() * letterSize)/ ogSize;
     }
 }

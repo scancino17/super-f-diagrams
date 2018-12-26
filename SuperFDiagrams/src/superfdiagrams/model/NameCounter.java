@@ -15,6 +15,7 @@ public class NameCounter {
     private int r;
     private int h;
     private int a;
+    private int ag;
     
     private NameCounter(){
         startValues();
@@ -30,8 +31,10 @@ public class NameCounter {
             return ++e;
         else if (type.equalsIgnoreCase("R"))
             return ++r;
-        else if (type.equalsIgnoreCase("A"))
+        else if (type.equals("a"))
             return ++a;
+        else if (type.equals("A"))
+            return ++ag;
         else if (type.equalsIgnoreCase("H"))
             return ++h;
         return -1;
@@ -52,5 +55,6 @@ public class NameCounter {
         this.e = 0;
         this.r = 0;
         this.h = 0;
+        this.ag = 0;
     }
 }

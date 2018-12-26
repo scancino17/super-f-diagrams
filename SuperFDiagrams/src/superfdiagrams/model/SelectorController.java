@@ -7,6 +7,8 @@ package superfdiagrams.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import static superfdiagrams.model.ElementState.HIGHLIGHTED;
+import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Relationship;
@@ -38,7 +40,7 @@ public class SelectorController {
             case SELECTING_ENTITIES:
                 if (!selectedElements.contains(element) 
                  &&  selectedElements.size() < 6
-                 && element.getElement() instanceof Entity)
+                 && element.getPrimitive() instanceof Entity)
                     this.addToList(element);
                 break;
             case SELECTING_CHILDREN:
@@ -46,18 +48,27 @@ public class SelectorController {
                     this.addToList(element);
                 break;
             case CHOSING_ENTITY:
-                if( (element.getElement() instanceof Relationship) 
-                  ||(element.getElement() instanceof Entity 
-                  || ((Attribute)element.getElement()).getType() == ATTRIBUTE_COMPOSITE) 
+                if( (element.getPrimitive() instanceof Relationship) 
+                  ||(element.getPrimitive() instanceof Entity 
+                  || ((Attribute)element.getPrimitive()).getType() == ATTRIBUTE_COMPOSITE) 
                   && this.selectionSize() < 1)
                     this.addToList(element);
                 break;
+            case CREATING_AGREGATION:
+                if (  !selectedElements.contains(element)
+                  && (element.getPrimitive() instanceof Relationship) 
+                  && (element.getPrimitive().getChildren().size() == 2 )
+                  && (Finder.findParentAggregation(element).isEmpty())){
+                    
+                    if(!selectedElements.isEmpty())
+                        this.emptySelection();
+                    this.addToList(element);
+                }
         }
     }
     
     private void addToList(Element element){
-        System.out.println(element);
-        element.setHighlighted(true);
+        element.setElementState(HIGHLIGHTED);
         selectedElements.add(element);
     }
     
@@ -70,7 +81,7 @@ public class SelectorController {
     private void deselectElements(){
         if(!selectedElements.isEmpty())
             for(Element e: selectedElements)
-                e.setHighlighted(false);
+                e.setElementState(NORMAL);
     }
     
     public void emptySelection(){

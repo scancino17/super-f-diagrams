@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,6 +38,7 @@ public class DiagramController {
     
     public void addElement(Element element){
         diagram.addElement(element);
+        Collections.sort(diagram.getElements());
     }
     
     public void removeElement(Element element){

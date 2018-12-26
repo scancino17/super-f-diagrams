@@ -34,7 +34,7 @@ public class DeleteAttributeAction implements Action{
     @Override
     public void undo() {
         mainC.addElement(deleted);
-        for(Element union : deleted.getElement().getChildren())
+        for(Element union : deleted.getPrimitive().getChildren())
             mainC.addElement(union);
         if (additional != null){
             for (DeleteAttributeAction action : additional)
@@ -43,12 +43,12 @@ public class DeleteAttributeAction implements Action{
     }
     
     public void execute(){
-        for(Element union: deleted.getElement().getChildren())
+        for(Element union: deleted.getPrimitive().getChildren())
             mainC.removeElement(union);
         
         mainC.removeElement(deleted);
         
-        List<Element> parents = new Finder().findRelatedParentUnions(mainC.fetchElements(), deleted);
+        List<Element> parents = Finder.findRelatedParentUnions(mainC.fetchElements(), deleted);
         
         if (parents.isEmpty())
             return;
@@ -59,7 +59,7 @@ public class DeleteAttributeAction implements Action{
             }
         } else
             for(Element union : parents){
-                addAdditionalRemove(((Union)union.getElement()).getParent());
+                addAdditionalRemove(((Union)union.getPrimitive()).getParent());
             }
     }
     
