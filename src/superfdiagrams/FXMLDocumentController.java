@@ -6,6 +6,7 @@
 package superfdiagrams;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -28,6 +29,10 @@ import javafx.util.Duration;
 import superfdiagrams.model.*;
 
 import static superfdiagrams.model.State.*;
+import superfdiagrams.model.drawer.LineDrawer;
+import superfdiagrams.model.primitive.Attribute;
+import superfdiagrams.model.primitive.Entity;
+import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.*;
 import superfdiagrams.model.primitive.Type;
@@ -431,5 +436,179 @@ public class FXMLDocumentController implements Initializable{
         
         return Character.toString(selected.charAt(0));
         
+    }
+    
+    /**
+     * Cambia el atributo de ciertos elementos, en este caso no añadi la relacion
+     * para evitar problemas con el tema de las entidades debiles
+     */
+    public void editAttributeType(){
+        if(mainC.getCurrentElement().getPrimitive() instanceof Attribute){
+            Type t = askAttributeType();
+            mainC.getCurrentElement().getPrimitive().setType(t);
+            mainC.getCurrentElement().getDrawer().setType(t);
+        }else if(mainC.getCurrentElement().getPrimitive() instanceof Entity){
+            Type t = askRoleType();
+            mainC.getCurrentElement().getPrimitive().setType(t);
+            mainC.getCurrentElement().getDrawer().setType(t);
+        }else if(mainC.getCurrentElement().getPrimitive() instanceof Heritage){
+            Type t = askHeritageType();
+            mainC.getCurrentElement().getPrimitive().setType(t);
+            mainC.getCurrentElement().getDrawer().setType(t);
+        }else if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
+            if(comprobateWeak()){
+                Type t = askRoleType();
+                mainC.getCurrentElement().getPrimitive().setType(t);
+                mainC.getCurrentElement().getDrawer().setType(t);
+            }else{
+                alert("Debe haber al menos una entidad debil");
+            }
+        }else{
+            alert("Elemento Inválido");
+        }
+    }
+    
+    public boolean comprobateWeak(){
+        for (int i = 0; i < mainC.getCurrentElement().getPrimitive().getChildren().size(); i++) {
+            if(mainC.getCurrentElement().getPrimitive().getChildren().get(i).getPrimitive().getChildren().get(0).getPrimitive().getType() == ROLE_WEAK){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Esta funcion edita la cardinalidad, obviamente hay que asegurarse que sea
+     * si y solo si una relacion
+     */
+    public void editCardinality(){
+        if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
+            int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
+            Relationship relation = (Relationship)mainC.getCurrentElement().getPrimitive();
+            String[] choices =  new String[size];
+            for (int i = 0; i < size; i++) {
+                Union union = (Union)relation.getChildren().get(i).getPrimitive();
+                choices[i] = i+1+" .-"+ union.getChild().getPrimitive().getLabel();
+            }
+            ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+            dialog.setHeaderText("Editar cardinalidad");
+            Optional<String> result = dialog.showAndWait();
+            String selected = "0";
+            selected = result.get();
+            int number = Integer.parseInt(Character.toString(selected.charAt(0)));
+            swapCardinality(number);
+        }else{
+            alert("Elemento Inválido");
+        }
+    }
+    
+    /**
+     * Al ser solo 2 tipos de cardinalidad hace un swap en la union y su drawer.
+     * @param index 
+     */
+    public void swapCardinality(int index){
+        Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(index-1).getPrimitive();
+        LineDrawer drawer = (LineDrawer)mainC.getCurrentElement().getPrimitive().getChildren().get(index-1).getDrawer();
+        if("N".equals(union.getCardinality())){
+            union.setCardinality("1");
+            drawer.setCardinality("1");
+        }else{
+            union.setCardinality("N");
+            drawer.setCardinality("N");
+        }
+    }
+    
+    /**
+     * Por si acaso, para mostrar cuando hay algo malo.
+     * @param s 
+     */
+    public void alert(String s){
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText(s);
+        alert.showAndWait();
+    }
+    
+    /**
+     * Funcion fea que permite agregar cualquier entidad en el diagrama a la relacion
+     * a menos que ya la tenga
+     */
+    public void addEntity(){
+        ArrayList<Entity> entities = new ArrayList<>();
+        ElementBuilder builder = new ElementBuilder();
+        
+        if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
+            
+            Entity chose = showDialog(entities);
+            for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
+                if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){      
+                    if(!comprobateEntity(chose)){
+                        Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i),"N");
+                        mainC.getCurrentElement().getPrimitive().getChildren().add(element);
+                        mainC.morphElement(mainC.getCurrentElement());
+                        mainC.getDiagram().addElement(element);
+                    }else{
+                        alert("Ya esta en esa relación");
+                    }
+                }
+            }
+        }else if(mainC.getCurrentElement().getPrimitive() instanceof Heritage){
+             Entity chose = showDialog(entities);
+             for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
+                if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){      
+                    if(!comprobateEntity(chose)){
+                        Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i));
+                        ((LineDrawer)element.getDrawer()).setType(UNION_HERITAGE);
+                        mainC.getCurrentElement().getPrimitive().getChildren().add(element);
+                        mainC.morphElement(mainC.getCurrentElement());
+                        mainC.getDiagram().addElement(element);
+                    }else{
+                        alert("Ya esta en esa Herencia");
+                    }
+                }
+             }
+        }else{
+            alert("Elemento inválido");
+        }
+    }
+
+    
+    /**
+     * Comprueba que la entidad que se elige no esta en la relacion
+     * @param e
+     * @return 
+     */
+    public boolean comprobateEntity(Entity e){
+        for (int i = 0; i < mainC.getCurrentElement().getPrimitive().getChildren().size(); i++) {
+            //que asco
+            if((Entity)mainC.getCurrentElement().getPrimitive().getChildren().get(i).getPrimitive().getChildren().get(0).getPrimitive() == e){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Muestra el cuadro y devuelve la entidad que se eligio
+     * @param entities
+     * @return 
+     */
+    public Entity showDialog(ArrayList<Entity> entities){
+        int size = mainC.getDiagram().getElements().size();
+            String[] choices =  new String[size];
+            int j = 0;
+  
+            for (int i = 0; i < size; i++) {
+                if (mainC.getDiagram().getElements().get(i).getPrimitive() instanceof Entity){
+                    entities.add((Entity)mainC.getDiagram().getElements().get(i).getPrimitive());
+                    choices[j] = j+1+" .-"+ mainC.getDiagram().getElements().get(i).getPrimitive().getLabel();
+                    j++;
+                }
+            }
+            ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
+            dialog.setHeaderText("Añadir Entidad");
+            Optional<String> result = dialog.showAndWait();
+            String selected = "0";
+            selected = result.get();
+            return entities.get(Integer.parseInt(Character.toString(selected.charAt(0)))-1);
     }
 }

@@ -95,6 +95,10 @@ public class MainController
         morphingComplex = null;
 
     }
+    
+    public ActionController getActionC(){
+        return actionC;
+    }
 
     public void setUiController(FXMLDocumentController dc)
     {
@@ -131,6 +135,10 @@ public class MainController
     public void newDiagram()
     {
         diagramC.newDiagram();
+    }
+    
+    public Diagram getDiagram(){
+        return diagramC.getDiagram();
     }
 
     public void createNewEntity()
