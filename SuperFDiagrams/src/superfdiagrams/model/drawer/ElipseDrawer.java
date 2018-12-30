@@ -161,8 +161,8 @@ public class ElipseDrawer implements Drawer{
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
         this.drawText(gc, name, center);
-        gc.strokeLine(center.getxPos() * zoom - name.length() * 5, center.getyPos() * zoom + 5,
-                center.getxPos() * zoom + name.length() * 5, center.getyPos() * zoom + 5);
+        gc.strokeLine(center.getxPos() * zoom - name.length() * 5 * zoom, center.getyPos() * zoom + 5 * zoom,
+                center.getxPos() * zoom + name.length() * 5 * zoom, center.getyPos() * zoom + 5 *zoom);
     }
     
     private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
@@ -216,13 +216,13 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
-        double inicio = center.getxPos() * zoom - name.length() * 5;
+        double inicio = center.getxPos() * zoom - name.length() * 5 * zoom;
         
         for (int i = 0; i < name.length(); i++) {
-            double fin = inicio + 5;
-            gc.strokeLine(inicio, center.getyPos() * zoom + 5,
-                fin, center.getyPos() * zoom + 5);
-            inicio = inicio + 10;
+            double fin = inicio + 5 * zoom;
+            gc.strokeLine(inicio, center.getyPos() * zoom + 5 * zoom,
+                fin, center.getyPos() * zoom + 5 * zoom);
+            inicio = inicio + 10 * zoom;
         }
     }
     

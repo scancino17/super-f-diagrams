@@ -61,8 +61,8 @@
                                     <TextField fx:id="currentElementText" layoutX="14.0" layoutY="40.0" />
                                     <Label layoutX="14.0" layoutY="14.0" text="Etiqueta" />
                                     <Button fx:id="applyChanges" layoutX="17.0" layoutY="78.0" mnemonicParsing="false" onAction="#applyChanges" text="Renombrar..." />
-                                    <Button fx:id="deleteBtn" layoutX="121.0" layoutY="73.0" mnemonicParsing="false" onAction="#changeStatusDelete" prefHeight="36.0" prefWidth="87.0" text="Eliminar" />
-                                    <Button layoutX="14.0" layoutY="103.0" mnemonicParsing="false" onAction="#changeDependency" text="Dependencia..." />
+                                    <Button fx:id="deleteBtn" layoutX="171.0" layoutY="40.0" mnemonicParsing="false" onAction="#changeStatusDelete" prefHeight="16.0" prefWidth="22.0" />
+                                    <Button layoutX="108.0" layoutY="78.0" mnemonicParsing="false" onAction="#changeDependency" text="Dependencia..." />
                                  </children>
                               </AnchorPane>
                           </content>

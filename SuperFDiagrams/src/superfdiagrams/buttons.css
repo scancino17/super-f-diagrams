@@ -47,3 +47,9 @@
         -fx-background-image: url("assets/rectangular-shape-outline.png");
     -fx-background-size: stretch;
 }
+
+#deleteBtn
+{
+        -fx-background-image: url("assets/borrar.png");
+    -fx-background-size: stretch;
+}

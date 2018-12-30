@@ -26,7 +26,7 @@ import superfdiagrams.model.primitive.Union;
  * @author sebca
  */
 public class DeleteElementAction implements Action{
-    private List<ComplexElement> aggregations;
+    private List<DeleteElementAction> aggregations;
     private Element deleted;
     private List<Element> related;
     private MainController mainC;
@@ -69,8 +69,8 @@ public class DeleteElementAction implements Action{
                attribute.undo();
         
         if(!aggregations.isEmpty()){
-            for(ComplexElement aggregation : aggregations)
-                mainC.addElement(aggregation);
+            for(DeleteElementAction action : aggregations)
+                action.undo();
                 
             aggregations = new ArrayList<>();
         }
@@ -85,6 +85,12 @@ public class DeleteElementAction implements Action{
                 mainC.removeElement(r);
             }else
                 mainC.removeElement(r);
+        }
+        
+        if(deleted.getPrimitive() instanceof Relationship){
+            List<Element> relatedParents = Finder.findRelatedParentUnions(mainC.fetchElements(), deleted);
+            for(Element union : relatedParents)
+                removeAttribute(union);
         }
             mainC.removeElement(deleted);
     }
@@ -140,7 +146,6 @@ public class DeleteElementAction implements Action{
         
         if(parentContained.isEmpty()){
             checkAggregation(parent);
-            mainC.removeElement(parent);
         }
         else if(parent.getPrimitive() instanceof Attribute)
             for (Element u: parentContained)
@@ -245,8 +250,10 @@ public class DeleteElementAction implements Action{
         if (aggregationContained == null)
             return;
         
-        this.aggregations.addAll(aggregationContained);
-        for(ComplexElement aggregation : aggregations)
-            mainC.removeElement(aggregation);
+        for(ComplexElement e : aggregationContained){
+            DeleteElementAction action = new DeleteElementAction(e, Finder.findRelatedUnions(mainC.fetchElements(), e));
+            action.execute();
+            this.aggregations.add(action);    
+        }
     }
 }

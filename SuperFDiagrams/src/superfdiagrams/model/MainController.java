@@ -402,6 +402,7 @@ public class MainController
                 break;
             case ENTITY:
                 uiController.setStatusText("Creando entidad...");
+                break;
             case CHOSING_ENTITY:
                 uiController.setStatusText("Escogiendo Entidad...");
                 break;
@@ -419,6 +420,7 @@ public class MainController
                 break;
             case CREATING_AGREGATION:
                 uiController.setStatusText("Creando agregación...");
+                break;
         }
     }
 
@@ -798,11 +800,14 @@ public class MainController
                 //recorre los hijos del padre;
                 for (Element ch : childs)
                 {
-                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                    if (!(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
                     {
-                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
-                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                        String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                        {
+                            if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                            else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                        }
                     }
                 }
                 //ahora para cada elemento de la herencia... (sin incluir el padre)
@@ -815,12 +820,15 @@ public class MainController
                     boolean temprHeritage = true;
                     for (Element _ch : tempChilds)
                     {
-                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                        if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
+                        if(!(_ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
                         {
-                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
-                            else tempsNames.put(_chName, true);
-                            if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
+                            String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                            if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
+                            {
+                                if (tempsNames.containsKey(_chName)) temprHeritage = false;
+                                else tempsNames.put(_chName, true);
+                                if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
+                            }
                         }
                     }
 

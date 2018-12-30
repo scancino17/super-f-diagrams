@@ -44,7 +44,8 @@ public class SelectorController {
                     this.addToList(element);
                 break;
             case SELECTING_CHILDREN:
-                if (!selectedElements.contains(element))
+                if (!selectedElements.contains(element) &&
+                element.getPrimitive() instanceof Entity)
                     this.addToList(element);
                 break;
             case CHOSING_ENTITY:
