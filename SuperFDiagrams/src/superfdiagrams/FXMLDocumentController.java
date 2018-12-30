@@ -410,17 +410,12 @@ public class FXMLDocumentController implements Initializable{
                 int n = Integer.parseInt(selected.substring(0, 1))-1;
                 Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive();
                 if (union.getType() == ROLE_STRONG){
-                    changeType(DEPENDENCY, n);
+                    mainC.changeType(DEPENDENCY, n);
                 }else if(union.getType() == DEPENDENCY){
-                    changeType(ROLE_STRONG, n);
+                    mainC.changeType(ROLE_STRONG, n);
                 }
             }
         }
-    }
-    
-    public void changeType(Type type, int n){
-        mainC.getCurrentElement().getPrimitive().getChildren().get(n).getDrawer().setType(type);
-        mainC.getCurrentElement().getPrimitive().getChildren().get(n).getPrimitive().setType(type);
     }
     
     public static String askCardinality(String eName){

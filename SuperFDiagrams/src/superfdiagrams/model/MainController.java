@@ -5,10 +5,7 @@
  */
 package superfdiagrams.model;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
-
-import sun.misc.Unsafe;
 import superfdiagrams.EntityCheck;
 import superfdiagrams.model.primitive.*;
 
@@ -17,19 +14,10 @@ import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
-import static superfdiagrams.model.ElementState.HIGHLIGHTED;
-import static superfdiagrams.model.ElementState.INVALID;
-import static superfdiagrams.model.ElementState.NORMAL;
+import static superfdiagrams.model.ElementState.*;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.*;
-import superfdiagrams.model.action.ActionController;
-import superfdiagrams.model.action.CreateElementAction;
-import superfdiagrams.model.action.DeleteAttributeAction;
-import superfdiagrams.model.action.DeleteElementAction;
-import superfdiagrams.model.action.MoveAction;
-import superfdiagrams.model.action.MoveComplexElementAction;
-import superfdiagrams.model.action.MoveElementAction;
-import superfdiagrams.model.action.RenameElementAction;
+import superfdiagrams.model.action.*;
 import superfdiagrams.model.drawer.DrawController;
 
 import static superfdiagrams.model.primitive.Type.*;
@@ -855,7 +843,6 @@ public class MainController
         for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {
             EntityCheck temp = entry.getValue();
-            boolean valid = temp.isValid();
             if(!temp.isValid())
                 message += "\n" + temp.name + temp.toString();
 
@@ -868,5 +855,12 @@ public class MainController
         }
 
         return message + "\n";
+    }
+    
+    public void changeType(Type type, int n){
+        Element target = currentElement.getPrimitive().getChildren().get(n);
+        ChangeElementTypeAction action = new ChangeElementTypeAction(target, type);
+        action.execute();
+        actionC.addToStack(action);
     }
 }
