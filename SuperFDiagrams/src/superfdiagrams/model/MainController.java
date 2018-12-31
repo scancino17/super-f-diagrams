@@ -222,13 +222,6 @@ public class MainController
             }
         } while (error);
         
-        
-
-        if(type == null){
-            finishAction();
-            return;
-        }
-        
         List<Element> selectedElements = selectorC.getSelected();
         CreateElementAction create = new CreateElementAction();
         create.createAttribute(mouseXPos, mouseYPos, label, type, selectedElements);
@@ -239,7 +232,7 @@ public class MainController
     
     public void createNewHeritage(){
         String name;
-        Type type = uiController.askHeritageType();
+        Type type = FXMLDocumentController.askHeritageType();
         
         if(type == null){
             finishAction();
@@ -302,7 +295,7 @@ public class MainController
      */
     public boolean drawElements()
     {
-        if (/*!drawC.isBufferEmpty()*/!diagramC.fetchElements().isEmpty())
+        if (!diagramC.fetchElements().isEmpty())
         {
             drawC.doDrawLoop(fetchElements());
             return true;
@@ -314,7 +307,6 @@ public class MainController
     {
         actionC.restart();
         diagramC.newDiagram();
-        /*drawC.eraseBuffer();*/
         selectorC.emptySelection();
         selected = null;
         currentElement = null;
@@ -592,7 +584,22 @@ public class MainController
     }
 
     public void morphElement(Element element){
-        morphElement(element, element.getPrimitive().getChildren().size());
+        Primitive primitive = element.getPrimitive();
+        morphElement(element, primitive.getChildren().size());
+        if(primitive instanceof Relationship){
+            List<Element> contained = primitive.getChildren();
+            if (contained.size() == 1)
+            {
+                Element union = new ElementBuilder().cloneUnion(contained.get(0));
+                contained.add(union);
+                this.addElement(union);
+            }
+
+            if (contained.get(0).equals(contained.get(1)))
+            {
+                contained.remove(0);
+            }
+        }
     }
     
     public void morphElement(Element element, int n)
@@ -607,18 +614,6 @@ public class MainController
 
         if (element.getPrimitive() instanceof Relationship)
         {
-            if (contained.size() == 1)
-            {
-                Element union = new ElementBuilder().cloneUnion(contained.get(0));
-                contained.add(union);
-                this.addElement(union);
-            }
-
-            if (contained.get(0).equals(contained.get(1)))
-            {
-                contained.remove(0);
-            }
-
             String name = element.getPrimitive().getLabel();
             double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
             double size = ElementBuilder.getDefaultSize();
@@ -886,8 +881,8 @@ public class MainController
         Element target = selectorC.getToAdd();
         List<Element> entities =  selectorC.getSelected();
         AddEntityAction action = new AddEntityAction(target, entities);
-        action.execute();
-        actionC.addToStack(action);
+        if(action.execute())
+            actionC.addToStack(action);
         finishAction();
     }
 }

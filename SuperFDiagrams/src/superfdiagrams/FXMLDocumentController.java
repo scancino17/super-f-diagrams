@@ -433,7 +433,8 @@ public class FXMLDocumentController implements Initializable{
         dialog.setHeaderText("Cardinalidad de " + eName + ": ");
         Optional<String> result = dialog.showAndWait();
         String selected = "0";
-        selected = result.get();
+        if(result.isPresent())
+            selected = result.get();
         
         return Character.toString(selected.charAt(0));
         

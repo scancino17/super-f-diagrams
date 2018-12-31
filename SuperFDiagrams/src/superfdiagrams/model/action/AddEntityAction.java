@@ -53,35 +53,49 @@ public class AddEntityAction implements Action{
             mainC.morphElement(target);
     }
     
-    public void execute(){
-        if(target.getPrimitive() instanceof Relationship)
+    public boolean execute(){
+        if(target.getPrimitive() instanceof Relationship){
+            if(wasUnary){
+                unary = target.getPrimitive().getChildren().remove(0);
+                mainC.removeElement(unary);
+            }
+            System.out.println(target.getPrimitive().getChildren().size());
+            System.out.println(entities.size());
             mainC.morphElement(target,
                     target.getPrimitive().getChildren().size() + entities.size());
+            System.out.println(target.getPrimitive().getChildren().size());
+        }
         
         if(related.isEmpty())
-            generateUnions();
+            if(!generateUnions()){
+                undo();
+                return false;
+            }
 
         addUnionsToTarget();
         
-        if(wasUnary){
-            unary = target.getPrimitive().getChildren().remove(0);
-            mainC.removeElement(unary);
-        }
+        return true;
     }
     
-    private void generateUnions(){
+    private boolean generateUnions(){
         if(target.getPrimitive() instanceof Relationship){
-            relationshipUnion();
+            if(!relationshipUnion())
+                return false;
         }else if (target.getPrimitive() instanceof Heritage)
             heritageUnion();
+        
+        return true;
     }
     
-    private void relationshipUnion(){
+    private boolean relationshipUnion(){
         ElementBuilder builder = new ElementBuilder();
         for(Element added : entities){
             String type = FXMLDocumentController.askCardinality(added.getPrimitive().getLabel());
+            if (type.equalsIgnoreCase("0"))
+                return false;
             related.add(builder.generateLine(target, added, type));
         }
+        return true;
     }
     
     private void heritageUnion(){
