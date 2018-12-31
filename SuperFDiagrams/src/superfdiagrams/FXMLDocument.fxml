@@ -15,7 +15,7 @@
    <children>
       <SplitPane dividerPositions="0.18237704918032788, 0.7663934426229508" layoutX="200.0" layoutY="-1.0" minHeight="540.0" minWidth="120.0" prefHeight="720.0" prefWidth="120.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
-            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="721.0" prefWidth="168.0">
+            <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="720.0" prefWidth="168.0">
                <children>
                   <Button fx:id="entityButton" layoutX="17.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusEntity" prefHeight="64.0" prefWidth="64.0" style="-fx-background-image: \superfdiagrams\assets\rectangle.png;" AnchorPane.topAnchor="17.0" />
                   <Button fx:id="relationButton" layoutX="96.0" layoutY="17.0" mnemonicParsing="false" onAction="#changeStatusRelation" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="17.0" />
@@ -56,21 +56,27 @@
                      <children>
                         <TitledPane fx:id="editElementPane" animated="false" text="Propiedades" AnchorPane.topAnchor="0.0">
                           <content>
-                            <AnchorPane prefHeight="168.0" prefWidth="222.0">
+                            <AnchorPane prefHeight="215.0" prefWidth="230.0">
                                  <children>
-                                    <TextField fx:id="currentElementText" layoutX="14.0" layoutY="40.0" />
-                                    <Label layoutX="14.0" layoutY="14.0" text="Etiqueta" />
-                                    <Button fx:id="applyChanges" layoutX="17.0" layoutY="78.0" mnemonicParsing="false" onAction="#applyChanges" text="Renombrar" />
-                                    <Button fx:id="deleteBtn" layoutX="171.0" layoutY="40.0" mnemonicParsing="false" onAction="#changeStatusDelete" prefHeight="16.0" prefWidth="22.0" />
-                                    <Button layoutX="108.0" layoutY="78.0" mnemonicParsing="false" onAction="#changeDependency" text="Dependencia" />
-                                    <Button layoutX="17.0" layoutY="103.0" mnemonicParsing="false" onAction="#editCardinality" text="Cardinalidad" />
-                                    <Button layoutX="108.0" layoutY="103.0" mnemonicParsing="false" onAction="#editAttributeType" text="Tipo" />
-                                    <Button layoutX="64.0" layoutY="134.0" mnemonicParsing="false" onAction="#addEntity" text="Añadir Entidad" />
+                                    <TextField fx:id="currentElementText" layoutX="25.0" layoutY="31.0" prefHeight="25.0" prefWidth="174.0" />
+                                    <Label layoutX="25.0" layoutY="14.0" text="Etiqueta" />
+                                    <Button fx:id="applyChanges" layoutX="23.0" layoutY="69.0" mnemonicParsing="false" onAction="#applyChanges" prefHeight="48.0" prefWidth="48.0" />
+                                    <Button fx:id="deleteBtn" layoutX="151.0" layoutY="134.0" mnemonicParsing="false" onAction="#changeStatusDelete" prefHeight="48.0" prefWidth="48.0" />
+                                    <Button fx:id="dependencyBtn" layoutX="151.0" layoutY="69.0" mnemonicParsing="false" onAction="#changeDependency" prefHeight="48.0" prefWidth="48.0" />
+                                    <Button fx:id="cardinalityBtn" layoutX="23.0" layoutY="134.0" mnemonicParsing="false" onAction="#editCardinality" prefHeight="48.0" prefWidth="48.0" />
+                                    <Button fx:id="roleBtn" layoutX="87.0" layoutY="69.0" mnemonicParsing="false" onAction="#editAttributeType" prefHeight="48.0" prefWidth="48.0" />
+                                    <Button fx:id="addBtn" layoutX="88.0" layoutY="134.0" mnemonicParsing="false" onAction="#addEntity" prefHeight="48.0" prefWidth="48.0" />
+                                    <Text layoutX="17.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Renombrar" />
+                                    <Text layoutX="100.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tipo" />
+                                    <Text layoutX="140.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dependencia" />
+                                    <Text layoutX="14.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cardinalidad" />
+                                    <Text layoutX="91.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Agregar" />
+                                    <Text layoutX="154.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eliminar" />
                                  </children>
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                        <TextArea fx:id="errorText" editable="false" layoutX="15.0" layoutY="199.0" prefHeight="339.0" prefWidth="230.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="199.0" />
+                        <TextArea fx:id="errorText" editable="false" layoutX="15.0" layoutY="241.0" prefHeight="300.0" prefWidth="230.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="241.0" />
                      </children>
                   </AnchorPane>
                </children>
