@@ -87,13 +87,14 @@ public class AddEntityAction implements Action{
             Element union = builder.generateLine(target, added);
             union.getPrimitive().setType(UNION_HERITAGE);
             union.getDrawer().setType(UNION_HERITAGE);
+            related.add(union);
         }
     }
     
     private void addUnionsToTarget(){
         for(Element union : related){
             target.getPrimitive().getChildren().add(union);
-            mainC.fetchElements().add(union);
+            mainC.addElement(union);
         }
     }
     
