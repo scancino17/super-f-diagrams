@@ -83,6 +83,10 @@ public class MainController
         morphingComplex = null;
 
     }
+    
+    public ActionController getActionC(){
+        return actionC;
+    }
 
     public void setUiController(FXMLDocumentController dc)
     {
@@ -119,6 +123,10 @@ public class MainController
     public void newDiagram()
     {
         diagramC.newDiagram();
+    }
+    
+    public Diagram getDiagram(){
+        return diagramC.getDiagram();
     }
 
     public void createNewEntity()
@@ -313,8 +321,7 @@ public class MainController
         stateC.setState(VIEW);
         zoomFactor = 1;
         NameCounter.restartCounter();
-        weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<String, Entity>();
+        clearMaps();
         this.shouldComplexMorph = false;
         this.morphingComplex = null;
     }
@@ -390,7 +397,6 @@ public class MainController
                 break;
             case ENTITY:
                 uiController.setStatusText("Creando entidad...");
-                break;
             case CHOSING_ENTITY:
                 uiController.setStatusText("Escogiendo Entidad...");
                 break;
@@ -408,7 +414,6 @@ public class MainController
                 break;
             case CREATING_AGREGATION:
                 uiController.setStatusText("Creando agregación...");
-                break;
         }
     }
 
@@ -510,15 +515,13 @@ public class MainController
 
     public void undo()
     {
-        weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<String, Entity>();
+        clearMaps();
         actionC.undo();
     }
 
     public void redo()
     {
-        weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<String, Entity>();
+        clearMaps();
         actionC.redo();
     }
 
@@ -573,13 +576,7 @@ public class MainController
             actionC.addToStack(deleteAction);
         }
 
-        //para ahorrar trabajo limpio los mapas
-        weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<String, Entity>();
-        //para los mapas...
-        //weakEntityCheck.remove(deleted.hashCode());
-        //entityNanes.remove(deleted.getPrimitive().getLabel());
-
+        clearMaps();
     }
 
     public void morphElement(List<Element> elementList)
@@ -640,9 +637,7 @@ public class MainController
     {
         diagramC.removeElement(element);
         /*drawC.removeFromBuffer(element);*/
-        weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<String, Entity>();
-
+        clearMaps();
     }
 
     public List<Element> fetchElements()
@@ -663,18 +658,9 @@ public class MainController
         actionC.addToStack(action);
 
         //para ahorrame trabajo solo limpio los mapas...
-        weakEntityCheck = new HashMap<Integer, EntityCheck>();
-        this.entityNanes = new HashMap<String, Entity>();
+        clearMaps();
 
-        //para actualizar los mapas cuando hay cambio de nombres...
-        /*String oldName = currentElement.getPrimitive().getLabel();
-        if(weakEntityCheck.containsKey(weakEntityCheck))
-        {
-            EntityCheck temp = weakEntityCheck.get(getCurrentElement().hashCode());
-            temp.name = label;
-            weakEntityCheck.replace(currentElement.hashCode(), temp);
-            entityNanes.put(label, entityNanes.remove(oldName));
-        }*/
+
     }
 
     public double getZoomFactor() { return zoomFactor;}
@@ -693,6 +679,11 @@ public class MainController
 
     public void normalizeDraw() {zoomFactor = 1;}
 
+    public void clearMaps()
+    {
+        weakEntityCheck = new HashMap<Integer, EntityCheck>();
+        this.entityNanes = new HashMap<String, Entity>();
+    }
 
     /**
      * Refactorizado por Sebastian Cancino
@@ -782,14 +773,11 @@ public class MainController
                 //recorre los hijos del padre;
                 for (Element ch : childs)
                 {
-                    if (!(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
+                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
                     {
-                        String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                        if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
-                        {
-                            if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
-                            else childsNames.put(_name, true); // si no esta todo bien y lo pone
-                        }
+                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
                     }
                 }
                 //ahora para cada elemento de la herencia... (sin incluir el padre)
@@ -802,15 +790,12 @@ public class MainController
                     boolean temprHeritage = true;
                     for (Element _ch : tempChilds)
                     {
-                        if(!(_ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
+                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
                         {
-                            String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                            if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
-                            {
-                                if (tempsNames.containsKey(_chName)) temprHeritage = false;
-                                else tempsNames.put(_chName, true);
-                                if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
-                            }
+                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
+                            else tempsNames.put(_chName, true);
+                            if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
                         }
                     }
 
@@ -856,5 +841,6 @@ public class MainController
         ChangeElementTypeAction action = new ChangeElementTypeAction(target, type);
         action.execute();
         actionC.addToStack(action);
+        this.clearMaps();
     }
 }
