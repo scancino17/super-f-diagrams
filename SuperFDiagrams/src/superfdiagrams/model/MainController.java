@@ -591,7 +591,11 @@ public class MainController
             morphElement(element);
     }
 
-    public void morphElement(Element element)
+    public void morphElement(Element element){
+        morphElement(element, element.getPrimitive().getChildren().size());
+    }
+    
+    public void morphElement(Element element, int n)
     {
         List<Element> contained = element.getPrimitive().getChildren();
 
@@ -615,9 +619,13 @@ public class MainController
                 contained.remove(0);
             }
 
+            String name = element.getPrimitive().getLabel();
+            double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
+            double size = ElementBuilder.getDefaultSize();
             element.setVertexes(VertexGenerator.generateVertexes(
-                    contained.size(),
-                    ElementBuilder.getDefaultSize(),
+                    n,
+                    size * xSizeMultiplier,
+                    size,
                     GeometricUtilities.getCenterOfMass(element.getVertexes())));
             
             boolean shouldMorph = true;

@@ -54,16 +54,19 @@ public class AddEntityAction implements Action{
     }
     
     public void execute(){
+        if(target.getPrimitive() instanceof Relationship)
+            mainC.morphElement(target,
+                    target.getPrimitive().getChildren().size() + entities.size());
+        
         if(related.isEmpty())
             generateUnions();
+
         addUnionsToTarget();
         
         if(wasUnary){
             unary = target.getPrimitive().getChildren().remove(0);
             mainC.removeElement(unary);
         }
-        if(target.getPrimitive() instanceof Relationship)
-            mainC.morphElement(target);
     }
     
     private void generateUnions(){
