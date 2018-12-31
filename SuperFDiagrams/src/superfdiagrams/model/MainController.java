@@ -329,15 +329,17 @@ public class MainController
     public void finishEntitySelection(){
         if (selectorC.isEmpty())
             stateC.setState(VIEW);
-        else if (stateC.getState() == State.CHOSING_ENTITY)
+        else if (stateC.getState() == CHOSING_ENTITY)
             stateC.setState(ATTRIBUTE);
-        else if(stateC.getState() == State.SELECTING_CHILDREN 
+        else if(stateC.getState() == SELECTING_CHILDREN 
              && selectorC.selectionSize() != 1)
             stateC.setState(HERITAGE);
-        else if (stateC.getState() == State.SELECTING_ENTITIES)
+        else if (stateC.getState() == SELECTING_ENTITIES)
             stateC.setState(RELATIONSHIP);
-        else if (stateC.getState() == State.CREATING_AGREGATION)
+        else if (stateC.getState() == CREATING_AGREGATION)
             createNewAgregation();
+        else if (stateC.getState() == ADDING_ENTITY)
+            addEntities();
         else
             stateC.setState(VIEW);
     }
@@ -414,6 +416,10 @@ public class MainController
                 break;
             case CREATING_AGREGATION:
                 uiController.setStatusText("Creando agregación...");
+                break;
+            case ADDING_ENTITY:
+                uiController.setStatusText("Añadiendo entidades a ...");
+                break;
         }
     }
 
@@ -659,8 +665,6 @@ public class MainController
 
         //para ahorrame trabajo solo limpio los mapas...
         clearMaps();
-
-
     }
 
     public double getZoomFactor() { return zoomFactor;}
@@ -836,11 +840,46 @@ public class MainController
         return message + "\n";
     }
     
+    /**
+     * @author Sebastian Cancino
+     * @param type
+     * @param n 
+     */
     public void changeType(Type type, int n){
         Element target = currentElement.getPrimitive().getChildren().get(n);
+        changeType(target, type);
+    }
+    
+    /**
+     * @author Sebastian Cancino
+     * @param target
+     * @param type 
+     */
+    public void changeType(Element target, Type type){
         ChangeElementTypeAction action = new ChangeElementTypeAction(target, type);
         action.execute();
         actionC.addToStack(action);
         this.clearMaps();
+    }
+    
+    /**
+     * Al ser solo 2 tipos de cardinalidad hace un swap en la union y su drawer.
+     * @author Diego Vargas, Sebastian Cancino
+     * @param index 
+     */
+    public void swapCardinality(int index){
+        Element target = currentElement.getPrimitive().getChildren().get(index-1);
+        ChangeCardinalityAction action = new ChangeCardinalityAction(target);
+        action.execute();
+        actionC.addToStack(action);
+    }
+
+    private void addEntities() {
+        Element target = selectorC.getToAdd();
+        List<Element> entities =  selectorC.getSelected();
+        AddEntityAction action = new AddEntityAction(target, entities);
+        action.execute();
+        actionC.addToStack(action);
+        finishAction();
     }
 }

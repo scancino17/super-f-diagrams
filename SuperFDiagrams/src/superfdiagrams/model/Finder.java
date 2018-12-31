@@ -10,6 +10,7 @@ import superfdiagrams.model.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.primitive.Attribute;
+import static superfdiagrams.model.primitive.Type.ROLE_WEAK;
 
 /**
  *
@@ -120,5 +121,20 @@ public class Finder {
         }
         
         return related;
+    }
+    
+    /**
+     * @author Diego Vargas, refactorizado por Sebastian Cancino.
+     * @return 
+     */
+    public static boolean hasWeakEntity(Element element){
+        Primitive currentPrimitive = element.getPrimitive(); 
+        for(Element u : currentPrimitive.getChildren()){
+            Union un = (Union) u.getPrimitive();
+            Primitive childPrimitive = un.getChild().getPrimitive();
+            if(childPrimitive.getType() == ROLE_WEAK)
+                return true;
+        }
+        return false;
     }
 }

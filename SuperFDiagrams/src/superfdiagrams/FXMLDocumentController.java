@@ -33,6 +33,7 @@ import superfdiagrams.model.drawer.LineDrawer;
 import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Heritage;
+import superfdiagrams.model.primitive.Primitive;
 import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.*;
 import superfdiagrams.model.primitive.Type;
@@ -346,7 +347,7 @@ public class FXMLDocumentController implements Initializable{
         }
     }
     
-    public Type askHeritageType(){
+    public static Type askHeritageType(){
         String[] choices =  new String[]{"1 - Disyunción",
                                          "2 - Solapamiento",};
         ChoiceDialog dialog = new ChoiceDialog(choices[0], Arrays.asList(choices));
@@ -392,6 +393,9 @@ public class FXMLDocumentController implements Initializable{
         editElementPane.setVisible(false);
     }
     
+    /**
+     * @author Diego Vargas
+     */
     public void changeDependency()
     {
         int size = mainC.getCurrentElement().getPrimitive().getChildren().size();
@@ -438,41 +442,30 @@ public class FXMLDocumentController implements Initializable{
     /**
      * Cambia el atributo de ciertos elementos, en este caso no añadi la relacion
      * para evitar problemas con el tema de las entidades debiles
+     * @author Diego Vargas, refactorizado por Sebastian Cancino
      */
     public void editAttributeType(){
-        if(mainC.getCurrentElement().getPrimitive() instanceof Attribute){
-            Type t = askAttributeType();
-            mainC.getCurrentElement().getPrimitive().setType(t);
-            mainC.getCurrentElement().getDrawer().setType(t);
-        }else if(mainC.getCurrentElement().getPrimitive() instanceof Entity){
-            Type t = askRoleType();
-            mainC.getCurrentElement().getPrimitive().setType(t);
-            mainC.getCurrentElement().getDrawer().setType(t);
-        }else if(mainC.getCurrentElement().getPrimitive() instanceof Heritage){
-            Type t = askHeritageType();
-            mainC.getCurrentElement().getPrimitive().setType(t);
-            mainC.getCurrentElement().getDrawer().setType(t);
-        }else if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
-            if(comprobateWeak()){
-                Type t = askRoleType();
-                mainC.getCurrentElement().getPrimitive().setType(t);
-                mainC.getCurrentElement().getDrawer().setType(t);
-            }else{
-                alert("Debe haber al menos una entidad debil");
-            }
-        }else{
-            alert("Elemento Inválido");
-        }
+        Element target = mainC.getCurrentElement();
+        Primitive primitive = target.getPrimitive();
+        Type type = null;
+        
+        if(primitive instanceof Attribute)
+            type = askAttributeType();
+        else if(primitive instanceof Entity)
+            type = askRoleType();
+        else if (primitive instanceof Heritage)
+            type = askHeritageType();
+        else if (primitive instanceof Relationship)
+            if(Finder.hasWeakEntity(target))
+                type = askRoleType();
+            else
+                alert("Debe haber por lo menos una entidad débil.");
+        else
+            alert("Elemento inválido.");
+        
+        if(type != null)
+            mainC.changeType(target, type);
         mainC.clearMaps();
-    }
-    
-    public boolean comprobateWeak(){
-        for (int i = 0; i < mainC.getCurrentElement().getPrimitive().getChildren().size(); i++) {
-            if(mainC.getCurrentElement().getPrimitive().getChildren().get(i).getPrimitive().getChildren().get(0).getPrimitive().getType() == ROLE_WEAK){
-                return true;
-            }
-        }
-        return false;
     }
     
     /**
@@ -495,25 +488,9 @@ public class FXMLDocumentController implements Initializable{
             String selected = "0";
             selected = result.get();
             int number = Integer.parseInt(Character.toString(selected.charAt(0)));
-            swapCardinality(number);
+            mainC.swapCardinality(number);
         }else{
             alert("Elemento Inválido");
-        }
-    }
-    
-    /**
-     * Al ser solo 2 tipos de cardinalidad hace un swap en la union y su drawer.
-     * @param index 
-     */
-    public void swapCardinality(int index){
-        Union union = (Union)mainC.getCurrentElement().getPrimitive().getChildren().get(index-1).getPrimitive();
-        LineDrawer drawer = (LineDrawer)mainC.getCurrentElement().getPrimitive().getChildren().get(index-1).getDrawer();
-        if("N".equals(union.getCardinality())){
-            union.setCardinality("1");
-            drawer.setCardinality("1");
-        }else{
-            union.setCardinality("N");
-            drawer.setCardinality("N");
         }
     }
     
@@ -530,46 +507,55 @@ public class FXMLDocumentController implements Initializable{
     /**
      * Funcion fea que permite agregar cualquier entidad en el diagrama a la relacion
      * a menos que ya la tenga
+     * @author Diego Vargas, Sebastian Cancino
      */
-    public void addEntity(){
-        ArrayList<Entity> entities = new ArrayList<>();
-        ElementBuilder builder = new ElementBuilder();
-        
-        if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
-            
-            Entity chose = showDialog(entities);
-            for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
-                if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){      
-                    if(!comprobateEntity(chose)){
-                        Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i),"N");
-                        mainC.getCurrentElement().getPrimitive().getChildren().add(element);
-                        mainC.morphElement(mainC.getCurrentElement());
-                        mainC.getDiagram().addElement(element);
-                    }else{
-                        alert("Ya esta en esa relación");
-                    }
-                }
-            }
-        }else if(mainC.getCurrentElement().getPrimitive() instanceof Heritage){
-             Entity chose = showDialog(entities);
-             for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
-                if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){      
-                    if(!comprobateEntity(chose)){
-                        Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i));
-                        ((LineDrawer)element.getDrawer()).setType(UNION_HERITAGE);
-                        mainC.getCurrentElement().getPrimitive().getChildren().add(element);
-                        mainC.morphElement(mainC.getCurrentElement());
-                        mainC.getDiagram().addElement(element);
-                    }else{
-                        alert("Ya esta en esa Herencia");
-                    }
-                }
-             }
-        }else{
-            alert("Elemento inválido");
-        }
+    /*public void addEntity(){
+    ArrayList<Entity> entities = new ArrayList<>();
+    ElementBuilder builder = new ElementBuilder();
+    
+    if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
+    
+    Entity chose = showDialog(entities);
+    for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
+    if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){
+    if(!comprobateEntity(chose)){
+    Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i),"N");
+    mainC.getCurrentElement().getPrimitive().getChildren().add(element);
+    mainC.morphElement(mainC.getCurrentElement());
+    mainC.getDiagram().addElement(element);
+    }else{
+    alert("Ya esta en esa relación");
     }
-
+    }
+    }
+    }else if(mainC.getCurrentElement().getPrimitive() instanceof Heritage){
+    Entity chose = showDialog(entities);
+    for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
+    if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){
+    if(!comprobateEntity(chose)){
+    Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i));
+    ((LineDrawer)element.getDrawer()).setType(UNION_HERITAGE);
+    mainC.getCurrentElement().getPrimitive().getChildren().add(element);
+    mainC.morphElement(mainC.getCurrentElement());
+    mainC.getDiagram().addElement(element);
+    }else{
+    alert("Ya esta en esa Herencia");
+    }
+    }
+    }
+    }else{
+    alert("Elemento inválido");
+    }
+    }*/
+    public void addEntity(){
+        Element current = mainC.getCurrentElement();
+        if ( current.getPrimitive() instanceof Relationship
+          || current.getPrimitive() instanceof Heritage){
+            SelectorController.getController().setToAdd(current);
+            mainC.setState(ADDING_ENTITY);
+        } else
+            alert("Elemento inválido.");
+    }
     
     /**
      * Comprueba que la entidad que se elige no esta en la relacion
