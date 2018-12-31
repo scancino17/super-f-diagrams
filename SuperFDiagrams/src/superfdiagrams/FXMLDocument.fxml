@@ -56,18 +56,21 @@
                      <children>
                         <TitledPane fx:id="editElementPane" animated="false" text="Propiedades" AnchorPane.topAnchor="0.0">
                           <content>
-                            <AnchorPane>
+                            <AnchorPane prefHeight="168.0" prefWidth="222.0">
                                  <children>
                                     <TextField fx:id="currentElementText" layoutX="14.0" layoutY="40.0" />
                                     <Label layoutX="14.0" layoutY="14.0" text="Etiqueta" />
-                                    <Button fx:id="applyChanges" layoutX="17.0" layoutY="78.0" mnemonicParsing="false" onAction="#applyChanges" text="Renombrar..." />
+                                    <Button fx:id="applyChanges" layoutX="17.0" layoutY="78.0" mnemonicParsing="false" onAction="#applyChanges" text="Renombrar" />
                                     <Button fx:id="deleteBtn" layoutX="171.0" layoutY="40.0" mnemonicParsing="false" onAction="#changeStatusDelete" prefHeight="16.0" prefWidth="22.0" />
-                                    <Button layoutX="108.0" layoutY="78.0" mnemonicParsing="false" onAction="#changeDependency" text="Dependencia..." />
+                                    <Button layoutX="108.0" layoutY="78.0" mnemonicParsing="false" onAction="#changeDependency" text="Dependencia" />
+                                    <Button layoutX="17.0" layoutY="103.0" mnemonicParsing="false" onAction="#editCardinality" text="Cardinalidad" />
+                                    <Button layoutX="108.0" layoutY="103.0" mnemonicParsing="false" onAction="#editAttributeType" text="Tipo" />
+                                    <Button layoutX="64.0" layoutY="134.0" mnemonicParsing="false" onAction="#addEntity" text="Añadir Entidad" />
                                  </children>
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                        <TextArea fx:id="errorText" editable="false" layoutX="15.0" layoutY="157.0" prefHeight="381.0" prefWidth="230.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="157.0" />
+                        <TextArea fx:id="errorText" editable="false" layoutX="15.0" layoutY="199.0" prefHeight="339.0" prefWidth="230.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="199.0" />
                      </children>
                   </AnchorPane>
                </children>
