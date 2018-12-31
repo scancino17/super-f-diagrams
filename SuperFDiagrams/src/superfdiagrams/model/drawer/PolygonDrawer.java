@@ -76,6 +76,10 @@ public class PolygonDrawer implements Drawer{
                     v.getxPos() * zoom,
                     v.getyPos() * zoom);
         }
+        gc.strokeLine(center.getxPos() * zoom,
+                      center.getyPos() * zoom,
+                      center.getxPos() * zoom,
+                      center.getyPos() * zoom);
         gc.setLineWidth(1);
     }
     

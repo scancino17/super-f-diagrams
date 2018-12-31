@@ -126,6 +126,19 @@ public class ElementBuilder {
         drawer.setCenter(center);
         drawer.setType(type);
         element.setDrawer(drawer);
+        
+        //related siempre tiene un único elemento al ser llamado este método.
+        //Verifica que el child no pertenesca a una agregacion, de ser el caso
+        // lo agrega a esa.
+        Element child = related.get(0);
+        ComplexElement superParent = Finder.findComplexContained(child);
+        if (superParent != null){
+            List<Element> added = new ArrayList<>();
+            added.add(element);
+            added.addAll(unions);
+        }
+            
+        
         return element;
     }
     
@@ -167,12 +180,15 @@ public class ElementBuilder {
         
         Element element = new ComplexElement();
         
+        
         element.setPrimitive(agregation);
-        element.setCenterVertex(center);
-        element.setVertexes(VertexGenerator.getAgregationVertexes(related));
+        List<Vertex> polygon = VertexGenerator.getAgregationVertexes(related);
+        Vertex thisCenter = GeometricUtilities.getCenterOfMass(polygon);
+        element.setVertexes(polygon);
+        element.setCenterVertex(thisCenter);
         
         PolygonDrawer drawer = new PolygonDrawer();
-        drawer.setCenter(center);
+        drawer.setCenter(thisCenter);
         drawer.setType(type);
         element.setDrawer(drawer);
         return element;

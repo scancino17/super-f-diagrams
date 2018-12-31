@@ -364,7 +364,7 @@ public class MainController
                                       ((ComplexElement)selected).getComposite(),
                                       mouseXPos,
                                       mouseYPos);
-            recursiveComplexMorph((ComplexElement) selected);
+            //recursiveComplexMorph((ComplexElement) selected);
         } else {
             VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
             if (selectedRelated != null && !selectedRelated.isEmpty())
@@ -424,11 +424,6 @@ public class MainController
                 case MOVING_ELEMENT:
                     selected.setElementState(NORMAL);
                     selectedAction.getNewPosition();
-                    
-                    if (selected instanceof ComplexElement){
-                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
-                    }
-                    
                     selected = null;
                     selectedRelated = null;
                     selectedAction = null;
@@ -451,10 +446,9 @@ public class MainController
                     if (morphingComplex != null)
                         this.shouldComplexMorph = true;
                     
-                    if (selected instanceof ComplexElement){
-                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
+                    if (selected instanceof ComplexElement)
                         selectedAction = new MoveComplexElementAction((ComplexElement) selected);
-                    } else {
+                    else {
                         if (!shouldComplexMorph){
                             selectedRelated = Finder.findRelatedUnions(diagramC.fetchElements(), selected);
                             selectedAction = new MoveElementAction(selected, selectedRelated);

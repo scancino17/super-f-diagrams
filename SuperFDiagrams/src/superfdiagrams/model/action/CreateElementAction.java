@@ -6,11 +6,16 @@
 package superfdiagrams.model.action;
 
 import java.util.List;
+import superfdiagrams.model.ComplexElement;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.ElementBuilder;
+import superfdiagrams.model.Finder;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
+import superfdiagrams.model.VertexGenerator;
+import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Type;
+import superfdiagrams.model.primitive.Union;
 
 /**
  *
@@ -37,6 +42,9 @@ public class CreateElementAction implements Action{
                 mainC.removeElement(e);
         
         mainC.removeElement(contained);
+        
+        ComplexElement temp = Finder.findComplexContained(contained);
+        if (temp != null) complexElementUndoHandling(temp);
     }
     
     
@@ -48,6 +56,8 @@ public class CreateElementAction implements Action{
         if (related != null)
             for(Element e: related)
                 mainC.addElement(e);
+        
+        this.complexElementExecuteHandling();
     }
     
     public void createEntity(double x,
@@ -124,5 +134,32 @@ public class CreateElementAction implements Action{
     private void setAction(Element contained){
         this.contained = contained;
         this.related = contained.getPrimitive().getChildren();  
+    }
+    
+    private void complexElementUndoHandling(ComplexElement element){
+        List<Element> composite = element.getComposite();
+        composite.remove(contained);
+        for(Element e : related)
+            composite.remove(e);
+        VertexGenerator.morphContainedComplex(element);
+    }
+    
+    private void complexElementExecuteHandling(){
+        if(!(contained.getPrimitive() instanceof Attribute))
+           return;
+        
+        Element union = related.get(0);
+        Element child = ((Union)union.getPrimitive()).getChild();
+        
+        ComplexElement temp = Finder.findComplexContained(child);
+        if (child != null)
+            addToAggregation(temp);
+    }
+    
+    private void addToAggregation(ComplexElement element){
+        for(Element toAdd : related)
+            element.addComposite(toAdd);
+        element.addComposite(contained);
+        VertexGenerator.morphContainedComplex(element);
     }
 }
