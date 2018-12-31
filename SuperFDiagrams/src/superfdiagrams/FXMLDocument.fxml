@@ -54,7 +54,7 @@
                <children>
                   <AnchorPane layoutY="201.0" prefHeight="538.0" prefWidth="230.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <TitledPane fx:id="editElementPane" animated="false" text="Propiedades" AnchorPane.topAnchor="0.0">
+                        <TitledPane fx:id="editElementPane" animated="false" text="Propiedades" AnchorPane.bottomAnchor="295.0" AnchorPane.topAnchor="0.0">
                           <content>
                             <AnchorPane prefHeight="215.0" prefWidth="230.0">
                                  <children>
@@ -76,7 +76,7 @@
                               </AnchorPane>
                           </content>
                         </TitledPane>
-                        <TextArea fx:id="errorText" editable="false" layoutX="15.0" layoutY="241.0" prefHeight="300.0" prefWidth="230.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="241.0" />
+                        <TextArea fx:id="errorText" editable="false" layoutX="15.0" layoutY="241.0" prefHeight="300.0" prefWidth="230.0" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="240.0" />
                      </children>
                   </AnchorPane>
                </children>
