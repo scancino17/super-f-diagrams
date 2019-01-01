@@ -139,8 +139,9 @@ public class CreateElementAction implements Action{
     private void complexElementUndoHandling(ComplexElement element){
         List<Element> composite = element.getComposite();
         composite.remove(contained);
-        for(Element e : related)
+        for(Element e : related){
             composite.remove(e);
+        }
         VertexGenerator.morphContainedComplex(element);
     }
     
@@ -152,14 +153,16 @@ public class CreateElementAction implements Action{
         Element child = ((Union)union.getPrimitive()).getChild();
         
         ComplexElement temp = Finder.findComplexContained(child);
-        if (child != null)
+        if (temp != null)
             addToAggregation(temp);
     }
     
     private void addToAggregation(ComplexElement element){
-        for(Element toAdd : related)
+        for(Element toAdd : related){
             element.addComposite(toAdd);
+        }
         element.addComposite(contained);
+        
         VertexGenerator.morphContainedComplex(element);
     }
 }

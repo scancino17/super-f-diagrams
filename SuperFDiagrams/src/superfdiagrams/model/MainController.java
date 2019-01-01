@@ -111,8 +111,8 @@ public class MainController
 
     public void setMousePos(double x, double y)
     {
-        this.mouseXPos = x / zoomFactor;
-        this.mouseYPos = y / zoomFactor;
+        this.mouseXPos = Math.round(x / zoomFactor);
+        this.mouseYPos = Math.round(y / zoomFactor);
     }
 
     public void toggleDrawVertex()
@@ -365,7 +365,6 @@ public class MainController
                                       ((ComplexElement)selected).getComposite(),
                                       mouseXPos,
                                       mouseYPos);
-            //recursiveComplexMorph((ComplexElement) selected);
         } else {
             VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
             if (selectedRelated != null && !selectedRelated.isEmpty())
@@ -693,7 +692,6 @@ public class MainController
     }
 
     /**
-     * Refactorizado por Sebastian Cancino
      * @author Ignacio Martinez
      * @return
      */

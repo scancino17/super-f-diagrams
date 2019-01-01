@@ -139,7 +139,7 @@ public class FXMLDocumentController implements Initializable{
         {
             showElementPane();
             currentElementText.setText(mainC.getCurrentElement().getPrimitive().getLabel());
-            mainC.getCurrentElement().setElementState(ElementState.NORMAL);
+            mainC.getCurrentElement().setElementState(ElementState.HIGHLIGHTED);
         }
         else
         {

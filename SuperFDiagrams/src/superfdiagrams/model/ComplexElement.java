@@ -11,7 +11,15 @@ import java.util.List;
  *
  * @author Sebastian Cancino
  */
-public class ComplexElement extends Element{    
+public class ComplexElement extends Element{
+    private static int num = 0;
+    private int n;
+    
+    public ComplexElement(){
+        this.n = ComplexElement.num;
+        ComplexElement.num+=1;
+    }
+    
     public List<Element> getComposite() {
         return this.getPrimitive().getChildren();
     }
@@ -48,5 +56,10 @@ public class ComplexElement extends Element{
     
     public boolean contains(Element element){
         return this.getComposite().contains(element);
+    }
+    
+    @Override
+    public int compareTo(Element that){
+        return this.getPrimitive().getPriority() - n - that.getPrimitive().getPriority();
     }
 }

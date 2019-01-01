@@ -79,6 +79,6 @@ public class Element implements Drawable, Comparable<Element>{
     
     @Override
     public String toString(){
-        return this.primitive.getLabel() + " " + this.primitive.getPriority() + this.hashCode();
+        return this.primitive.getLabel() + " " + this.primitive.getPriority();
     }
 }

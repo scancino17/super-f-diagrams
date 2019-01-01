@@ -116,7 +116,7 @@ public class ElementBuilder {
         element.setPrimitive(attribute);
         element.setCenterVertex(center);
         double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
-        element.setVertexes(VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
+        element.setVertexes(VertexGenerator.generateEllipse(49, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
         
         List<Element> unions = new ArrayList<>();
         
@@ -154,7 +154,7 @@ public class ElementBuilder {
         
         element.setPrimitive(heritage);
         element.setCenterVertex(center);
-        element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
+        element.setVertexes(VertexGenerator.generateVertexes(49, 15, center));
         
         List<Element> unions = new ArrayList<>();
         
@@ -205,7 +205,7 @@ public class ElementBuilder {
         Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
-                relation.getVertexes(), entity.getVertexes());
+                relation.getVertexes(), entity.getCenterVertex());
         
         Union union = new Union();
         union.setParent(relation);

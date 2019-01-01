@@ -327,7 +327,7 @@ public class VertexGenerator {
                 for(Element unionInParent: parent.getPrimitive().getChildren()){
                     if (unionInParent.getPrimitive() instanceof Union){
                         unionInParent.setVertexes(GeometricUtilities.nearestVertexes
-                            (parent.getVertexes(), ((Union)unionInParent.getPrimitive()).getChild().getVertexes()));
+                            (parent.getVertexes(), ((Union)unionInParent.getPrimitive()).getChild().getCenterVertex()));
                     }
                 }
             }
