@@ -5,6 +5,7 @@
  */
 package superfdiagrams.model.drawer;
 
+import java.util.Arrays;
 import java.util.List;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -77,6 +78,8 @@ public interface Drawer {
             }
             
             //Se dibuja una línea entre cada par de puntos
+            if(vertexes.size() % 2 == 0)
+                Arrays.sort(nodeX);
             for(i = 0; i < nodes; i+=2){
                 if (nodeX[i  ] >= right) break;
                 if (nodeX[i+1] > left){

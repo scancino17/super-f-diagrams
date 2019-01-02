@@ -181,9 +181,11 @@ public class ElementBuilder {
         agregation.setChildren(related);
         agregation.setLabel(name);
         
+        for(Element r : related){
+            r.addPriority(2);
+            System.out.println(r);
+        }
         Element element = new ComplexElement();
-        
-        
         element.setPrimitive(agregation);
         List<Vertex> polygon = VertexGenerator.getAgregationVertexes(related);
         Vertex thisCenter = GeometricUtilities.getCenterOfMass(polygon);

@@ -397,9 +397,26 @@ public class VertexGenerator {
     }
     
     public static void morphContainedComplex(ComplexElement element){
+        
         morphComplex(element);
         for(Element e : element.getComposite())
             if(e instanceof ComplexElement)
                 morphContainedComplex((ComplexElement) e);
+    }
+    
+    /**
+     * Método que entregado un complexElement, busca si existe otro
+     * ComplexElement que lo contenga. De ser el caso, repite la operación,
+     * de no ser el caso, llama al método morphContainedComplex para transformar
+     * los ComplexElements
+     * @author Sebastian Cancino
+     * @param element ComplexElement a ser transformado.
+     */
+    public static void backwardsComplexMorphing(ComplexElement element){
+        ComplexElement parent = Finder.findComplexContained(element);
+        if(parent != null)
+            backwardsComplexMorphing(parent);
+        else
+            morphContainedComplex(element);
     }
 }

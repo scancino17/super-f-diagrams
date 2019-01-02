@@ -12,12 +12,7 @@ import java.util.List;
  * @author Sebastian Cancino
  */
 public class ComplexElement extends Element{
-    private static int num = 0;
-    private int n;
-    
     public ComplexElement(){
-        this.n = ComplexElement.num;
-        ComplexElement.num+=1;
     }
     
     public List<Element> getComposite() {
@@ -50,8 +45,18 @@ public class ComplexElement extends Element{
     }
     
     public void addComposite(Element element){
-        if (getComposite() != null) 
+        if (getComposite() != null){ 
             this.getComposite().add(element);
+            element.addPriority(this.getPriority() + 1);
+        }
+    }
+    
+    public void removeComposite(Element element){
+        if(getComposite() != null){
+            this.getComposite().remove(element);
+            element.addPriority(-this.getPriority() - 1);
+        }
+        
     }
     
     public boolean contains(Element element){
@@ -59,7 +64,14 @@ public class ComplexElement extends Element{
     }
     
     @Override
+    public void addPriority(int n){
+        super.addPriority(n);
+        for(Element e : getComposite())
+            e.addPriority(n);
+    }
+    
+    @Override
     public int compareTo(Element that){
-        return this.getPrimitive().getPriority() - n - that.getPrimitive().getPriority();
+        return this.getPriority() - that.getPriority();
     }
 }

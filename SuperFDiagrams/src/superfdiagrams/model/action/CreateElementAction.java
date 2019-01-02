@@ -49,15 +49,15 @@ public class CreateElementAction implements Action{
     
     
     public void execute(){
-        MainController mainC = MainController.getController();
+        this.complexElementExecuteHandling();
         
+        MainController mainC = MainController.getController();
         mainC.addElement(contained);
         
         if (related != null)
             for(Element e: related)
                 mainC.addElement(e);
         
-        this.complexElementExecuteHandling();
     }
     
     public void createEntity(double x,
@@ -137,10 +137,9 @@ public class CreateElementAction implements Action{
     }
     
     private void complexElementUndoHandling(ComplexElement element){
-        List<Element> composite = element.getComposite();
-        composite.remove(contained);
+        element.removeComposite(contained);
         for(Element e : related){
-            composite.remove(e);
+            element.removeComposite(e);
         }
         VertexGenerator.morphContainedComplex(element);
     }
@@ -163,6 +162,6 @@ public class CreateElementAction implements Action{
         }
         element.addComposite(contained);
         
-        VertexGenerator.morphContainedComplex(element);
+        VertexGenerator.backwardsComplexMorphing(element);
     }
 }

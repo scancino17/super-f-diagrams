@@ -22,6 +22,7 @@ public class Element implements Drawable, Comparable<Element>{
     private List<Vertex> vertexes;
     private Vertex center;
     private ElementState state = NORMAL;
+    private int priority = 0;
 
     @Override
     public void draw(GraphicsContext gc) {
@@ -72,13 +73,21 @@ public class Element implements Drawable, Comparable<Element>{
         return center;
     }
 
+    public void addPriority(int n){
+        this.priority+=n;
+    }
+    
+    public int getPriority(){
+        return primitive.getPriority() + this.priority;
+    }
+    
     @Override
     public int compareTo(Element that) {
-        return this.primitive.getPriority() - that.primitive.getPriority();
+        return this.getPriority() - that.getPriority();
     }
     
     @Override
     public String toString(){
-        return this.primitive.getLabel() + " " + this.primitive.getPriority();
+        return this.primitive.getLabel() + " " + getPriority();
     }
 }

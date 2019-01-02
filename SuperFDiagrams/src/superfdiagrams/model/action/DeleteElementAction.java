@@ -266,10 +266,9 @@ public class DeleteElementAction implements Action{
     }
     
     private void removeFromAggregation(){
-        List<Element> composite = superParent.getComposite();
-        composite.remove(deleted);
+        superParent.removeComposite(deleted);
         for(Element r : related){
-            composite.remove(r);
+            superParent.removeComposite(r);
         }
         VertexGenerator.morphContainedComplex(superParent);
     }
