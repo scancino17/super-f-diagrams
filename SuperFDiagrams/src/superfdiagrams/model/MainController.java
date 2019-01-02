@@ -703,122 +703,27 @@ public class MainController
         for (Element e : elements) // for para todos los elementos...
         {
             //aquí agrega los elementos al hashmap en caso de no estar en él..
-            if (e.getPrimitive() instanceof Entity)
+            if (e.getPrimitive() instanceof Entity || e.getPrimitive() instanceof Relationship)
             {
                 if (!weakEntityCheck.containsKey(e.hashCode()))
-                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e, e instanceof ComplexElement));
+                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e, e instanceof ComplexElement || e.getPrimitive() instanceof Relationship));
                 else
                     weakEntityCheck.get(e.hashCode()).setFalse();
 
-                if(!entityNanes.containsKey(e.getPrimitive().getLabel()))
+                if(!(e.getPrimitive() instanceof Relationship)  && !entityNanes.containsKey(e.getPrimitive().getLabel()))
                     entityNanes.put(e.getPrimitive().getLabel(), (Entity)e.getPrimitive());
 
             }
 
             Primitive element = e.getPrimitive();
-            if (element.getType() == ATTRIBUTE_PARTIAL_KEY)  //verifica que una entidad débil tenga atributo parcial
-            {
-                // en palabras simples,
-                //si el elemento es un atributo parcial... mira el padre  y si el padre es un elemento débil se cumple
-                Element entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
-                if (entity.getPrimitive().getType() == ROLE_WEAK)
-                {
-                    int key = entity.hashCode();
-                    EntityCheck temp = weakEntityCheck.get(key);
-                    temp.partialKey = true;
-                    weakEntityCheck.replace(key, temp);
-                }
-            }
-            else if(element.getType() == ATTRIBUTE_KEY)  // verifica que entidad fuerte tenga un atributo clave
-            {
-                //mismo principio que el anterior..
-                Element entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
-                if (entity.getPrimitive().getType() == ROLE_STRONG)
-                {
-                    int key = entity.hashCode();
-                    EntityCheck temp = weakEntityCheck.get(key);
-                    temp.keyAtribute = true;
-                    weakEntityCheck.replace(key, temp);
-                }
-            }
-            else if(element instanceof Relationship) //verifica que una entidad débil esté relacionada con una fuerte por relación débl
-            {
-                boolean strong = false;
-                int key = 0;
-                List<Element> elementChildren = element.getChildren();
-                for(Element el : elementChildren)
-                {
-                    //para verificar lo que hace es ver todos los elementos con los que une la relación
-                    Union u = (Union) el.getPrimitive();
-                    Primitive entity = u.getChild().getPrimitive();
-                    if (entity.getType() == ROLE_WEAK && u.getType() == ROLE_WEAK) //si el hijo es débil y están unidos por una relación debil significa que está bien
-                        key = u.getChild().hashCode();
-                        //key = entity.hashCode();
-                    else
-                        strong = true; //asume que tiene una entidad fuerte, (ya que con algo debe estar unido si no es una débil...)
-                }
-                //después de ver todos los hijos, preguta si la key existe, de existir significa que hay almenos una entidad débil relacionada con algo por unión débil
-                if(weakEntityCheck.containsKey(key))
-                {
-                    EntityCheck temp = weakEntityCheck.get(key);
-                    temp.strongEntity = strong;
-                    weakEntityCheck.replace(key, temp);
-                }
-            }
+            if (element.getType() == ATTRIBUTE_PARTIAL_KEY) weakElementWithPartialKeyCheck(element);  //verifica que una entidad débil tenga atributo parcial
+            else if(element.getType() == ATTRIBUTE_KEY) strongElementWithKey(element);  // verifica que entidad fuerte tenga un atributo clave
+            else if(element instanceof Relationship) checkWeakStrongRelationship(element); //verifica que una entidad débil esté relacionada con una fuerte por relación débl
             else if(element instanceof Heritage || element instanceof Attribute)  // si hay herencia...
             {
-
-                //Obtiene los hijos del padre
                 Element father = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
-                List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
-
-                //crea un mapa con los nombres
-                HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
-                boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
-                //recorre los hijos del padre;
-                for (Element ch : childs)
-                {
-                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
-                    {
-                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
-                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
-                    }
-                }
-                //ahora para cada elemento de la herencia... (sin incluir el padre)
-                for (int i = 1; i < element.getChildren().size(); ++i)
-                {
-                    Element temp = ((Union) (element.getChildren().get(i).getPrimitive())).getChild();
-                    List<Element> tempChilds = Finder.findRelatedUnions(this.fetchElements(), temp);
-                    HashMap<String, Boolean> tempsNames = new HashMap<String, Boolean>();
-                    //hace lo mismo que hice con el padre...
-                    boolean temprHeritage = true;
-                    for (Element _ch : tempChilds)
-                    {
-                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                        if(_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
-                        {
-                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
-                            else tempsNames.put(_chName, true);
-                            if (childsNames.containsKey(_chName)) temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
-                        }
-                    }
-
-                    //actualiza los mapas que contienen los errores
-                    if (weakEntityCheck.containsKey(temp.hashCode()))
-                    {
-                        EntityCheck entytemp = weakEntityCheck.get(temp.hashCode());
-                        entytemp.heritageName = temprHeritage;
-                        weakEntityCheck.replace(temp.hashCode(), entytemp);
-                    }
-                }
-                //actualiza los mapas que contienen los errores
-                if (weakEntityCheck.containsKey(father.hashCode()))
-                {
-                    EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
-                    entytemp.heritageName = fhatherHeritage;
-                    weakEntityCheck.replace(father.hashCode(), entytemp);
-                }
+                if(!(father.getPrimitive() instanceof Relationship)) checkAtributeNames(father, element);
+                else checkAttributeNamesInRelatonShip(father, element);
             }
         }
 
@@ -840,7 +745,148 @@ public class MainController
 
         return message + "\n";
     }
-    
+
+    private void weakElementWithPartialKeyCheck(Primitive element)
+    {
+        // en palabras simples,
+        //si el elemento es un atributo parcial... mira el padre  y si el padre es un elemento débil se cumple
+        Element entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
+        if (entity.getPrimitive().getType() == ROLE_WEAK)
+        {
+            int key = entity.hashCode();
+            EntityCheck temp = weakEntityCheck.get(key);
+            temp.partialKey = true;
+            weakEntityCheck.replace(key, temp);
+        }
+    }
+
+    private void strongElementWithKey(Primitive element)
+    {
+        //mismo principio que el anterior..
+        Element entity = ((Union) (element.getChildren().get(0).getPrimitive())).getChild();
+        if (entity.getPrimitive().getType() == ROLE_STRONG)
+        {
+            int key = entity.hashCode();
+            EntityCheck temp = weakEntityCheck.get(key);
+            temp.keyAtribute = true;
+            weakEntityCheck.replace(key, temp);
+        }
+    }
+
+    private void checkWeakStrongRelationship(Primitive element)
+    {
+        boolean strong = false;
+        int key = 0;
+        List<Element> elementChildren = element.getChildren();
+        for(Element el : elementChildren)
+        {
+            //para verificar lo que hace es ver todos los elementos con los que une la relación
+            Union u = (Union) el.getPrimitive();
+            Primitive entity = u.getChild().getPrimitive();
+            if (entity.getType() == ROLE_WEAK && u.getType() == ROLE_WEAK) //si el hijo es débil y están unidos por una relación debil significa que está bien
+                key = u.getChild().hashCode();
+                //key = entity.hashCode();
+            else
+                strong = true; //asume que tiene una entidad fuerte, (ya que con algo debe estar unido si no es una débil...)
+        }
+        //después de ver todos los hijos, preguta si la key existe, de existir significa que hay almenos una entidad débil relacionada con algo por unión débil
+        if(weakEntityCheck.containsKey(key))
+        {
+            EntityCheck temp = weakEntityCheck.get(key);
+            temp.strongEntity = strong;
+            weakEntityCheck.replace(key, temp);
+        }
+    }
+
+
+    private void checkAtributeNames(Element father, Primitive element)
+    {
+        //Obtiene los hijos del padre
+
+        List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
+        //crea un mapa con los nombres
+        HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
+        boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
+        //recorre los hijos del padre;
+        for (Element ch : childs)
+        {
+            if(!(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
+            {
+                String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                if (_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                {
+                    if (childsNames.containsKey(_name))
+                        fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                    else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                }
+            }
+        }
+        //ahora para cada elemento de la herencia... (sin incluir el padre)
+        for (int i = 1; i < element.getChildren().size(); ++i)
+        {
+            Element temp = ((Union) (element.getChildren().get(i).getPrimitive())).getChild();
+            if(!(temp.getPrimitive() instanceof Relationship))
+            {
+                List<Element> tempChilds = Finder.findRelatedUnions(this.fetchElements(), temp);
+                HashMap<String, Boolean> tempsNames = new HashMap<String, Boolean>();
+                //hace lo mismo que hice con el padre...
+                boolean temprHeritage = true;
+                for (Element _ch : tempChilds)
+                {
+                    if (!(_ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
+                    {
+                        String _chName = _ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if (_chName.compareTo("S") != 0 && _chName.compareTo("D") != 0)
+                        {
+                            if (tempsNames.containsKey(_chName)) temprHeritage = false;
+                            else tempsNames.put(_chName, true);
+                            if (childsNames.containsKey(_chName))
+                                temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
+                        }
+                    }
+                }
+
+                //actualiza los mapas que contienen los errores
+                if (weakEntityCheck.containsKey(temp.hashCode()))
+                {
+                    EntityCheck entytemp = weakEntityCheck.get(temp.hashCode());
+                    entytemp.heritageName = temprHeritage;
+                    weakEntityCheck.replace(temp.hashCode(), entytemp);
+                }
+            }
+        }
+        //actualiza los mapas que contienen los errores
+        if (weakEntityCheck.containsKey(father.hashCode()))
+        {
+            EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
+            entytemp.heritageName = fhatherHeritage;
+            weakEntityCheck.replace(father.hashCode(), entytemp);
+        }
+    }
+    private void checkAttributeNamesInRelatonShip(Element father, Primitive element)
+    {
+        List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
+        //crea un mapa con los nombres
+        HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
+        boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
+        //recorre los hijos del padre;
+        for (Element ch : childs)
+        {
+            if(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Attribute)
+            {
+                String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                if (childsNames.containsKey(_name))
+                    fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                else childsNames.put(_name, true); // si no esta todo bien y lo pone
+            }
+        }
+        if (weakEntityCheck.containsKey(father.hashCode()))
+        {
+            EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
+            entytemp.heritageName = fhatherHeritage;
+            weakEntityCheck.replace(father.hashCode(), entytemp);
+        }
+    }
     /**
      * @author Sebastian Cancino
      * @param type
