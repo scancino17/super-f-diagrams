@@ -25,5 +25,7 @@ public interface Primitive {
      * 1 - Union
      * 2 - Todo lo demas
      */
-    public int getPriority();
+    default public int getPriority(){
+        return 1;
+    }
 }

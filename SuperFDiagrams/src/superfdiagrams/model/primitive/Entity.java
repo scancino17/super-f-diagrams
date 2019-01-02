@@ -64,11 +64,4 @@ public class Entity implements Primitive {
     public void setType(Type type){
         this.type = type;
     }
-
-    @Override
-    public int getPriority() {
-        if(children == null || children.isEmpty())
-            return 2;
-        else return 0;
-    }
 }

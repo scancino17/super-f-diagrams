@@ -46,9 +46,4 @@ public class Attribute implements Primitive {
     public void setType(Type type) {
         this.type =  type;
     }
-
-    @Override
-    public int getPriority() {
-        return 2;
-    }  
 }
