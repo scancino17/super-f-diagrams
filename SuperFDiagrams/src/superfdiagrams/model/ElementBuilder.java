@@ -288,7 +288,7 @@ public class ElementBuilder {
         } 
         
         if(primitive instanceof Attribute){
-            newVertexSet = VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * multiplier, DEF_ATT_SIZE, elementCenter);
+            newVertexSet = VertexGenerator.generateEllipse(49, DEF_ATT_SIZE * multiplier, DEF_ATT_SIZE, elementCenter);
         }
         
         if (newVertexSet == null)

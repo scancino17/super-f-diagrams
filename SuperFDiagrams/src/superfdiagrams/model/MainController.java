@@ -693,7 +693,7 @@ public class MainController
 
     /**
      * @author Ignacio Martinez
-     * @return
+     * @return String con todos los mensajes de error
      */
     //Magia negra??, brujería pura y asquerosidad que es mejor no tocar...
     public String checkSemantics()
@@ -703,10 +703,10 @@ public class MainController
         for (Element e : elements) // for para todos los elementos...
         {
             //aquí agrega los elementos al hashmap en caso de no estar en él..
-            if (e.getPrimitive() instanceof Entity && ! (e instanceof ComplexElement))
+            if (e.getPrimitive() instanceof Entity)
             {
                 if (!weakEntityCheck.containsKey(e.hashCode()))
-                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e));
+                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e, e instanceof ComplexElement));
                 else
                     weakEntityCheck.get(e.hashCode()).setFalse();
 
@@ -765,7 +765,7 @@ public class MainController
                     weakEntityCheck.replace(key, temp);
                 }
             }
-            else if(element instanceof Heritage)  // si hay herencia...
+            else if(element instanceof Heritage || element instanceof Attribute)  // si hay herencia...
             {
 
                 //Obtiene los hijos del padre
@@ -774,7 +774,7 @@ public class MainController
 
                 //crea un mapa con los nombres
                 HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
-                boolean fhatherHeritage = true;
+                boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
                 //recorre los hijos del padre;
                 for (Element ch : childs)
                 {
