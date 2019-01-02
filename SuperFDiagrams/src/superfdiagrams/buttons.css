@@ -53,3 +53,28 @@
         -fx-background-image: url("assets/borrar.png");
     -fx-background-size: stretch;
 }
+#applyChanges
+{
+        -fx-background-image: url("assets/edit.png");
+    -fx-background-size: stretch;
+}
+#roleBtn
+{
+        -fx-background-image: url("assets/role.png");
+    -fx-background-size: stretch;
+}
+#dependencyBtn
+{
+        -fx-background-image: url("assets/dependency.png");
+    -fx-background-size: stretch;
+}
+#cardinalityBtn
+{
+        -fx-background-image: url("assets/cardinality.png");
+    -fx-background-size: stretch;
+}
+#addBtn
+{
+        -fx-background-image: url("assets/add.png");
+    -fx-background-size: stretch;
+}

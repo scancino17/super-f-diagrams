@@ -5,10 +5,7 @@
  */
 package superfdiagrams.model;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
-
-import sun.misc.Unsafe;
 import superfdiagrams.EntityCheck;
 import superfdiagrams.model.primitive.*;
 
@@ -17,19 +14,10 @@ import java.util.List;
 
 import javafx.scene.canvas.GraphicsContext;
 import superfdiagrams.FXMLDocumentController;
-import static superfdiagrams.model.ElementState.HIGHLIGHTED;
-import static superfdiagrams.model.ElementState.INVALID;
-import static superfdiagrams.model.ElementState.NORMAL;
+import static superfdiagrams.model.ElementState.*;
 import static superfdiagrams.model.GeometricUtilities.checkColition;
 import static superfdiagrams.model.State.*;
-import superfdiagrams.model.action.ActionController;
-import superfdiagrams.model.action.CreateElementAction;
-import superfdiagrams.model.action.DeleteAttributeAction;
-import superfdiagrams.model.action.DeleteElementAction;
-import superfdiagrams.model.action.MoveAction;
-import superfdiagrams.model.action.MoveComplexElementAction;
-import superfdiagrams.model.action.MoveElementAction;
-import superfdiagrams.model.action.RenameElementAction;
+import superfdiagrams.model.action.*;
 import superfdiagrams.model.drawer.DrawController;
 
 import static superfdiagrams.model.primitive.Type.*;
@@ -123,8 +111,8 @@ public class MainController
 
     public void setMousePos(double x, double y)
     {
-        this.mouseXPos = x / zoomFactor;
-        this.mouseYPos = y / zoomFactor;
+        this.mouseXPos = Math.round(x / zoomFactor);
+        this.mouseYPos = Math.round(y / zoomFactor);
     }
 
     public void toggleDrawVertex()
@@ -234,13 +222,6 @@ public class MainController
             }
         } while (error);
         
-        
-
-        if(type == null){
-            finishAction();
-            return;
-        }
-        
         List<Element> selectedElements = selectorC.getSelected();
         CreateElementAction create = new CreateElementAction();
         create.createAttribute(mouseXPos, mouseYPos, label, type, selectedElements);
@@ -251,7 +232,7 @@ public class MainController
     
     public void createNewHeritage(){
         String name;
-        Type type = uiController.askHeritageType();
+        Type type = FXMLDocumentController.askHeritageType();
         
         if(type == null){
             finishAction();
@@ -314,7 +295,7 @@ public class MainController
      */
     public boolean drawElements()
     {
-        if (/*!drawC.isBufferEmpty()*/!diagramC.fetchElements().isEmpty())
+        if (!diagramC.fetchElements().isEmpty())
         {
             drawC.doDrawLoop(fetchElements());
             return true;
@@ -326,7 +307,6 @@ public class MainController
     {
         actionC.restart();
         diagramC.newDiagram();
-        /*drawC.eraseBuffer();*/
         selectorC.emptySelection();
         selected = null;
         currentElement = null;
@@ -341,15 +321,17 @@ public class MainController
     public void finishEntitySelection(){
         if (selectorC.isEmpty())
             stateC.setState(VIEW);
-        else if (stateC.getState() == State.CHOSING_ENTITY)
+        else if (stateC.getState() == CHOSING_ENTITY)
             stateC.setState(ATTRIBUTE);
-        else if(stateC.getState() == State.SELECTING_CHILDREN 
+        else if(stateC.getState() == SELECTING_CHILDREN 
              && selectorC.selectionSize() != 1)
             stateC.setState(HERITAGE);
-        else if (stateC.getState() == State.SELECTING_ENTITIES)
+        else if (stateC.getState() == SELECTING_ENTITIES)
             stateC.setState(RELATIONSHIP);
-        else if (stateC.getState() == State.CREATING_AGREGATION)
+        else if (stateC.getState() == CREATING_AGREGATION)
             createNewAgregation();
+        else if (stateC.getState() == ADDING_ENTITY)
+            addEntities();
         else
             stateC.setState(VIEW);
     }
@@ -383,7 +365,6 @@ public class MainController
                                       ((ComplexElement)selected).getComposite(),
                                       mouseXPos,
                                       mouseYPos);
-            recursiveComplexMorph((ComplexElement) selected);
         } else {
             VertexGenerator.recalculateVertexes(selected, mouseXPos, mouseYPos);
             if (selectedRelated != null && !selectedRelated.isEmpty())
@@ -426,6 +407,10 @@ public class MainController
                 break;
             case CREATING_AGREGATION:
                 uiController.setStatusText("Creando agregación...");
+                break;
+            case ADDING_ENTITY:
+                uiController.setStatusText("Añadiendo entidades a ...");
+                break;
         }
     }
 
@@ -441,11 +426,6 @@ public class MainController
                 case MOVING_ELEMENT:
                     selected.setElementState(NORMAL);
                     selectedAction.getNewPosition();
-                    
-                    if (selected instanceof ComplexElement){
-                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
-                    }
-                    
                     selected = null;
                     selectedRelated = null;
                     selectedAction = null;
@@ -468,10 +448,9 @@ public class MainController
                     if (morphingComplex != null)
                         this.shouldComplexMorph = true;
                     
-                    if (selected instanceof ComplexElement){
-                        VertexGenerator.morphContainedComplex((ComplexElement) selected);
+                    if (selected instanceof ComplexElement)
                         selectedAction = new MoveComplexElementAction((ComplexElement) selected);
-                    } else {
+                    else {
                         if (!shouldComplexMorph){
                             selectedRelated = Finder.findRelatedUnions(diagramC.fetchElements(), selected);
                             selectedAction = new MoveElementAction(selected, selectedRelated);
@@ -603,18 +582,11 @@ public class MainController
             morphElement(element);
     }
 
-    public void morphElement(Element element)
-    {
-        List<Element> contained = element.getPrimitive().getChildren();
-
-        if (contained.isEmpty())
-        {
-            removeElement(element);
-            return;
-        }
-
-        if (element.getPrimitive() instanceof Relationship)
-        {
+    public void morphElement(Element element){
+        Primitive primitive = element.getPrimitive();
+        morphElement(element, primitive.getChildren().size());
+        if(primitive instanceof Relationship){
+            List<Element> contained = primitive.getChildren();
             if (contained.size() == 1)
             {
                 Element union = new ElementBuilder().cloneUnion(contained.get(0));
@@ -626,10 +598,28 @@ public class MainController
             {
                 contained.remove(0);
             }
+        }
+    }
+    
+    public void morphElement(Element element, int n)
+    {
+        List<Element> contained = element.getPrimitive().getChildren();
 
+        if (contained.isEmpty())
+        {
+            removeElement(element);
+            return;
+        }
+
+        if (element.getPrimitive() instanceof Relationship)
+        {
+            String name = element.getPrimitive().getLabel();
+            double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
+            double size = ElementBuilder.getDefaultSize();
             element.setVertexes(VertexGenerator.generateVertexes(
-                    contained.size(),
-                    ElementBuilder.getDefaultSize(),
+                    n,
+                    size * xSizeMultiplier,
+                    size,
                     GeometricUtilities.getCenterOfMass(element.getVertexes())));
             
             boolean shouldMorph = true;
@@ -677,8 +667,6 @@ public class MainController
 
         //para ahorrame trabajo solo limpio los mapas...
         clearMaps();
-
-
     }
 
     public double getZoomFactor() { return zoomFactor;}
@@ -704,9 +692,8 @@ public class MainController
     }
 
     /**
-     * Refactorizado por Sebastian Cancino
      * @author Ignacio Martinez
-     * @return
+     * @return String con todos los mensajes de error
      */
     //Magia negra??, brujería pura y asquerosidad que es mejor no tocar...
     public String checkSemantics()
@@ -716,10 +703,10 @@ public class MainController
         for (Element e : elements) // for para todos los elementos...
         {
             //aquí agrega los elementos al hashmap en caso de no estar en él..
-            if (e.getPrimitive() instanceof Entity && ! (e instanceof ComplexElement))
+            if (e.getPrimitive() instanceof Entity)
             {
                 if (!weakEntityCheck.containsKey(e.hashCode()))
-                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e));
+                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e, e instanceof ComplexElement));
                 else
                     weakEntityCheck.get(e.hashCode()).setFalse();
 
@@ -778,7 +765,7 @@ public class MainController
                     weakEntityCheck.replace(key, temp);
                 }
             }
-            else if(element instanceof Heritage)  // si hay herencia...
+            else if(element instanceof Heritage || element instanceof Attribute)  // si hay herencia...
             {
 
                 //Obtiene los hijos del padre
@@ -840,7 +827,6 @@ public class MainController
         for (HashMap.Entry<Integer, EntityCheck> entry : weakEntityCheck.entrySet())
         {
             EntityCheck temp = entry.getValue();
-            boolean valid = temp.isValid();
             if(!temp.isValid())
                 message += "\n" + temp.name + temp.toString();
 
@@ -853,5 +839,48 @@ public class MainController
         }
 
         return message + "\n";
+    }
+    
+    /**
+     * @author Sebastian Cancino
+     * @param type
+     * @param n 
+     */
+    public void changeType(Type type, int n){
+        Element target = currentElement.getPrimitive().getChildren().get(n);
+        changeType(target, type);
+    }
+    
+    /**
+     * @author Sebastian Cancino
+     * @param target
+     * @param type 
+     */
+    public void changeType(Element target, Type type){
+        ChangeElementTypeAction action = new ChangeElementTypeAction(target, type);
+        action.execute();
+        actionC.addToStack(action);
+        this.clearMaps();
+    }
+    
+    /**
+     * Al ser solo 2 tipos de cardinalidad hace un swap en la union y su drawer.
+     * @author Diego Vargas, Sebastian Cancino
+     * @param index 
+     */
+    public void swapCardinality(int index){
+        Element target = currentElement.getPrimitive().getChildren().get(index-1);
+        ChangeCardinalityAction action = new ChangeCardinalityAction(target);
+        action.execute();
+        actionC.addToStack(action);
+    }
+
+    private void addEntities() {
+        Element target = selectorC.getToAdd();
+        List<Element> entities =  selectorC.getSelected();
+        AddEntityAction action = new AddEntityAction(target, entities);
+        if(action.execute())
+            actionC.addToStack(action);
+        finishAction();
     }
 }

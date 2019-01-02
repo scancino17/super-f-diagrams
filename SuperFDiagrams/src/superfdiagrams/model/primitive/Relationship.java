@@ -45,9 +45,4 @@ public class Relationship implements Primitive{
     public void setChildren(List<Element> children) {
         this.children = children;
     }
-
-    @Override
-    public int getPriority() {
-        return 2;
-    }
 }

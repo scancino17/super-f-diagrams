@@ -93,6 +93,6 @@ public class Union implements Primitive{
     
     @Override
     public int getPriority(){
-        return 1;
+        return 0;
     }
 }

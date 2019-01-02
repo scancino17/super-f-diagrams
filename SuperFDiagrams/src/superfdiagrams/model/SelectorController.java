@@ -22,6 +22,7 @@ public class SelectorController {
     private static SelectorController sc;
     
     private List<Element> selectedElements;
+    private Element addTo;
     private final StateController stateC;
     
     private SelectorController(){
@@ -65,6 +66,20 @@ public class SelectorController {
                         this.emptySelection();
                     this.addToList(element);
                 }
+                break;
+            case ADDING_ENTITY:
+                System.out.println(addTo);
+                List<Element> children = addTo.getPrimitive().getChildren();
+                if ( !selectedElements.contains(element)
+                  && !children.contains(element)
+                  && element.getPrimitive() instanceof Entity){
+                    if(addTo.getPrimitive() instanceof Relationship){
+                        if(children.size() + selectionSize() < 6)
+                            this.addToList(element);
+                    } else
+                        this.addToList(element);
+                }
+                break;
         }
     }
     
@@ -100,5 +115,14 @@ public class SelectorController {
     
     public boolean isEmpty(){
         return selectedElements.isEmpty();
+    }
+    
+    public void setToAdd(Element element){
+        this.addTo = element;
+        System.out.println(addTo);
+    }
+    
+    public Element getToAdd(){
+        return addTo;
     }
 }

@@ -11,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import superfdiagrams.model.ElementState;
-import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
@@ -41,15 +40,22 @@ public class ElipseDrawer implements Drawer{
     } 
 
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
-   ) {
+    public void doDraw(GraphicsContext gc,
+                       List<Vertex> vertexes,
+                       String name,
+                       ElementState elementState)
+    {
         zoom = MainController.getController().getZoomFactor();
-        this.doDraw(gc, vertexes, name, elementState
-               , type);
+        this.doDraw(gc, vertexes, name, elementState, type);
     }
 
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
-           , Type type) {
+    public void doDraw(GraphicsContext gc,
+                       List<Vertex> vertexes,
+                       String name,
+                       ElementState elementState,
+                       Type type)
+    {
+        this.doDrawBackground(gc, vertexes, zoom);
         switch (type){
             case ATTRIBUTE_DERIVATE:
                 derivateDraw(gc, vertexes, name, elementState
@@ -82,6 +88,10 @@ public class ElipseDrawer implements Drawer{
             gc.setLineWidth(5);
             gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
+        gc.strokeLine(center.getxPos() * zoom,
+                      center.getyPos() * zoom,
+                      center.getxPos() * zoom,
+                      center.getyPos() * zoom);
         gc.setLineWidth(1);
     }
     
