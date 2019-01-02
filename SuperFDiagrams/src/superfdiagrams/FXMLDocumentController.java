@@ -120,7 +120,7 @@ public class FXMLDocumentController implements Initializable{
         mainC.drawElements();
         checkButtonStatus();
 
-        //errorText.setText(mainC.checkSemantics());
+        errorText.setText(mainC.checkSemantics());
 
     }
 

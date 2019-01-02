@@ -37,9 +37,7 @@ public class ChangeElementTypeAction implements Action{
                                target.getPrimitive() instanceof Relationship)
                 || (newType == ROLE_STRONG && target.getPrimitive() instanceof Relationship)
                 || ((newType == ROLE_WEAK && target.getPrimitive() instanceof Entity))
-                || (newType == ROLE_STRONG && target.getPrimitive() instanceof Entity)
-                );
-            
+                || (newType == ROLE_STRONG && target.getPrimitive() instanceof Entity));
     }
 
     @Override
