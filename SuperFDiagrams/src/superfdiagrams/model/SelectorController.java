@@ -13,6 +13,7 @@ import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.ATTRIBUTE_COMPOSITE;
+import superfdiagrams.model.primitive.Union;
 
 /**
  *
@@ -70,7 +71,7 @@ public class SelectorController {
             case ADDING_ENTITY:
                 List<Element> children = addTo.getPrimitive().getChildren();
                 if ( !selectedElements.contains(element)
-                  && !children.contains(element)
+                  && !checkContains(children, element)
                   && element.getPrimitive() instanceof Entity){
                     if(addTo.getPrimitive() instanceof Relationship){
                         if(children.size() + selectionSize() < 6)
@@ -122,5 +123,14 @@ public class SelectorController {
     
     public Element getToAdd(){
         return addTo;
+    }
+    
+    private boolean checkContains(List<Element> unions, Element entity){
+        for(Element u : unions){
+            Union p = (Union) u.getPrimitive();
+            if(p.getChild() == entity)
+                return true;
+        }
+        return false;
     }
 }

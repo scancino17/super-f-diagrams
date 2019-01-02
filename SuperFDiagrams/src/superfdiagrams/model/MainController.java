@@ -703,14 +703,14 @@ public class MainController
         for (Element e : elements) // for para todos los elementos...
         {
             //aquí agrega los elementos al hashmap en caso de no estar en él..
-            if (e.getPrimitive() instanceof Entity)
+            if (e.getPrimitive() instanceof Entity || e.getPrimitive() instanceof Relationship)
             {
                 if (!weakEntityCheck.containsKey(e.hashCode()))
-                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e, e instanceof ComplexElement));
+                    weakEntityCheck.put(e.hashCode(), new EntityCheck(e.getPrimitive().getLabel(), e.getPrimitive().getType(), e, e instanceof ComplexElement || e.getPrimitive() instanceof Relationship));
                 else
                     weakEntityCheck.get(e.hashCode()).setFalse();
 
-                if(!entityNanes.containsKey(e.getPrimitive().getLabel()))
+                if(e.getPrimitive() instanceof Entity && !entityNanes.containsKey(e.getPrimitive().getLabel()))
                     entityNanes.put(e.getPrimitive().getLabel(), (Entity)e.getPrimitive());
 
             }
@@ -774,15 +774,18 @@ public class MainController
 
                 //crea un mapa con los nombres
                 HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
-                boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
+                boolean fhatherHeritage =  (e instanceof ComplexElement || e.getPrimitive() instanceof Relationship) ? weakEntityCheck.get(father.hashCode()).heritageName : true;
                 //recorre los hijos del padre;
                 for (Element ch : childs)
                 {
-                    String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
-                    if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                    if(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Attribute)
                     {
-                        if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
-                        else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                        String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+                        if(_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
+                        {
+                            if (childsNames.containsKey(_name)) fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                            else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                        }
                     }
                 }
                 //ahora para cada elemento de la herencia... (sin incluir el padre)

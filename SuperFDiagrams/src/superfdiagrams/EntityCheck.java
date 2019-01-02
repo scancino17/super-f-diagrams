@@ -51,7 +51,7 @@ public class EntityCheck
                 message += "\nDebe tener atributo clave";
         }
         if(!heritageName)
-            message += "\nAtributos con mismo nombre que en Entidad padre";
+            message += "\nAtributos con mismo nombre que elemento padre";
         return message;
     }
 

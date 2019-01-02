@@ -133,8 +133,8 @@ public class FXMLDocumentController implements Initializable{
         (MouseEvent event) -> {
             mainC.setMousePos(event.getX(), event.getY());
     };
-
     
+   
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
         mainC.setDoubleClick(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
@@ -242,6 +242,8 @@ public class FXMLDocumentController implements Initializable{
             activateButton(cancelBtn);
         else
             deactivateButton(cancelBtn);
+        if(mainC.getState() == ADDING_ENTITY)
+            deactivateButton(addBtn);
     }
     
     private void activateButton(Button button){
@@ -569,9 +571,14 @@ public class FXMLDocumentController implements Initializable{
         }
         
         if (primitive instanceof Entity
-          ||primitive instanceof Relationship)
+          ||primitive instanceof Relationship
+          ||primitive instanceof Heritage
+          ||primitive instanceof Attribute)
             this.activateButton(roleBtn);
         else
+            this.deactivateButton(roleBtn);
+        
+        if(element instanceof ComplexElement)
             this.deactivateButton(roleBtn);
         
         if (primitive instanceof Relationship){

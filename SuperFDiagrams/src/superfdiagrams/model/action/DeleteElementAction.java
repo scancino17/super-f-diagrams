@@ -90,7 +90,8 @@ public class DeleteElementAction implements Action{
                 removeUnion(r);
             else if (deleted.getPrimitive() instanceof Relationship){
                 checkAggregation(r);
-                mainC.removeElement(r);
+                if(!shouldRemoveAttribute(r))
+                    mainC.removeElement(r);
             }else
                 mainC.removeElement(r);
         }
@@ -223,6 +224,16 @@ public class DeleteElementAction implements Action{
         DeleteAttributeAction action = new DeleteAttributeAction(deleted);
         action.execute();
         attributes.add(action);
+    }
+    
+    private boolean shouldRemoveAttribute(Element union){
+        Element parent = ((Union)union.getPrimitive()).getParent();
+        
+        if (parent.getPrimitive() instanceof Attribute){       
+            removeAttribute(parent);
+            return true;
+        }
+        return false;
     }
     
     private boolean shouldRemoveHeritage(Element heritage){
