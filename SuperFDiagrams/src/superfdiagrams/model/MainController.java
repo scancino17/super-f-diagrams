@@ -220,6 +220,8 @@ public class MainController
                 finishAction();
                 return;
             }
+            if(error)
+                uiController.alert("Atributo debe ser genérico.");
         } while (error);
         
         List<Element> selectedElements = selectorC.getSelected();
@@ -409,7 +411,7 @@ public class MainController
                 uiController.setStatusText("Creando agregación...");
                 break;
             case ADDING_ENTITY:
-                uiController.setStatusText("Añadiendo entidades a ...");
+                uiController.setStatusText("Añadiendo entidades a " + selectorC.getToAdd());
                 break;
         }
     }
@@ -799,6 +801,23 @@ public class MainController
     }
 
 
+    private  boolean checkSonAttributeNames(Element ch)
+    {
+
+        Element son =  ch.getPrimitive().getChildren().get(1);
+        HashMap<String, Boolean> grandchildrenNames = new HashMap<String, Boolean>();
+        List<Element> grandchildren  = Finder.findRelatedUnions(this.fetchElements(), son);
+        boolean grandChildrenError = true;
+        for(int i = 1; i<grandchildren.size(); ++i)
+        {
+            Element grandCh = grandchildren.get(i);
+            String grname = grandCh.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
+            if(grandchildrenNames.containsKey(grname)) grandChildrenError = false;
+            else grandchildrenNames.put(grname, true);
+            if(grandCh.getPrimitive().getChildren().get(0).getPrimitive().getLabel().equals(grname)) grandChildrenError = false;
+        }
+        return  grandChildrenError;
+    }
     private void checkAtributeNames(Element father, Primitive element)
     {
         //Obtiene los hijos del padre
@@ -806,12 +825,13 @@ public class MainController
         List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
         //crea un mapa con los nombres
         HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
-        boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
+        boolean fhatherHeritage =  element instanceof Attribute && father.getPrimitive() instanceof Element || father.getPrimitive() instanceof Relationship  ? weakEntityCheck.get(father.hashCode()).heritageName : true;
         //recorre los hijos del padre;
         for (Element ch : childs)
         {
-            if(!(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
+            if (!(ch.getPrimitive().getChildren().get(1).getPrimitive() instanceof Relationship))
             {
+
                 String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
                 if (_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
                 {
@@ -819,6 +839,8 @@ public class MainController
                         fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
                     else childsNames.put(_name, true); // si no esta todo bien y lo pone
                 }
+                if(ch.getPrimitive().getChildren().get(1).getPrimitive().getType() == ATTRIBUTE_COMPOSITE)
+                    fhatherHeritage =  fhatherHeritage & checkSonAttributeNames(ch);
             }
         }
         //ahora para cada elemento de la herencia... (sin incluir el padre)
@@ -843,6 +865,8 @@ public class MainController
                             if (childsNames.containsKey(_chName))
                                 temprHeritage = false; //con la diferencia que ahora pregunta si está tambien en el padre.
                         }
+                        if(_ch.getPrimitive().getChildren().get(1).getPrimitive().getType() == ATTRIBUTE_COMPOSITE)
+                            temprHeritage =  temprHeritage & checkSonAttributeNames(_ch);
                     }
                 }
 
