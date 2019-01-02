@@ -150,10 +150,14 @@ public class CreateElementAction implements Action{
         Element child = ((Union)union.getPrimitive()).getChild();
         
         ComplexElement temp = Finder.findComplexContained(child);
-        if (temp != null)
-            addToAggregation(temp);
         
-        VertexGenerator.backwardsComplexMorphing(temp);
+        if (temp != null){
+            addToAggregation(temp);
+            VertexGenerator.backwardsComplexMorphing(temp);
+        } else {
+            return false;
+        }
+        
         return true;
     }
     

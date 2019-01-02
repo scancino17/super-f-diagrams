@@ -262,6 +262,7 @@ public class ElementBuilder {
         clone.setDrawer(new LineDrawer());
         clone.getDrawer().setType(union.getDrawer().getType());
         clone.setPrimitive(primitive);
+        clone.setPriority(union.getPriority());
         
         return clone;
     }

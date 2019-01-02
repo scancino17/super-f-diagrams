@@ -78,7 +78,7 @@ public class DrawController {
             System.err.println("Error. GraphicsContext no entregado.");
             return;
         }    
-        
+        System.out.println(elements);
         for (Element toDraw: elements){
             try {
                 toDraw.draw(gc);

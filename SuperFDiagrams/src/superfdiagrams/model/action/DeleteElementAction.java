@@ -8,6 +8,7 @@ package superfdiagrams.model.action;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.ComplexElement;
+import superfdiagrams.model.DiagramController;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.Finder;
 import superfdiagrams.model.primitive.Entity;
@@ -79,6 +80,8 @@ public class DeleteElementAction implements Action{
         }
         if(superParent != null)
             addToAggregation();
+        
+        DiagramController.getController().sort();
     }
      
     public void execute(){
@@ -279,5 +282,6 @@ public class DeleteElementAction implements Action{
             superParent.addComposite(r);
         }
         VertexGenerator.morphContainedComplex(superParent);
+        DiagramController.getController().sort();
     }
 }

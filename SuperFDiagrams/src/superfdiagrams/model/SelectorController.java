@@ -68,7 +68,6 @@ public class SelectorController {
                 }
                 break;
             case ADDING_ENTITY:
-                System.out.println(addTo);
                 List<Element> children = addTo.getPrimitive().getChildren();
                 if ( !selectedElements.contains(element)
                   && !children.contains(element)
@@ -119,7 +118,6 @@ public class SelectorController {
     
     public void setToAdd(Element element){
         this.addTo = element;
-        System.out.println(addTo);
     }
     
     public Element getToAdd(){

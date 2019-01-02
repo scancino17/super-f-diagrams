@@ -62,6 +62,7 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Button dependencyBtn;
     @FXML private Button cardinalityBtn;
     @FXML private Button addBtn;
+    @FXML private Button cancelBtn;
     
     @FXML private Text statusText;
     @FXML private TextField currentElementText;
@@ -237,6 +238,10 @@ public class FXMLDocumentController implements Initializable{
             activateButton(redoButton);
         if(!redoButton.isDisabled() && mainC.isRedoEmpty())
             deactivateButton(redoButton);
+        if(mainC.getState() != VIEW)
+            activateButton(cancelBtn);
+        else
+            deactivateButton(cancelBtn);
     }
     
     private void activateButton(Button button){
@@ -493,7 +498,13 @@ public class FXMLDocumentController implements Initializable{
             dialog.setHeaderText("Editar cardinalidad");
             Optional<String> result = dialog.showAndWait();
             String selected = "0";
-            selected = result.get();
+            
+            if(result.isPresent())
+                selected = result.get();
+            
+            if (selected.equals("0"))
+                return;
+            
             int number = Integer.parseInt(Character.toString(selected.charAt(0)));
             mainC.swapCardinality(number);
         }else{
@@ -572,5 +583,10 @@ public class FXMLDocumentController implements Initializable{
             this.deactivateButton(cardinalityBtn);
             this.deactivateButton(addBtn);
         }
+    }
+    
+    @FXML
+    private void cancelButton(){
+        mainC.finishAction();
     }
 }

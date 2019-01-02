@@ -409,7 +409,7 @@ public class MainController
                 uiController.setStatusText("Creando agregación...");
                 break;
             case ADDING_ENTITY:
-                uiController.setStatusText("Añadiendo entidades a ...");
+                uiController.setStatusText("Añadiendo entidades a " + selectorC.getToAdd());
                 break;
         }
     }

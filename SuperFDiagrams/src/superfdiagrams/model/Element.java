@@ -90,4 +90,8 @@ public class Element implements Drawable, Comparable<Element>{
     public String toString(){
         return this.primitive.getLabel() + " " + getPriority();
     }
+    
+    public void setPriority(int n){
+        this.priority = n;
+    }
 }

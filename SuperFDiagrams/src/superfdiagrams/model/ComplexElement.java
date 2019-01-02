@@ -70,6 +70,10 @@ public class ComplexElement extends Element{
             e.addPriority(n);
     }
     
+    public void thisAddPriority(int n){
+        super.addPriority(n);
+    }
+    
     @Override
     public int compareTo(Element that){
         return this.getPriority() - that.getPriority();
