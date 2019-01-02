@@ -72,7 +72,8 @@ public class SelectorController {
                 List<Element> children = addTo.getPrimitive().getChildren();
                 if ( !selectedElements.contains(element)
                   && !checkContains(children, element)
-                  && element.getPrimitive() instanceof Entity){
+                  && element.getPrimitive() instanceof Entity
+                  && !(element instanceof ComplexElement)){
                     if(addTo.getPrimitive() instanceof Relationship){
                         if(children.size() + selectionSize() < 6)
                             this.addToList(element);

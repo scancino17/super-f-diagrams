@@ -184,6 +184,7 @@ public class ElementBuilder {
         for(Element r : related){
             r.addPriority(2);
         }
+        
         Element element = new ComplexElement();
         element.setPrimitive(agregation);
         List<Vertex> polygon = VertexGenerator.getAgregationVertexes(related);
