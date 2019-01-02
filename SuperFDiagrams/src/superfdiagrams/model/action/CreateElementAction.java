@@ -49,15 +49,13 @@ public class CreateElementAction implements Action{
     
     
     public void execute(){
-        this.complexElementExecuteHandling();
-        
         MainController mainC = MainController.getController();
-        mainC.addElement(contained);
-        
-        if (related != null)
-            for(Element e: related)
-                mainC.addElement(e);
-        
+        if(!complexElementExecuteHandling()){
+            mainC.addElement(contained); 
+            if (related != null)
+                for(Element e: related)
+                    mainC.addElement(e);
+        }   
     }
     
     public void createEntity(double x,
@@ -141,12 +139,12 @@ public class CreateElementAction implements Action{
         for(Element e : related){
             element.removeComposite(e);
         }
-        VertexGenerator.morphContainedComplex(element);
+        VertexGenerator.backwardsComplexMorphing(element);
     }
     
-    private void complexElementExecuteHandling(){
+    private boolean complexElementExecuteHandling(){
         if(!(contained.getPrimitive() instanceof Attribute))
-           return;
+           return false;
         
         Element union = related.get(0);
         Element child = ((Union)union.getPrimitive()).getChild();
@@ -154,14 +152,18 @@ public class CreateElementAction implements Action{
         ComplexElement temp = Finder.findComplexContained(child);
         if (temp != null)
             addToAggregation(temp);
+        
+        VertexGenerator.backwardsComplexMorphing(temp);
+        return true;
     }
     
     private void addToAggregation(ComplexElement element){
+        MainController mainC = MainController.getController();
         for(Element toAdd : related){
             element.addComposite(toAdd);
+            mainC.addElement(toAdd);
         }
         element.addComposite(contained);
-        
-        VertexGenerator.backwardsComplexMorphing(element);
+        mainC.addElement(contained);
     }
 }

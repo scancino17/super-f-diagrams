@@ -183,7 +183,6 @@ public class ElementBuilder {
         
         for(Element r : related){
             r.addPriority(2);
-            System.out.println(r);
         }
         Element element = new ComplexElement();
         element.setPrimitive(agregation);
@@ -207,7 +206,7 @@ public class ElementBuilder {
         Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
-                relation.getVertexes(), entity.getCenterVertex());
+                relation.getVertexes(), entity.getVertexes());
         
         Union union = new Union();
         union.setParent(relation);

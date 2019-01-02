@@ -59,11 +59,8 @@ public class AddEntityAction implements Action{
                 unary = target.getPrimitive().getChildren().remove(0);
                 mainC.removeElement(unary);
             }
-            System.out.println(target.getPrimitive().getChildren().size());
-            System.out.println(entities.size());
             mainC.morphElement(target,
                     target.getPrimitive().getChildren().size() + entities.size());
-            System.out.println(target.getPrimitive().getChildren().size());
         }
         
         if(related.isEmpty())

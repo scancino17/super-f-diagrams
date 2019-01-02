@@ -78,6 +78,10 @@ public interface Drawer {
             }
             
             //Se dibuja una línea entre cada par de puntos
+            //Acá se hacen un montón de calculos que en teoría no es necesario
+            //hacer todo el tiempo. Quizás usar progrmación dinámica?
+            //Quizás si queda tiempo.
+            //Sería un problema al mover?
             if(vertexes.size() % 2 == 0)
                 Arrays.sort(nodeX);
             for(i = 0; i < nodes; i+=2){
