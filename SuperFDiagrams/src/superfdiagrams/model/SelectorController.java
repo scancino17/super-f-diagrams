@@ -51,9 +51,9 @@ public class SelectorController {
                     this.addToList(element);
                 break;
             case CHOSING_ENTITY:
-                if( (element.getPrimitive() instanceof Relationship) 
+                if( ((element.getPrimitive() instanceof Relationship) 
                   ||(element.getPrimitive() instanceof Entity 
-                  || ((Attribute)element.getPrimitive()).getType() == ATTRIBUTE_COMPOSITE) 
+                  || ((Attribute)element.getPrimitive()).getType() == ATTRIBUTE_COMPOSITE)) 
                   && this.selectionSize() < 1)
                     this.addToList(element);
                 break;

@@ -220,6 +220,8 @@ public class MainController
                 finishAction();
                 return;
             }
+            if(error)
+                uiController.alert("Atributo debe ser genérico.");
         } while (error);
         
         List<Element> selectedElements = selectorC.getSelected();

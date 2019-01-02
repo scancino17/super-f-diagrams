@@ -573,7 +573,7 @@ public class FXMLDocumentController implements Initializable{
         if (primitive instanceof Entity
           ||primitive instanceof Relationship
           ||primitive instanceof Heritage
-          ||primitive instanceof Attribute)
+          ||checkValidAttribute(element))
             this.activateButton(roleBtn);
         else
             this.deactivateButton(roleBtn);
@@ -595,5 +595,33 @@ public class FXMLDocumentController implements Initializable{
     @FXML
     private void cancelButton(){
         mainC.finishAction();
+    }
+    
+    private boolean checkValidAttribute(Element attr){
+        Primitive p = attr.getPrimitive();
+        if(!(p instanceof Attribute)){
+            return false;
+        }
+        if(p.getType() != ATTRIBUTE_COMPOSITE &&
+           p.getType() != ATTRIBUTE_GENERIC){
+            return true;
+        }
+        else if (p.getType() == ATTRIBUTE_COMPOSITE){
+            if(!Finder.findRelatedAttributes(attr).isEmpty()){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
+        else if (p.getType() == ATTRIBUTE_GENERIC){
+            Primitive child = ((Union)p.getChildren().get(0).getPrimitive()).getChild().getPrimitive();
+            if(child instanceof Attribute){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 }
