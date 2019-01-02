@@ -44,7 +44,7 @@ public class EntityCheck
                 if (!partialKey)
                     message += "\nDebe tener una clave parcial.";
                 if (!strongEntity)
-                    message += "\nDebe estar relacionadas con una entidad fuerte";
+                    message += "\nDebe estar relacionada con una entidad fuerte";
                 return message;
             }
             else if (!keyAtribute)

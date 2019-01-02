@@ -154,7 +154,7 @@ public class PolygonDrawer implements Drawer{
     }
     
     private void drawAgregation(GraphicsContext gc, List<Vertex> vertexes, String label, ElementState elementState){
-        this.doDrawBackground(gc, vertexes, zoom);
+        //this.doDrawBackground(gc, vertexes, zoom);
         gc.setStroke(this.setColor(elementState));
         
         //40: aprox 10 rayas por lado, 4 lados.
