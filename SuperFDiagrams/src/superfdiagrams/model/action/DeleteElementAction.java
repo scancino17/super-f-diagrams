@@ -90,8 +90,7 @@ public class DeleteElementAction implements Action{
                 removeUnion(r);
             else if (deleted.getPrimitive() instanceof Relationship){
                 checkAggregation(r);
-                if(!shouldRemoveAttribute(r))
-                    mainC.removeElement(r);
+                mainC.removeElement(r);
             }else
                 mainC.removeElement(r);
         }
@@ -99,7 +98,7 @@ public class DeleteElementAction implements Action{
         if(deleted.getPrimitive() instanceof Relationship){
             List<Element> relatedParents = Finder.findRelatedParentUnions(mainC.fetchElements(), deleted);
             for(Element union : relatedParents)
-                removeAttribute(union);
+                removeAttribute(((Union)union.getPrimitive()).getParent());
         }
         
         mainC.removeElement(deleted);
@@ -225,17 +224,7 @@ public class DeleteElementAction implements Action{
         action.execute();
         attributes.add(action);
     }
-    
-    private boolean shouldRemoveAttribute(Element union){
-        Element parent = ((Union)union.getPrimitive()).getParent();
-        
-        if (parent.getPrimitive() instanceof Attribute){       
-            removeAttribute(parent);
-            return true;
-        }
-        return false;
-    }
-    
+       
     private boolean shouldRemoveHeritage(Element heritage){
         if (!(heritage.getPrimitive() instanceof Heritage))
             return false;

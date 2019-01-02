@@ -120,7 +120,7 @@ public class FXMLDocumentController implements Initializable{
         mainC.drawElements();
         checkButtonStatus();
 
-        errorText.setText(mainC.checkSemantics());
+        //errorText.setText(mainC.checkSemantics());
 
     }
 
@@ -386,7 +386,6 @@ public class FXMLDocumentController implements Initializable{
     private void changeStatusDelete(){
         if(mainC.getCurrentElement() != null)
             mainC.deleteElement(mainC.getCurrentElement());
-        //mainC.setState(DELETING_ELEMENT);
     }
 
     @FXML private void applyChanges()
