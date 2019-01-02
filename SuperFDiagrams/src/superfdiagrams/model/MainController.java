@@ -693,7 +693,7 @@ public class MainController
 
     /**
      * @author Ignacio Martinez
-     * @return
+     * @return String con todos los mensajes de error
      */
     //Magia negra??, brujería pura y asquerosidad que es mejor no tocar...
     public String checkSemantics()
