@@ -11,7 +11,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import superfdiagrams.model.ElementState;
-import static superfdiagrams.model.ElementState.NORMAL;
 import superfdiagrams.model.GeometricUtilities;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
@@ -41,15 +40,22 @@ public class ElipseDrawer implements Drawer{
     } 
 
     @Override
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
-   ) {
+    public void doDraw(GraphicsContext gc,
+                       List<Vertex> vertexes,
+                       String name,
+                       ElementState elementState)
+    {
         zoom = MainController.getController().getZoomFactor();
-        this.doDraw(gc, vertexes, name, elementState
-               , type);
+        this.doDraw(gc, vertexes, name, elementState, type);
     }
 
-    public void doDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState
-           , Type type) {
+    public void doDraw(GraphicsContext gc,
+                       List<Vertex> vertexes,
+                       String name,
+                       ElementState elementState,
+                       Type type)
+    {
+        this.doDrawBackground(gc, vertexes, zoom);
         switch (type){
             case ATTRIBUTE_DERIVATE:
                 derivateDraw(gc, vertexes, name, elementState
@@ -79,15 +85,19 @@ public class ElipseDrawer implements Drawer{
         for (Vertex v : vextexes)
         {
             gc.setStroke(Color.RED);
-            gc.setLineWidth(5);
+            gc.setLineWidth(4);
             gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
+        gc.strokeLine(center.getxPos() * zoom,
+                      center.getyPos() * zoom,
+                      center.getxPos() * zoom,
+                      center.getyPos() * zoom);
         gc.setLineWidth(1);
     }
     
     /**
      * Funcion que crea un atributo derivado, deja un espacio vacio despues 
-     * de dibujar 5 veces las lineas.
+     * de dibujar 4 veces las lineas.
      * @param gc
      * @param vertexes
      * @param name
@@ -161,8 +171,8 @@ public class ElipseDrawer implements Drawer{
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
         this.drawText(gc, name, center);
-        gc.strokeLine(center.getxPos() * zoom - name.length() * 5, center.getyPos() * zoom + 5,
-                center.getxPos() * zoom + name.length() * 5, center.getyPos() * zoom + 5);
+        gc.strokeLine(center.getxPos() * zoom - name.length() * 4 * zoom, center.getyPos() * zoom + 4 * zoom,
+                center.getxPos() * zoom + name.length() * 4 * zoom, center.getyPos() * zoom + 4 *zoom);
     }
     
     private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
@@ -216,13 +226,13 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
-        double inicio = center.getxPos() * zoom - name.length() * 5;
+        double inicio = center.getxPos() * zoom - name.length() * 4 * zoom;
         
         for (int i = 0; i < name.length(); i++) {
-            double fin = inicio + 5;
-            gc.strokeLine(inicio, center.getyPos() * zoom + 5,
-                fin, center.getyPos() * zoom + 5);
-            inicio = inicio + 10;
+            double fin = inicio + 4 * zoom;
+            gc.strokeLine(inicio, center.getyPos() * zoom + 4 * zoom,
+                fin, center.getyPos() * zoom + 4 * zoom);
+            inicio = inicio + 10 * zoom;
         }
     }
     

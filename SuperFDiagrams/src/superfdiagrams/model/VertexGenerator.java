@@ -6,6 +6,7 @@
 package superfdiagrams.model;
 
 import superfdiagrams.model.primitive.Union;
+import static superfdiagrams.model.GeometricUtilities.getCenterOfMass;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -293,20 +294,22 @@ public class VertexGenerator {
     
     public static void recalculateVertexes(Element element, double x, double y){
         recalculateVertexes(element.getVertexes(), new Vertex(x, y));
-        element.setCenterVertex(GeometricUtilities.getCenterOfMass(element.getVertexes()));
+        element.getCenterVertex().moveTo(x, y);
     }
     
     public static void recalculateVertexes(Element element, Vertex newCenter){
         recalculateVertexes(element, newCenter.getxPos(), newCenter.getyPos());
+        element.getCenterVertex().moveTo(newCenter.getxPos(), newCenter.getyPos());
     }
     
     private static void recalculateVertexes(List<Vertex> vertexes, 
                                     Vertex newCenter)
     {
-        Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
+        Vertex center = getCenterOfMass(vertexes);
+        
         for(Vertex v: vertexes){
-            v.setxPos(v.getxPos() - center.getxPos() + newCenter.getxPos());
-            v.setyPos(v.getyPos() - center.getyPos() + newCenter.getyPos());
+            v.moveTo(v.getxPos() - center.getxPos() + newCenter.getxPos()
+                    ,v.getyPos() - center.getyPos() + newCenter.getyPos());
         }
     }
     
@@ -347,16 +350,18 @@ public class VertexGenerator {
         double rx, ry; 
         
         for(Element r: related){ 
+            /*if(r instanceof ComplexElement)
+            r.setCenterVertex(getCenterOfMass(r.getVertexes()));*/
             rx = r.getCenterVertex().getxPos();
             ry = r.getCenterVertex().getyPos();
             
-            centers.add(new Vertex(cx - rx, cy - ry));
+            centers.add(new Vertex(rx - cx, ry - cy));
         }
         
         return centers;
     }
     
-    public static void recalculateComplexElement(Element complex, List<Element> related, double x, double y){    
+    public static void recalculateComplexElement(Element complex, List<Element> related, double x, double y){
         List<Vertex> centers = gatherCenterDif(complex, related);
         double cx, cy;
         Vertex rCenter;
@@ -370,12 +375,11 @@ public class VertexGenerator {
             cx = rCenter.getxPos();
             cy = rCenter.getyPos();
             
-            if(related.get(i) instanceof ComplexElement)
-                recalculateComplexElement(e, ((ComplexElement) e).getComposite(), x - cx, y - cy);
+            if(e instanceof ComplexElement)
+                recalculateComplexElement(e, ((ComplexElement) e).getComposite(), x + cx, y + cy);
             else
-                recalculateVertexes(related.get(i), x - cx, y - cy);
+                recalculateVertexes(e, x + cx , y + cy);
         }
-        
         recalculateVertexes(complex, x, y);
     }
     
@@ -388,12 +392,30 @@ public class VertexGenerator {
             Vertex v1 = newVertex.get(i);
             v0.moveTo(v1);
         }
+        
+        element.getCenterVertex().moveTo(getCenterOfMass(element.getVertexes()));
     }
     
     public static void morphContainedComplex(ComplexElement element){
-        morphComplex(element);
         for(Element e : element.getComposite())
             if(e instanceof ComplexElement)
                 morphContainedComplex((ComplexElement) e);
+        morphComplex(element);
+    }
+    
+    /**
+     * Método que entregado un complexElement, busca si existe otro
+     * ComplexElement que lo contenga. De ser el caso, repite la operación,
+     * de no ser el caso, llama al método morphContainedComplex para transformar
+     * los ComplexElements
+     * @author Sebastian Cancino
+     * @param element ComplexElement a ser transformado.
+     */
+    public static void backwardsComplexMorphing(ComplexElement element){
+        ComplexElement parent = Finder.findComplexContained(element);
+        if(parent != null)
+            backwardsComplexMorphing(parent);
+        else
+            morphContainedComplex(element);
     }
 }

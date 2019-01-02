@@ -8,10 +8,12 @@ package superfdiagrams.model.action;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.ComplexElement;
+import superfdiagrams.model.DiagramController;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.Finder;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.MainController;
+import superfdiagrams.model.VertexGenerator;
 import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Relationship;
@@ -26,7 +28,8 @@ import superfdiagrams.model.primitive.Union;
  * @author sebca
  */
 public class DeleteElementAction implements Action{
-    private List<ComplexElement> aggregations;
+    private List<DeleteElementAction> aggregations;
+    private ComplexElement superParent;
     private Element deleted;
     private List<Element> related;
     private MainController mainC;
@@ -39,6 +42,7 @@ public class DeleteElementAction implements Action{
         this.related = related;
         this.mainC = MainController.getController();
         this.aggregations = new ArrayList<>();
+        this.superParent = Finder.findComplexContained(deleted);
     }
     
     @Override
@@ -69,11 +73,15 @@ public class DeleteElementAction implements Action{
                attribute.undo();
         
         if(!aggregations.isEmpty()){
-            for(ComplexElement aggregation : aggregations)
-                mainC.addElement(aggregation);
+            for(DeleteElementAction action : aggregations)
+                action.undo();
                 
             aggregations = new ArrayList<>();
         }
+        if(superParent != null)
+            addToAggregation();
+        
+        DiagramController.getController().sort();
     }
      
     public void execute(){
@@ -86,7 +94,16 @@ public class DeleteElementAction implements Action{
             }else
                 mainC.removeElement(r);
         }
-            mainC.removeElement(deleted);
+        
+        if(deleted.getPrimitive() instanceof Relationship){
+            List<Element> relatedParents = Finder.findRelatedParentUnions(mainC.fetchElements(), deleted);
+            for(Element union : relatedParents)
+                removeAttribute(((Union)union.getPrimitive()).getParent());
+        }
+        
+        mainC.removeElement(deleted);
+        if (superParent != null)
+            removeFromAggregation();
     }
     
     private void removeUnion(Element union){
@@ -140,7 +157,6 @@ public class DeleteElementAction implements Action{
         
         if(parentContained.isEmpty()){
             checkAggregation(parent);
-            mainC.removeElement(parent);
         }
         else if(parent.getPrimitive() instanceof Attribute)
             for (Element u: parentContained)
@@ -208,7 +224,7 @@ public class DeleteElementAction implements Action{
         action.execute();
         attributes.add(action);
     }
-    
+       
     private boolean shouldRemoveHeritage(Element heritage){
         if (!(heritage.getPrimitive() instanceof Heritage))
             return false;
@@ -245,8 +261,27 @@ public class DeleteElementAction implements Action{
         if (aggregationContained == null)
             return;
         
-        this.aggregations.addAll(aggregationContained);
-        for(ComplexElement aggregation : aggregations)
-            mainC.removeElement(aggregation);
+        for(ComplexElement e : aggregationContained){
+            DeleteElementAction action = new DeleteElementAction(e, Finder.findRelatedUnions(mainC.fetchElements(), e));
+            action.execute();
+            this.aggregations.add(action);    
+        }
+    }
+    
+    private void removeFromAggregation(){
+        superParent.removeComposite(deleted);
+        for(Element r : related){
+            superParent.removeComposite(r);
+        }
+        VertexGenerator.morphContainedComplex(superParent);
+    }
+    
+    private void addToAggregation(){
+        superParent.addComposite(deleted);
+        for(Element r : related){
+            superParent.addComposite(r);
+        }
+        VertexGenerator.morphContainedComplex(superParent);
+        DiagramController.getController().sort();
     }
 }

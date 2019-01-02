@@ -67,6 +67,7 @@ public class PolygonDrawer implements Drawer{
     @Override
     public void doDrawVertex(GraphicsContext gc, List<Vertex> vertexes)
     {
+        this.doDrawBackground(gc, vertexes, zoom);
         for (Vertex v : vertexes)
         {
             gc.setStroke(Color.RED);
@@ -76,12 +77,16 @@ public class PolygonDrawer implements Drawer{
                     v.getxPos() * zoom,
                     v.getyPos() * zoom);
         }
+        gc.strokeLine(center.getxPos() * zoom,
+                      center.getyPos() * zoom,
+                      center.getxPos() * zoom,
+                      center.getyPos() * zoom);
         gc.setLineWidth(1);
     }
     
     public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        this.doDrawBackground(gc, vertexes, zoom);
         gc.setStroke(setColor(elementState));
-
         gc.setLineWidth(1);
         
         int size = vertexes.size();
@@ -93,15 +98,13 @@ public class PolygonDrawer implements Drawer{
         }
         
         gc.setStroke(Color.BLACK);
-        
-        //this.paint(gc, vertexes);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
     
     public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
+        this.doDrawBackground(gc, vertexes, zoom);
         Color color = setColor(elementState);
-
         gc.setStroke(color);
         gc.setLineWidth(3);
         
@@ -124,7 +127,6 @@ public class PolygonDrawer implements Drawer{
         gc.setStroke(color);
         gc.setLineWidth(1);
         gc.setStroke(color);
-        //this.paint(gc, vertexes);
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
     }
@@ -152,6 +154,7 @@ public class PolygonDrawer implements Drawer{
     }
     
     private void drawAgregation(GraphicsContext gc, List<Vertex> vertexes, String label, ElementState elementState){
+        this.doDrawBackground(gc, vertexes, zoom);
         gc.setStroke(this.setColor(elementState));
         
         //40: aprox 10 rayas por lado, 4 lados.
@@ -164,7 +167,6 @@ public class PolygonDrawer implements Drawer{
                                     size);
         
         gc.setStroke(Color.BLACK);
-        //this.paint(gc, vertexes);
         Vertex upL = vertexes.get(0);
         Vertex centerLabel = new Vertex(upL.getxPos() + 5, upL.getyPos() + 10);
         this.drawText(gc, label, centerLabel, TextAlignment.LEFT);
@@ -200,7 +202,6 @@ public class PolygonDrawer implements Drawer{
                          ((end.getxPos() < x2) ? end.getxPos() : x2) * zoom,
                          ((end.getyPos() < y2) ? end.getyPos() : y2) * zoom);
         }
-        /*System.out.println("\n-lado finalizado-\n");*/
     }
     
     private double getLineSize(List<Vertex> vertexes, int parts){
@@ -211,13 +212,4 @@ public class PolygonDrawer implements Drawer{
         return perimeter / parts;
     }
     
-    //Esta funcion pintar es ilegal, usado para realizar pruebas.
-    /*private void paint(GraphicsContext gc, List<Vertex> vertexes){
-    gc.setFill(Color.WHITE);
-    gc.beginPath();
-    for(Vertex v: vertexes)
-    gc.lineTo(v.getxPos() * zoom, v.getyPos() * zoom);
-    gc.fill();
-    gc.closePath();
-    }*/
 }

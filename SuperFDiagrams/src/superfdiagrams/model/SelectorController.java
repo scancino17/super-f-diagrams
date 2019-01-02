@@ -13,6 +13,7 @@ import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Entity;
 import superfdiagrams.model.primitive.Relationship;
 import static superfdiagrams.model.primitive.Type.ATTRIBUTE_COMPOSITE;
+import superfdiagrams.model.primitive.Union;
 
 /**
  *
@@ -22,6 +23,7 @@ public class SelectorController {
     private static SelectorController sc;
     
     private List<Element> selectedElements;
+    private Element addTo;
     private final StateController stateC;
     
     private SelectorController(){
@@ -44,13 +46,14 @@ public class SelectorController {
                     this.addToList(element);
                 break;
             case SELECTING_CHILDREN:
-                if (!selectedElements.contains(element))
+                if (!selectedElements.contains(element) &&
+                element.getPrimitive() instanceof Entity)
                     this.addToList(element);
                 break;
             case CHOSING_ENTITY:
-                if( (element.getPrimitive() instanceof Relationship) 
+                if( ((element.getPrimitive() instanceof Relationship) 
                   ||(element.getPrimitive() instanceof Entity 
-                  || ((Attribute)element.getPrimitive()).getType() == ATTRIBUTE_COMPOSITE) 
+                  || ((Attribute)element.getPrimitive()).getType() == ATTRIBUTE_COMPOSITE)) 
                   && this.selectionSize() < 1)
                     this.addToList(element);
                 break;
@@ -64,6 +67,20 @@ public class SelectorController {
                         this.emptySelection();
                     this.addToList(element);
                 }
+                break;
+            case ADDING_ENTITY:
+                List<Element> children = addTo.getPrimitive().getChildren();
+                if ( !selectedElements.contains(element)
+                  && !checkContains(children, element)
+                  && element.getPrimitive() instanceof Entity
+                  && !(element instanceof ComplexElement)){
+                    if(addTo.getPrimitive() instanceof Relationship){
+                        if(children.size() + selectionSize() < 6)
+                            this.addToList(element);
+                    } else
+                        this.addToList(element);
+                }
+                break;
         }
     }
     
@@ -99,5 +116,22 @@ public class SelectorController {
     
     public boolean isEmpty(){
         return selectedElements.isEmpty();
+    }
+    
+    public void setToAdd(Element element){
+        this.addTo = element;
+    }
+    
+    public Element getToAdd(){
+        return addTo;
+    }
+    
+    private boolean checkContains(List<Element> unions, Element entity){
+        for(Element u : unions){
+            Union p = (Union) u.getPrimitive();
+            if(p.getChild() == entity)
+                return true;
+        }
+        return false;
     }
 }

@@ -6,11 +6,16 @@
 package superfdiagrams.model.action;
 
 import java.util.List;
+import superfdiagrams.model.ComplexElement;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.ElementBuilder;
+import superfdiagrams.model.Finder;
 import superfdiagrams.model.MainController;
 import superfdiagrams.model.Vertex;
+import superfdiagrams.model.VertexGenerator;
+import superfdiagrams.model.primitive.Attribute;
 import superfdiagrams.model.primitive.Type;
+import superfdiagrams.model.primitive.Union;
 
 /**
  *
@@ -37,17 +42,20 @@ public class CreateElementAction implements Action{
                 mainC.removeElement(e);
         
         mainC.removeElement(contained);
+        
+        ComplexElement temp = Finder.findComplexContained(contained);
+        if (temp != null) complexElementUndoHandling(temp);
     }
     
     
     public void execute(){
         MainController mainC = MainController.getController();
-        
-        mainC.addElement(contained);
-        
-        if (related != null)
-            for(Element e: related)
-                mainC.addElement(e);
+        if(!complexElementExecuteHandling()){
+            mainC.addElement(contained); 
+            if (related != null)
+                for(Element e: related)
+                    mainC.addElement(e);
+        }   
     }
     
     public void createEntity(double x,
@@ -124,5 +132,42 @@ public class CreateElementAction implements Action{
     private void setAction(Element contained){
         this.contained = contained;
         this.related = contained.getPrimitive().getChildren();  
+    }
+    
+    private void complexElementUndoHandling(ComplexElement element){
+        element.removeComposite(contained);
+        for(Element e : related){
+            element.removeComposite(e);
+        }
+        VertexGenerator.backwardsComplexMorphing(element);
+    }
+    
+    private boolean complexElementExecuteHandling(){
+        if(!(contained.getPrimitive() instanceof Attribute))
+           return false;
+        
+        Element union = related.get(0);
+        Element child = ((Union)union.getPrimitive()).getChild();
+        
+        ComplexElement temp = Finder.findComplexContained(child);
+        
+        if (temp != null){
+            addToAggregation(temp);
+            VertexGenerator.backwardsComplexMorphing(temp);
+        } else {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private void addToAggregation(ComplexElement element){
+        MainController mainC = MainController.getController();
+        for(Element toAdd : related){
+            element.addComposite(toAdd);
+            mainC.addElement(toAdd);
+        }
+        element.addComposite(contained);
+        mainC.addElement(contained);
     }
 }

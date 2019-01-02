@@ -85,7 +85,10 @@ public class ElementBuilder {
         element.setPrimitive(relation);
         if(related.size() > 1){
             for(Element el: related){
-                String c = FXMLDocumentController.askCardinality(el.getPrimitive().getLabel());
+                String c = "0";
+                do {
+                    c = FXMLDocumentController.askCardinality(el.getPrimitive().getLabel());
+                } while (c.equals("0"));
                 unions.add(generateLine(element, el, c));
             }
         } else if (related.size() == 1){
@@ -113,7 +116,7 @@ public class ElementBuilder {
         element.setPrimitive(attribute);
         element.setCenterVertex(center);
         double xSizeMultiplier = GeometricUtilities.getSizeMultiplier(name);
-        element.setVertexes(VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
+        element.setVertexes(VertexGenerator.generateEllipse(49, DEF_ATT_SIZE * xSizeMultiplier, DEF_ATT_SIZE, center));
         
         List<Element> unions = new ArrayList<>();
         
@@ -126,6 +129,19 @@ public class ElementBuilder {
         drawer.setCenter(center);
         drawer.setType(type);
         element.setDrawer(drawer);
+        
+        //related siempre tiene un único elemento al ser llamado este método.
+        //Verifica que el child no pertenesca a una agregacion, de ser el caso
+        // lo agrega a esa.
+        Element child = related.get(0);
+        ComplexElement superParent = Finder.findComplexContained(child);
+        if (superParent != null){
+            List<Element> added = new ArrayList<>();
+            added.add(element);
+            added.addAll(unions);
+        }
+            
+        
         return element;
     }
     
@@ -138,7 +154,7 @@ public class ElementBuilder {
         
         element.setPrimitive(heritage);
         element.setCenterVertex(center);
-        element.setVertexes(VertexGenerator.generateVertexes(50, 15, center));
+        element.setVertexes(VertexGenerator.generateVertexes(49, 15, center));
         
         List<Element> unions = new ArrayList<>();
         
@@ -165,14 +181,19 @@ public class ElementBuilder {
         agregation.setChildren(related);
         agregation.setLabel(name);
         
-        Element element = new ComplexElement();
+        for(Element r : related){
+            r.addPriority(2);
+        }
         
+        Element element = new ComplexElement();
         element.setPrimitive(agregation);
-        element.setCenterVertex(center);
-        element.setVertexes(VertexGenerator.getAgregationVertexes(related));
+        List<Vertex> polygon = VertexGenerator.getAgregationVertexes(related);
+        Vertex thisCenter = GeometricUtilities.getCenterOfMass(polygon);
+        element.setVertexes(polygon);
+        element.setCenterVertex(thisCenter);
         
         PolygonDrawer drawer = new PolygonDrawer();
-        drawer.setCenter(center);
+        drawer.setCenter(thisCenter);
         drawer.setType(type);
         element.setDrawer(drawer);
         return element;
@@ -242,6 +263,7 @@ public class ElementBuilder {
         clone.setDrawer(new LineDrawer());
         clone.getDrawer().setType(union.getDrawer().getType());
         clone.setPrimitive(primitive);
+        clone.setPriority(union.getPriority());
         
         return clone;
     }
@@ -267,7 +289,7 @@ public class ElementBuilder {
         } 
         
         if(primitive instanceof Attribute){
-            newVertexSet = VertexGenerator.generateEllipse(50, DEF_ATT_SIZE * multiplier, DEF_ATT_SIZE, elementCenter);
+            newVertexSet = VertexGenerator.generateEllipse(49, DEF_ATT_SIZE * multiplier, DEF_ATT_SIZE, elementCenter);
         }
         
         if (newVertexSet == null)

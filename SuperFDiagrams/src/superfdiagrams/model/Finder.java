@@ -10,6 +10,7 @@ import superfdiagrams.model.primitive.Primitive;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.model.primitive.Attribute;
+import static superfdiagrams.model.primitive.Type.ROLE_WEAK;
 
 /**
  *
@@ -78,6 +79,18 @@ public class Finder {
         return null;
     }
     
+    /**
+     * Overload que busca entra entre los elementos del sistema, sin recibirlo
+     * como argumento
+     * @author Sebastian Cancino
+     * @param element Elemento a ver si pertenece a algun CompexElement.
+     * @return ComplexElement que contiene el Element entregado como argumento,
+     * de encontrase uno.
+     */
+    public static ComplexElement findComplexContained(Element element){
+        return findComplexContained(element, MainController.getController().fetchElements());
+    }
+    
     public static List<ComplexElement> findParentAggregation(Element child){
         List<Element> elements = MainController.getController().fetchElements();
         List<ComplexElement> aggregations = new ArrayList<>();
@@ -108,5 +121,20 @@ public class Finder {
         }
         
         return related;
+    }
+    
+    /**
+     * @author Diego Vargas, refactorizado por Sebastian Cancino.
+     * @return 
+     */
+    public static boolean hasWeakEntity(Element element){
+        Primitive currentPrimitive = element.getPrimitive(); 
+        for(Element u : currentPrimitive.getChildren()){
+            Union un = (Union) u.getPrimitive();
+            Primitive childPrimitive = un.getChild().getPrimitive();
+            if(childPrimitive.getType() == ROLE_WEAK)
+                return true;
+        }
+        return false;
     }
 }

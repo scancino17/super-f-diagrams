@@ -71,7 +71,7 @@ public class GeometricUtilities {
         double yDistance = v1.getyPos() - v2.getyPos();
         return Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2));
     }
-    
+ 
     public static List<Vertex> nearestVertexes(List<Vertex> polygon1,List<Vertex> polygon2){
         Double lesserDistance = null;
         List<Vertex> nearestVertexes = null;

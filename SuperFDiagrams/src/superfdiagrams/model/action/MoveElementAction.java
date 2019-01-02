@@ -18,12 +18,15 @@ import superfdiagrams.model.VertexGenerator;
 public class MoveElementAction implements MoveAction{
     private List<Vertex> mainPositionBefore;
     private List<Vertex> mainPositionAfter;
+    private Vertex centerBefore;
+    private Vertex centerAfter;
     private Element mainElement;
     private List<Element> elementRelated;
 
     public MoveElementAction(Element element, List<Element> related){
         this.mainElement = element;
         this.elementRelated = related;
+        this.centerBefore = element.getCenterVertex().obtainCopy();
         mainPositionBefore = new ArrayList<>();
         for (Vertex v : element.getVertexes())
             mainPositionBefore.add(v.obtainCopy());
@@ -34,6 +37,7 @@ public class MoveElementAction implements MoveAction{
         mainPositionAfter = new ArrayList<>();
         for(Vertex v: mainElement.getVertexes())
             mainPositionAfter.add(v.obtainCopy());
+        this.centerAfter = mainElement.getCenterVertex().obtainCopy();
     }
     
     @Override
@@ -41,6 +45,7 @@ public class MoveElementAction implements MoveAction{
         if (mainPositionAfter != null){
             mainElement.setVertexes(mainPositionAfter);
             VertexGenerator.recalculateNearestVertexes(elementRelated);
+            mainElement.getCenterVertex().moveTo(centerAfter);
         }else
             System.err.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
     }
@@ -50,6 +55,7 @@ public class MoveElementAction implements MoveAction{
         if (mainPositionAfter != null){
             mainElement.setVertexes(mainPositionBefore);
             VertexGenerator.recalculateNearestVertexes(elementRelated);
+            mainElement.getCenterVertex().moveTo(centerBefore);
         }else
             System.err.println("Posición posterior a movimiento no capturada. Ignorando llamada.");
     }

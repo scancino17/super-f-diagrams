@@ -11,7 +11,10 @@ import java.util.List;
  *
  * @author Sebastian Cancino
  */
-public class ComplexElement extends Element{    
+public class ComplexElement extends Element{
+    public ComplexElement(){
+    }
+    
     public List<Element> getComposite() {
         return this.getPrimitive().getChildren();
     }
@@ -42,11 +45,37 @@ public class ComplexElement extends Element{
     }
     
     public void addComposite(Element element){
-        if (getComposite() != null) 
+        if (getComposite() != null){ 
             this.getComposite().add(element);
+            element.addPriority(this.getPriority() + 2);
+        }
+    }
+    
+    public void removeComposite(Element element){
+        if(getComposite() != null){
+            this.getComposite().remove(element);
+            element.addPriority(-this.getPriority() - 2);
+        }
+        
     }
     
     public boolean contains(Element element){
         return this.getComposite().contains(element);
+    }
+    
+    @Override
+    public void addPriority(int n){
+        super.addPriority(n);
+        for(Element e : getComposite())
+            e.addPriority(n);
+    }
+    
+    public void thisAddPriority(int n){
+        super.addPriority(n);
+    }
+    
+    @Override
+    public int compareTo(Element that){
+        return this.getPriority() - that.getPriority();
     }
 }

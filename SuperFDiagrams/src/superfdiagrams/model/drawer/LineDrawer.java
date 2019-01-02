@@ -25,7 +25,7 @@ import superfdiagrams.model.primitive.Type;
 public class LineDrawer implements Drawer{
     private Type type;
     private double zoom;
-    private String cardinality  = "n";
+    private String cardinality  = "N";
 
     @Override
     public Type getType() {
@@ -82,7 +82,7 @@ public class LineDrawer implements Drawer{
         }
        gc.setLineWidth(1);
     }
-    
+
     public void normalDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(1);
@@ -90,7 +90,7 @@ public class LineDrawer implements Drawer{
                 vertexes.get(1).getxPos() * zoom,vertexes.get(1).getyPos() * zoom);
         drawText(gc, cardinality, GeometricUtilities.midPoint(vertexes.get(0), vertexes.get(1)));
     }
-    
+
     public void weakDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(3);
@@ -102,12 +102,12 @@ public class LineDrawer implements Drawer{
                 vertexes.get(1).getxPos() * zoom,vertexes.get(1).getyPos() * zoom);
         drawText(gc, cardinality, GeometricUtilities.midPoint(vertexes.get(0), vertexes.get(1)));
     }
-    
+
     public void heritageDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
         this.normalDraw(gc, vertexes, name, elementState);
         this.drawSemicircle(gc, vertexes);
     }
-    
+
     public void drawSemicircle(GraphicsContext gc, List<Vertex> vertexes){
         Vertex a = vertexes.get(0);
         Vertex b = vertexes.get(1);
@@ -116,18 +116,19 @@ public class LineDrawer implements Drawer{
         double x = (a.getxPos() - b.getxPos());
         double angle = x / y;
         angle = Math.toDegrees(Math.atan(angle));
-        
+
         gc.strokeArc((mid.getxPos() - 25) * zoom,
-                     (mid.getyPos() - 25) * zoom,
-                     50 * zoom,
-                     50 * zoom,
-                     (y < 0) ? angle + 180 : angle,
-                     180, ArcType.OPEN);
+                (mid.getyPos() - 25) * zoom,
+                50 * zoom,
+                50 * zoom,
+                (y < 0) ? angle + 180 : angle,
+                180, ArcType.OPEN);
     }
-    
+
     private void drawText(GraphicsContext gc, String label, Vertex center){
         gc.setFont(new Font(Font.getDefault().getSize() * zoom+5));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(label, center.getxPos() * zoom, (center.getyPos() + 4)* zoom);
     }
+
 }

@@ -18,7 +18,7 @@ public class Union implements Primitive{
     private Type type;
     private Element child;
     private Element parent;
-    private String cardinality = "n";
+    private String cardinality = "N";
     // 0 es hijo
     // 1 es padre
     
@@ -93,6 +93,6 @@ public class Union implements Primitive{
     
     @Override
     public int getPriority(){
-        return 1;
+        return 0;
     }
 }
