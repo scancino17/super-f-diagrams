@@ -8,9 +8,13 @@ package superfdiagrams.model.action;
 import java.util.ArrayList;
 import java.util.List;
 import superfdiagrams.FXMLDocumentController;
+import superfdiagrams.model.ComplexElement;
+import superfdiagrams.model.DiagramController;
 import superfdiagrams.model.Element;
 import superfdiagrams.model.ElementBuilder;
+import superfdiagrams.model.Finder;
 import superfdiagrams.model.MainController;
+import superfdiagrams.model.VertexGenerator;
 import superfdiagrams.model.primitive.Heritage;
 import superfdiagrams.model.primitive.Primitive;
 import superfdiagrams.model.primitive.Relationship;
@@ -51,6 +55,8 @@ public class AddEntityAction implements Action{
         }
         if(target.getPrimitive() instanceof Relationship)
             mainC.morphElement(target);
+        
+        complexUndoHandling();
     }
     
     public boolean execute(){
@@ -70,7 +76,7 @@ public class AddEntityAction implements Action{
             }
 
         addUnionsToTarget();
-        
+        complexExecuteHandling();
         return true;
     }
     
@@ -127,5 +133,33 @@ public class AddEntityAction implements Action{
             Element child2 = ((Union)relation.getChildren().get(1).getPrimitive()).getChild();
             wasUnary = child1 == child2;
         }
+    }
+    
+    public void complexExecuteHandling(){
+        ComplexElement comp = Finder.findComplexContained(target);
+        if(comp == null)
+            return;
+        
+        for(Element r : related)
+            comp.addComposite(r);
+        for(Element e : entities)
+            comp.addComposite(e);
+        
+        VertexGenerator.backwardsComplexMorphing(comp);
+        DiagramController.getController().sort();
+    }
+    
+    public void complexUndoHandling(){
+        ComplexElement comp = Finder.findComplexContained(target);
+        if (comp == null)
+            return;
+        
+        for(Element r: related)
+            comp.removeComposite(r);
+        for(Element e: entities)
+            comp.removeComposite(e);
+        
+        VertexGenerator.backwardsComplexMorphing(comp);
+        DiagramController.getController().sort();
     }
 }
