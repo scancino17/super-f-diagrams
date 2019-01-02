@@ -48,4 +48,8 @@ public class DiagramController {
     public List<Element> fetchElements(){
         return diagram.getElements();
     }
+    
+    public void sort(){
+        Collections.sort(diagram.getElements());
+    }
 }

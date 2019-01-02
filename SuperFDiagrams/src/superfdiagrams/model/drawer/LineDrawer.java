@@ -25,7 +25,7 @@ import superfdiagrams.model.primitive.Type;
 public class LineDrawer implements Drawer{
     private Type type;
     private double zoom;
-    private String cardinality  = "n";
+    private String cardinality  = "N";
 
     @Override
     public Type getType() {

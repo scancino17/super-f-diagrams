@@ -183,8 +183,8 @@ public class ElementBuilder {
         
         for(Element r : related){
             r.addPriority(2);
-            System.out.println(r);
         }
+        
         Element element = new ComplexElement();
         element.setPrimitive(agregation);
         List<Vertex> polygon = VertexGenerator.getAgregationVertexes(related);
@@ -207,7 +207,7 @@ public class ElementBuilder {
         Element line = new Element();
         
         List<Vertex> vertexes = GeometricUtilities.nearestVertexes(
-                relation.getVertexes(), entity.getCenterVertex());
+                relation.getVertexes(), entity.getVertexes());
         
         Union union = new Union();
         union.setParent(relation);
@@ -263,6 +263,7 @@ public class ElementBuilder {
         clone.setDrawer(new LineDrawer());
         clone.getDrawer().setType(union.getDrawer().getType());
         clone.setPrimitive(primitive);
+        clone.setPriority(union.getPriority());
         
         return clone;
     }

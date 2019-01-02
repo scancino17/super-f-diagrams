@@ -327,7 +327,7 @@ public class VertexGenerator {
                 for(Element unionInParent: parent.getPrimitive().getChildren()){
                     if (unionInParent.getPrimitive() instanceof Union){
                         unionInParent.setVertexes(GeometricUtilities.nearestVertexes
-                            (parent.getVertexes(), ((Union)unionInParent.getPrimitive()).getChild().getCenterVertex()));
+                            (parent.getVertexes(), ((Union)unionInParent.getPrimitive()).getChild().getVertexes()));
                     }
                 }
             }
@@ -397,11 +397,10 @@ public class VertexGenerator {
     }
     
     public static void morphContainedComplex(ComplexElement element){
-        
-        morphComplex(element);
         for(Element e : element.getComposite())
             if(e instanceof ComplexElement)
                 morphContainedComplex((ComplexElement) e);
+        morphComplex(element);
     }
     
     /**

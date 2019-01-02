@@ -78,3 +78,8 @@
         -fx-background-image: url("assets/add.png");
     -fx-background-size: stretch;
 }
+#cancelBtn
+{
+        -fx-background-image: url("assets/error.png");
+    -fx-background-size: stretch;
+}

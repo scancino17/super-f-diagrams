@@ -9,6 +9,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <AnchorPane id="AnchorPane" fx:id="root" minHeight="540.0" minWidth="978.0" prefHeight="539.0" prefWidth="978.0" stylesheets="@buttons.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="superfdiagrams.FXMLDocumentController">
@@ -39,6 +40,8 @@
                   <Text layoutX="26.0" layoutY="181.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Herencia" AnchorPane.topAnchor="168.0" />
                   <Button fx:id="agregationBtn" layoutX="17.0" layoutY="185.0" mnemonicParsing="false" onAction="#changeStatusAgregation" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="185.0" />
                   <Text layoutX="18.0" layoutY="262.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Agregación" AnchorPane.topAnchor="249.0" />
+                  <Button fx:id="cancelBtn" layoutX="96.0" layoutY="185.0" mnemonicParsing="false" onAction="#cancelButton" prefHeight="64.0" prefWidth="64.0" AnchorPane.topAnchor="185.0" />
+                  <Text layoutX="105.0" layoutY="261.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cancelar" AnchorPane.topAnchor="249.0" />
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="721.0" prefWidth="170.0">
@@ -66,12 +69,30 @@
                                     <Button fx:id="cardinalityBtn" layoutX="23.0" layoutY="134.0" mnemonicParsing="false" onAction="#editCardinality" prefHeight="48.0" prefWidth="48.0" />
                                     <Button fx:id="roleBtn" layoutX="87.0" layoutY="69.0" mnemonicParsing="false" onAction="#editAttributeType" prefHeight="48.0" prefWidth="48.0" />
                                     <Button fx:id="addBtn" layoutX="88.0" layoutY="134.0" mnemonicParsing="false" onAction="#addEntity" prefHeight="48.0" prefWidth="48.0" />
-                                    <Text layoutX="17.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Renombrar" />
-                                    <Text layoutX="100.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tipo" />
-                                    <Text layoutX="140.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dependencia" />
-                                    <Text layoutX="14.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cardinalidad" />
-                                    <Text layoutX="91.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Agregar" />
-                                    <Text layoutX="154.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eliminar" />
+                                    <Text layoutX="17.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Renombrar">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Text>
+                                    <Text layoutX="100.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tipo">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Text>
+                                    <Text layoutX="140.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dependencia">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Text>
+                                    <Text layoutX="14.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Cardinalidad">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Text>
+                                    <Text layoutX="91.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Agregar">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Text>
+                                    <Text layoutX="154.0" layoutY="195.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Eliminar">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Text>
                                  </children>
                               </AnchorPane>
                           </content>

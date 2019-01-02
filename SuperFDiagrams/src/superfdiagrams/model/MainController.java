@@ -825,7 +825,7 @@ public class MainController
         List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
         //crea un mapa con los nombres
         HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
-        boolean fhatherHeritage =  element instanceof Attribute && father.getPrimitive() instanceof Element || father.getPrimitive() instanceof Relationship  ? weakEntityCheck.get(father.hashCode()).heritageName : true;
+        boolean fatherHeritage =  element instanceof Attribute && father.getPrimitive() instanceof Element || father.getPrimitive() instanceof Relationship  ? weakEntityCheck.get(father.hashCode()).heritageName : true;
         //recorre los hijos del padre;
         for (Element ch : childs)
         {
@@ -836,11 +836,11 @@ public class MainController
                 if (_name.compareTo("S") != 0 && _name.compareTo("D") != 0) //si es distinto D o S (nombres reservados)
                 {
                     if (childsNames.containsKey(_name))
-                        fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                        fatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
                     else childsNames.put(_name, true); // si no esta todo bien y lo pone
                 }
                 if(ch.getPrimitive().getChildren().get(1).getPrimitive().getType() == ATTRIBUTE_COMPOSITE)
-                    fhatherHeritage =  fhatherHeritage & checkSonAttributeNames(ch);
+                    fatherHeritage =  fatherHeritage & checkSonAttributeNames(ch);
             }
         }
         //ahora para cada elemento de la herencia... (sin incluir el padre)
@@ -883,7 +883,7 @@ public class MainController
         if (weakEntityCheck.containsKey(father.hashCode()))
         {
             EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
-            entytemp.heritageName = fhatherHeritage;
+            entytemp.heritageName = fatherHeritage;
             weakEntityCheck.replace(father.hashCode(), entytemp);
         }
     }
@@ -892,7 +892,7 @@ public class MainController
         List<Element> childs = Finder.findRelatedUnions(this.fetchElements(), father); //hijos padres;
         //crea un mapa con los nombres
         HashMap<String, Boolean> childsNames = new HashMap<String, Boolean>();
-        boolean fhatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
+        boolean fatherHeritage =  element instanceof Attribute ? weakEntityCheck.get(father.hashCode()).heritageName : true;
         //recorre los hijos del padre;
         for (Element ch : childs)
         {
@@ -900,14 +900,16 @@ public class MainController
             {
                 String _name = ch.getPrimitive().getChildren().get(1).getPrimitive().getLabel();
                 if (childsNames.containsKey(_name))
-                    fhatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
+                    fatherHeritage = false; //si el nombre del atributo se ha agregado antes, hay un error
                 else childsNames.put(_name, true); // si no esta todo bien y lo pone
+                if(ch.getPrimitive().getChildren().get(1).getPrimitive().getType() == ATTRIBUTE_COMPOSITE)
+                    fatherHeritage =  fatherHeritage & checkSonAttributeNames(ch);
             }
         }
         if (weakEntityCheck.containsKey(father.hashCode()))
         {
             EntityCheck entytemp = weakEntityCheck.get(father.hashCode());
-            entytemp.heritageName = fhatherHeritage;
+            entytemp.heritageName = fatherHeritage;
             weakEntityCheck.replace(father.hashCode(), entytemp);
         }
     }

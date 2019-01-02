@@ -47,14 +47,14 @@ public class ComplexElement extends Element{
     public void addComposite(Element element){
         if (getComposite() != null){ 
             this.getComposite().add(element);
-            element.addPriority(this.getPriority() + 1);
+            element.addPriority(this.getPriority() + 2);
         }
     }
     
     public void removeComposite(Element element){
         if(getComposite() != null){
             this.getComposite().remove(element);
-            element.addPriority(-this.getPriority() - 1);
+            element.addPriority(-this.getPriority() - 2);
         }
         
     }
@@ -68,6 +68,10 @@ public class ComplexElement extends Element{
         super.addPriority(n);
         for(Element e : getComposite())
             e.addPriority(n);
+    }
+    
+    public void thisAddPriority(int n){
+        super.addPriority(n);
     }
     
     @Override

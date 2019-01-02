@@ -46,6 +46,7 @@ import superfdiagrams.model.primitive.Union;
 public class FXMLDocumentController implements Initializable{
     @FXML private Canvas canvas;
     @FXML private ScrollPane canvasContainer;
+    
     @FXML private Button finishRelationship;
     @FXML private Button entityButton;
     @FXML private Button relationButton;
@@ -56,9 +57,15 @@ public class FXMLDocumentController implements Initializable{
     @FXML private Button redoButton;
     @FXML private Button attributeBtn;
     @FXML private Button deleteBtn;
+    @FXML private Button applyChanges;
+    @FXML private Button roleBtn;
+    @FXML private Button dependencyBtn;
+    @FXML private Button cardinalityBtn;
+    @FXML private Button addBtn;
+    @FXML private Button cancelBtn;
+    
     @FXML private Text statusText;
     @FXML private TextField currentElementText;
-    @FXML private Button applyChanges;
     @FXML private TitledPane editElementPane;
     @FXML private TextArea errorText;
     
@@ -126,8 +133,8 @@ public class FXMLDocumentController implements Initializable{
         (MouseEvent event) -> {
             mainC.setMousePos(event.getX(), event.getY());
     };
-
     
+   
     @FXML public void CanvasClickEvent(MouseEvent mouseEvent)
     {
         mainC.setDoubleClick(mouseEvent.getButton().equals(MouseButton.PRIMARY) 
@@ -138,6 +145,7 @@ public class FXMLDocumentController implements Initializable{
         if(mainC.getCurrentElement() != null && mainC.getState() == VIEW)
         {
             showElementPane();
+            checkButtons(mainC.getCurrentElement());
             currentElementText.setText(mainC.getCurrentElement().getPrimitive().getLabel());
             mainC.getCurrentElement().setElementState(ElementState.HIGHLIGHTED);
         }
@@ -230,6 +238,12 @@ public class FXMLDocumentController implements Initializable{
             activateButton(redoButton);
         if(!redoButton.isDisabled() && mainC.isRedoEmpty())
             deactivateButton(redoButton);
+        if(mainC.getState() != VIEW)
+            activateButton(cancelBtn);
+        else
+            deactivateButton(cancelBtn);
+        if(mainC.getState() == ADDING_ENTITY)
+            deactivateButton(addBtn);
     }
     
     private void activateButton(Button button){
@@ -239,7 +253,6 @@ public class FXMLDocumentController implements Initializable{
     
     private void deactivateButton(Button button){
         button.setDisable(true);
-        //button.setVisible(false);
     }
     
     public String getElementLabel(String display){
@@ -373,7 +386,6 @@ public class FXMLDocumentController implements Initializable{
     private void changeStatusDelete(){
         if(mainC.getCurrentElement() != null)
             mainC.deleteElement(mainC.getCurrentElement());
-        //mainC.setState(DELETING_ELEMENT);
     }
 
     @FXML private void applyChanges()
@@ -487,7 +499,13 @@ public class FXMLDocumentController implements Initializable{
             dialog.setHeaderText("Editar cardinalidad");
             Optional<String> result = dialog.showAndWait();
             String selected = "0";
-            selected = result.get();
+            
+            if(result.isPresent())
+                selected = result.get();
+            
+            if (selected.equals("0"))
+                return;
+            
             int number = Integer.parseInt(Character.toString(selected.charAt(0)));
             mainC.swapCardinality(number);
         }else{
@@ -505,49 +523,6 @@ public class FXMLDocumentController implements Initializable{
         alert.showAndWait();
     }
     
-    /**
-     * Funcion fea que permite agregar cualquier entidad en el diagrama a la relacion
-     * a menos que ya la tenga
-     * @author Diego Vargas, Sebastian Cancino
-     */
-    /*public void addEntity(){
-    ArrayList<Entity> entities = new ArrayList<>();
-    ElementBuilder builder = new ElementBuilder();
-    
-    if(mainC.getCurrentElement().getPrimitive() instanceof Relationship){
-    
-    Entity chose = showDialog(entities);
-    for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
-    if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){
-    if(!comprobateEntity(chose)){
-    Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i),"N");
-    mainC.getCurrentElement().getPrimitive().getChildren().add(element);
-    mainC.morphElement(mainC.getCurrentElement());
-    mainC.getDiagram().addElement(element);
-    }else{
-    alert("Ya esta en esa relación");
-    }
-    }
-    }
-    }else if(mainC.getCurrentElement().getPrimitive() instanceof Heritage){
-    Entity chose = showDialog(entities);
-    for (int i = 0; i < mainC.getDiagram().getElements().size(); i++) {
-    if (mainC.getDiagram().getElements().get(i).getPrimitive() == chose){
-    if(!comprobateEntity(chose)){
-    Element element = builder.generateLine(mainC.getCurrentElement(),mainC.getDiagram().getElements().get(i));
-    ((LineDrawer)element.getDrawer()).setType(UNION_HERITAGE);
-    mainC.getCurrentElement().getPrimitive().getChildren().add(element);
-    mainC.morphElement(mainC.getCurrentElement());
-    mainC.getDiagram().addElement(element);
-    }else{
-    alert("Ya esta en esa Herencia");
-    }
-    }
-    }
-    }else{
-    alert("Elemento inválido");
-    }
-    }*/
     public void addEntity(){
         Element current = mainC.getCurrentElement();
         if ( current.getPrimitive() instanceof Relationship
@@ -556,21 +531,6 @@ public class FXMLDocumentController implements Initializable{
             mainC.setState(ADDING_ENTITY);
         } else
             alert("Elemento inválido.");
-    }
-    
-    /**
-     * Comprueba que la entidad que se elige no esta en la relacion
-     * @param e
-     * @return 
-     */
-    public boolean comprobateEntity(Entity e){
-        for (int i = 0; i < mainC.getCurrentElement().getPrimitive().getChildren().size(); i++) {
-            //que asco
-            if((Entity)mainC.getCurrentElement().getPrimitive().getChildren().get(i).getPrimitive().getChildren().get(0).getPrimitive() == e){
-                return true;
-            }
-        }
-        return false;
     }
     
     /**
@@ -596,5 +556,71 @@ public class FXMLDocumentController implements Initializable{
             String selected = "0";
             selected = result.get();
             return entities.get(Integer.parseInt(Character.toString(selected.charAt(0)))-1);
+    }
+    
+    private void checkButtons(Element element){
+        Primitive primitive = element.getPrimitive();
+        
+        if (primitive instanceof Heritage){
+            this.deactivateButton(applyChanges);
+            this.activateButton(addBtn);
+        } else { 
+            this.activateButton(applyChanges);
+            this.deactivateButton(addBtn);
+        }
+        
+        if (primitive instanceof Entity
+          ||primitive instanceof Relationship
+          ||primitive instanceof Heritage
+          ||checkValidAttribute(element))
+            this.activateButton(roleBtn);
+        else
+            this.deactivateButton(roleBtn);
+        
+        if(element instanceof ComplexElement)
+            this.deactivateButton(roleBtn);
+        
+        if (primitive instanceof Relationship){
+            this.activateButton(dependencyBtn);
+            this.activateButton(cardinalityBtn);
+            this.activateButton(addBtn);
+        } else {
+            this.deactivateButton(dependencyBtn);
+            this.deactivateButton(cardinalityBtn);
+            this.deactivateButton(addBtn);
+        }
+    }
+    
+    @FXML
+    private void cancelButton(){
+        mainC.finishAction();
+    }
+    
+    private boolean checkValidAttribute(Element attr){
+        Primitive p = attr.getPrimitive();
+        if(!(p instanceof Attribute)){
+            return false;
+        }
+        if(p.getType() != ATTRIBUTE_COMPOSITE &&
+           p.getType() != ATTRIBUTE_GENERIC){
+            return true;
+        }
+        else if (p.getType() == ATTRIBUTE_COMPOSITE){
+            if(!Finder.findRelatedAttributes(attr).isEmpty()){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
+        else if (p.getType() == ATTRIBUTE_GENERIC){
+            Primitive child = ((Union)p.getChildren().get(0).getPrimitive()).getChild().getPrimitive();
+            if(child instanceof Attribute){
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 }

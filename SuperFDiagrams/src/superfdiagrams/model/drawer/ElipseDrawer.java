@@ -85,7 +85,7 @@ public class ElipseDrawer implements Drawer{
         for (Vertex v : vextexes)
         {
             gc.setStroke(Color.RED);
-            gc.setLineWidth(5);
+            gc.setLineWidth(4);
             gc.strokeLine(v.getxPos() * zoom, v.getyPos()* zoom , v.getxPos() * zoom, v.getyPos() * zoom);
         }
         gc.strokeLine(center.getxPos() * zoom,
@@ -97,7 +97,7 @@ public class ElipseDrawer implements Drawer{
     
     /**
      * Funcion que crea un atributo derivado, deja un espacio vacio despues 
-     * de dibujar 5 veces las lineas.
+     * de dibujar 4 veces las lineas.
      * @param gc
      * @param vertexes
      * @param name
@@ -171,8 +171,8 @@ public class ElipseDrawer implements Drawer{
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         gc.setTextAlign(TextAlignment.CENTER);
         this.drawText(gc, name, center);
-        gc.strokeLine(center.getxPos() * zoom - name.length() * 5 * zoom, center.getyPos() * zoom + 5 * zoom,
-                center.getxPos() * zoom + name.length() * 5 * zoom, center.getyPos() * zoom + 5 *zoom);
+        gc.strokeLine(center.getxPos() * zoom - name.length() * 4 * zoom, center.getyPos() * zoom + 4 * zoom,
+                center.getxPos() * zoom + name.length() * 4 * zoom, center.getyPos() * zoom + 4 *zoom);
     }
     
     private void multivaluateDraw(GraphicsContext gc, List<Vertex> vertexes, String name, ElementState elementState){
@@ -226,12 +226,12 @@ public class ElipseDrawer implements Drawer{
         
         Vertex center = GeometricUtilities.getCenterOfMass(vertexes);
         this.drawText(gc, name, center);
-        double inicio = center.getxPos() * zoom - name.length() * 5 * zoom;
+        double inicio = center.getxPos() * zoom - name.length() * 4 * zoom;
         
         for (int i = 0; i < name.length(); i++) {
-            double fin = inicio + 5 * zoom;
-            gc.strokeLine(inicio, center.getyPos() * zoom + 5 * zoom,
-                fin, center.getyPos() * zoom + 5 * zoom);
+            double fin = inicio + 4 * zoom;
+            gc.strokeLine(inicio, center.getyPos() * zoom + 4 * zoom,
+                fin, center.getyPos() * zoom + 4 * zoom);
             inicio = inicio + 10 * zoom;
         }
     }
